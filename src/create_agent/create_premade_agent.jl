@@ -9,9 +9,9 @@ function premade_agent(model_name::String, params::Dict = Dict(); verbose::Bool 
 
     #A list of all the included premade models
     premade_models = Dict(
-        "hgf_gaussian_action" => premade_hgf_gaussian,                           #A gaussian action based on an hgf
-        "hgf_binary_softmax_action" => premade_hgf_binary_softmax,               #A binary softmax action based on an hgf
-        "hgf_unit_square_sigmoid_action" => premade_hgf_unit_square_sigmoid,     #A binary unit square sigmoid action based on an hgf
+        "hgf_gaussian_action" => "premade_hgf_gaussian",                           #A gaussian action based on an hgf
+        "hgf_binary_softmax_action" => "premade_hgf_binary_softmax",               #A binary softmax action based on an hgf
+        "hgf_unit_square_sigmoid_action" => "premade_hgf_unit_square_sigmoid",     #A binary unit square sigmoid action based on an hgf
     )
 
     #Check that the specified model is in the list of keys
