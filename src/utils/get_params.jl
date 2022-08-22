@@ -8,7 +8,7 @@ function get_params(agent::AgentStruct, target_param::Union{String,Tuple})
         param = agent.params[target_param]
     else
         #Otherwise look in the substruct
-        param = get_params(agent.substruct, target_param)
+        param = ActionModels.get_params(agent.substruct, target_param)
     end
 
     return param
@@ -34,7 +34,7 @@ function get_params(agent::AgentStruct, target_params::Vector)
     #Go through each state
     for param_name in target_params
         #Get them with get_history, and add to the tuple
-        params[param_name] = get_params(agent, param_name)
+        params[param_name] = ActionModels.get_params(agent, param_name)
     end
 
     return params
@@ -50,10 +50,10 @@ function get_params(agent::AgentStruct)
     target_params = collect(keys(agent.params))
 
     #Get the agent's parameters
-    params = get_params(agent, target_params)
+    params = ActionModels.get_params(agent, target_params)
 
     #Get parameters from the substruct
-    substruct_params = get_params(agent.substruct)
+    substruct_params = ActionModels.get_params(agent.substruct)
 
     #Merge substruct parameters and agent parameters
     params = merge(params, substruct_params)

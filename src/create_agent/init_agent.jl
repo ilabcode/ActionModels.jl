@@ -9,7 +9,7 @@ function init_agent(
 )
 
     #Create action model struct
-    agent = HGF.AgentStruct(
+    agent = AgentStruct(
         action_model = action_model,
         substruct = substruct,
         params = params,
@@ -44,7 +44,7 @@ function init_agent(
 )
 
     #Create action model struct
-    agent = HGF.AgentStruct(
+    agent = AgentStruct(
         action_model = multiple_actions,
         substruct = substruct,
         params = params,

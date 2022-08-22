@@ -17,7 +17,7 @@ function predictive_simulation_plot(
 
     ### Setup ###
     #Save old params for resetting the agent later
-    old_params = get_params(agent)
+    old_params = ActionModels.get_params(agent)
 
     #Set the fixed parameters to the agent
     set_params!(agent, fixed_params)
@@ -31,7 +31,7 @@ function predictive_simulation_plot(
     #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
     if any(
         key -> !(key in keys(param_distributions)) && !(key in keys(fixed_params)),
-        keys(get_params(agent)),
+        keys(old_params),
     )
         #Unless warnings are hidden
         if !hide_warnings

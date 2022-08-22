@@ -3,12 +3,22 @@ module ActionModels
 #Load packages
 using Turing, Distributions, RecipesBase, Logging
 
+#Export functions
+export AgentStruct, ParamError
+export init_agent, premade_agent, warn_premade_defaults, multiple_actions
+export fit_model
+export parameter_distribution_plot, predictive_simulation_plot, trajectory_plot, trajectory_plot!
+export get_history, get_params, get_states, set_params!, reset!
+export give_inputs!
+export get_posteriors
+
 #Types for agents and errors
 include("structs.jl")
 
 #Functions for creating agents
 include("create_agent/init_agent.jl")
 include("create_agent/create_premade_agent.jl")
+include("create_agent/multiple_actions.jl")
 
 #Functions for fitting agents to data
 include("fitting/fit_model.jl")

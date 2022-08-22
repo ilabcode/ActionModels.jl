@@ -23,7 +23,7 @@ function fit_model(
 )
 
     #Store old parameters 
-    old_params = get_params(agent)
+    old_params = ActionModels.get_params(agent)
 
     ### Run forward once as testrun ###
     #Set fixed parameters

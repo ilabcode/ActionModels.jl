@@ -1,3 +1,8 @@
+#Create global dictionary for storing functions that create premade agents
+"""
+"""
+global const premade_agents = Dict{String, Function}()
+
 """
     function premade_agent(
         model_name::String, params_list::NamedTuple = (;)
@@ -7,22 +12,15 @@ Function for making a premade agent.
 """
 function premade_agent(model_name::String, params::Dict = Dict(); verbose::Bool = true)
 
-    #A list of all the included premade models
-    premade_models = Dict(
-        "hgf_gaussian_action" => "premade_hgf_gaussian",                           #A gaussian action based on an hgf
-        "hgf_binary_softmax_action" => "premade_hgf_binary_softmax",               #A binary softmax action based on an hgf
-        "hgf_unit_square_sigmoid_action" => "premade_hgf_unit_square_sigmoid",     #A binary unit square sigmoid action based on an hgf
-    )
-
     #Check that the specified model is in the list of keys
-    if model_name in keys(premade_models)
+    if model_name in keys(premade_agents)
         #Create the specified model
-        return premade_models[model_name](params; verbose = verbose)
+        return premade_agents[model_name](params; verbose = verbose)
 
         #If the user asked for help
     elseif model_name == "help"
         #Return the list of keys
-        print(keys(premade_models))
+        print(keys(premade_agents))
         return nothing
 
         #If the model was misspecified
