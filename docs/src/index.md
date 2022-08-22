@@ -1,10 +1,10 @@
 ```@meta
-CurrentModule = HGF
+CurrentModule = ActionModels
 ```
 
 # HGF
 
-Documentation for [HGF](https://github.com/ilabcode/HGF.jl).
+Documentation for [ActionModels](https://github.com/ilabcode/ActionModels.jl).
 
 
 ```@contents
@@ -18,5 +18,5 @@ Documentation for [HGF](https://github.com/ilabcode/HGF.jl).
 ```
 
 ```@autodocs
-Modules = [HGF]
+Modules = [ActionModels]
 ```

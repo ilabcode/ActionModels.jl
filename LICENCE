@@ -1,4 +1,4 @@
-HGF.jl - a Julia package for generalized hierarchical Gaussian filtering
+ActionModels.jl - a Julia package for computational behavioral modeling
 Copyright (C) 2022 Aarhus University, University of Zurich, ETH Zurich
 
 This package is free software: you can redistribute it and/or modify

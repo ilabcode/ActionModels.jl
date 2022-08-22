@@ -1,4 +1,4 @@
-using HGF
+using ActionModels
 using Documenter
 using Literate
 
@@ -14,21 +14,21 @@ for filename in readdir("tutorials")
 end
 
 #Set documenter metadata
-DocMeta.setdocmeta!(HGF, :DocTestSetup, :(using HGF); recursive = true)
+DocMeta.setdocmeta!(ActionModels, :DocTestSetup, :(using ActionModels); recursive = true)
 
 #Create documentation
 makedocs(;
-    modules = [HGF],
+    modules = [ActionModels],
     authors = "Peter Thestrup Waade ptw@cas.au.dk, Jacopo Comoglio jacopo.comoglio@gmail.com, Christoph Mathys chmathys@cas.au.dk
                   and contributors",
-    repo = "https://github.com/ilabcode/HGF.jl/blob/{commit}{path}#{line}",
+    repo = "https://github.com/ilabcode/ActionModels.jl/blob/{commit}{path}#{line}",
     sitename = "HGF.jl",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
-        canonical = "https://ilabcode.github.io/HGF.jl",
+        canonical = "https://ilabcode.github.io/ActionModels.jl",
         assets = String[],
     ),
     pages = ["Home" => "index.md"],
 )
 
-deploydocs(; repo = "github.com/ilabcode/HGF.jl", devbranch = "dev")
+deploydocs(; repo = "github.com/ilabcode/ActionModels.jl", devbranch = "dev")
