@@ -14,8 +14,24 @@ function premade_agent(model_name::String, params::Dict = Dict(); verbose::Bool 
 
     #Check that the specified model is in the list of keys
     if model_name in keys(premade_agents)
-        #Create the specified model
-        return premade_agents[model_name](params; verbose = verbose)
+
+        #If warnings are not hidden
+        if verbose
+            #Create the specified model
+            agent = premade_agents[model_name](params)
+
+        else
+            #Create a logger which ignores messages below error level
+            silent_logger = Logging.SimpleLogger(Logging.Error)
+            #Use that logger
+            agent = Logging.with_logger(silent_logger) do
+                #Create the specified model
+                premade_agents[model_name](params)
+            end
+        end
+
+        #Return the agent
+        return agent
 
         #If the user asked for help
     elseif model_name == "help"

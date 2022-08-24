@@ -7,7 +7,7 @@ function predictive_simulation_plot(
     target_state::Union{String,Tuple};
     fixed_params::Dict = Dict(),
     n_simulations::Int = 1000,
-    hide_warnings::Bool = false,
+    verbose::Bool = true,
     median_color::Union{String,Symbol} = :red,
     title::String = "Sampled trajectories",
     label::Union{String,Tuple} = target_state,
@@ -28,15 +28,15 @@ function predictive_simulation_plot(
         param_distributions = get_posteriors(param_distributions, type = "distribution")
     end
 
-    #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
-    if any(
-        key -> !(key in keys(param_distributions)) && !(key in keys(fixed_params)),
-        keys(old_params),
-    )
-        #Unless warnings are hidden
-        if !hide_warnings
+    #Unless warnings are hidden
+    if verbose
+        #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
+        if any(
+            key -> !(key in keys(param_distributions)) && !(key in keys(fixed_params)),
+            keys(old_params),
+        )
             #Make a warning
-            @warn "the agent has parameters which are not specified in the fixed or sampled parameters. For these parameters, the agent's current parameter values are used"
+            @warn "the agent has parameters which are not specified in the fixed or sampled parameters. The agent's current parameter values are used instead"
         end
     end
 
@@ -95,7 +95,7 @@ function predictive_simulation_plot(
         catch e
             #If the error is a user-specified Parameter Error
             if e isa ParamError
-                if !hide_warnings
+                if verbose
                     #Warn the user
                     @warn "A set of sampled parameters was rejected. If this occurs too often, try different parameter distributions"
                 end

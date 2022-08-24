@@ -1,12 +1,14 @@
 """""
 function fit_model(
     agent::AgentStruct,
-    inputs::Vector{Float64},
-    responses::Union{Vector{Float64},Missing},
-    params_priors_list = (;)::NamedTuple{Distribution},
-    fixed_params_list = (;)::NamedTuple{String,Real},
+    inputs::Array,
+    responses::Vector,
+    param_priors::Dict,
+    fixed_params::Dict = Dict();
     sampler = NUTS(),
-    iterations = 1000,
+    n_iterations = 1000,
+    n_chains = 1,
+    verbose = true,
 )
 Function to fit an agent parameters.
 """
@@ -19,11 +21,23 @@ function fit_model(
     sampler = NUTS(),
     n_iterations = 1000,
     n_chains = 1,
-    hide_warnings = false,
+    verbose = true,
 )
 
     #Store old parameters 
-    old_params = ActionModels.get_params(agent)
+    old_params = get_params(agent)
+
+    #Unless warnings are hidden
+    if verbose
+        #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
+        if any(
+            key -> !(key in keys(param_priors)) && !(key in keys(fixed_params)),
+            keys(old_params),
+        )
+            #Make a warning
+            @warn "the agent has parameters which are not specified in the fixed or sampled parameters. The agent's current parameter values are used as fixed parameters"
+        end
+    end
 
     ### Run forward once as testrun ###
     #Set fixed parameters
@@ -97,7 +111,7 @@ function fit_model(
     end
 
     #If warnings are to be ignored
-    if hide_warnings
+    if !verbose
         #Create a logger which ignores messages below error level
         sampling_logger = Logging.SimpleLogger(Logging.Error)
         #Use that logger
