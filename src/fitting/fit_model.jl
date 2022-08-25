@@ -14,19 +14,23 @@ Function to fit an agent parameters.
 """
 function fit_model(
     agent::AgentStruct,
-    inputs::Vector,
-    actions::Vector,
+    inputs::Array,
+    actions::Array,
     param_priors::Dict,
     fixed_params::Dict = Dict();
-    skip_missing_actions = true,
+    impute_missing_actions = false,
     sampler = NUTS(),
     n_iterations = 1000,
     n_chains = 1,
     verbose = true,
 )
     #If there are different amounts of inputs and actions
-    if size(inputs,1) != size(actions,1)
-        throw(ArgumentError("inputs and actions differs in their first dimension. This is not supported"))
+    if size(inputs, 1) != size(actions, 1)
+        throw(
+            ArgumentError(
+                "inputs and actions differs in their first dimension. This is not supported",
+            ),
+        )
     end
 
     #Store old parameters 
@@ -44,6 +48,34 @@ function fit_model(
         end
     end
 
+
+    ### Run forward once as testrun ###
+    #Initialize dictionary for populating with median parameter values
+    sampled_params = Dict()
+    #Go through each of the agent's parameters
+    for (param_key, param_prior) in param_priors
+        #Add the median value to the tuple
+        sampled_params[param_key] = median(param_prior)
+    end
+    #Set parameters in agent
+    set_params!(agent, sampled_params)
+    #Set fixed parameters
+    set_params!(agent, fixed_params)
+    #Reset the agent
+    reset!(agent)
+    #Run it forwards
+    test_actions = give_inputs!(agent, inputs)
+
+    #If the model returns a different amount of actions from what was inputted
+    if size(test_actions) != size(actions)
+        throw(
+            ArgumentError(
+                "The passed actions is a different shape from what the model returns",
+            ),
+        )
+    end
+
+
     ### Fit model ###
     #Initialize dictionary for storing sampled parameters
     fitted_params = Dict()
@@ -60,37 +92,45 @@ function fit_model(
         set_params!(agent, fitted_params)
         reset!(agent)
 
-        #For each input
-        for (input_indx, input) in enumerate(inputs)
+        #If the input is a single vector
+        if inputs isa Vector
+            #Prepare to through one value at a time
+            iterator = enumerate(inputs)
+        else
+            #For an array, go through each row
+            iterator = enumerate(eachrow(inputs))
+        end
 
+        #For each timestep and input
+        for (timestep, input) in iterator
             #If no errors occur
             try
+
                 #Get the action probability distribution from the action model
                 action_probability_distribution = agent.action_model(agent, input)
 
-                #If only a single action probability distribution was returned
-                if action_probability_distribution isa Distribution
+                #If only a single action is made at each timestep
+                if actions isa Vector
 
-                    #If the action isn't missing, or if missing actions arent' skipped
-                    if !ismissing(actions[input_indx]) || !skip_missing_actions
+                    #If the action isn't missing, or if missing actions are to be imputed
+                    if !ismissing(actions[timestep]) || impute_missing_actions
                         #Pass it to Turing
-                        actions[input_indx] ~ action_probability_distribution
+                        actions[timestep] ~ action_probability_distribution
                     end
 
-                    #If a list of action probabilities were returned
-                elseif action_probability_distribution isa Vector{<:Distribution}
-                    #Go throgh each returned distribution
-                    for (response_indx, distribution) in
+                    #If multiple actions are made at each timestep
+                elseif actions isa Array
+
+                    #Go throgh each action distribution
+                    for (action_indx, distribution) in
                         enumerate(action_probability_distribution)
-                        #Add it one at a time
-                        actions[input_indx, response_indx] ~ distribution
+
+                        #If the action isn't missing, or if missing actions are to be imputed
+                        if !ismissing(actions[timestep, action_indx]) || impute_missing_actions
+                            #Pass it to Turing
+                            actions[timestep, action_indx] ~ distribution
+                        end
                     end
-                else
-                    throw(
-                        ArgumentError(
-                            "The action model does not return a Distribution, nor a Vector{<:Distributions}. This is not supported",
-                        ),
-                    )
                 end
             catch e
                 #If the custom errortype ParamError occurs
