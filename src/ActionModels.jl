@@ -11,6 +11,10 @@ export parameter_distribution_plot, predictive_simulation_plot, trajectory_plot,
 export get_history, get_states, get_params, set_params!, reset!, give_inputs!
 export get_posteriors
 
+function __init__()
+    premade_agents["premade_rw_softmax"] = premade_rw_softmax
+end
+
 #Types for agents and errors
 include("structs.jl")
 
