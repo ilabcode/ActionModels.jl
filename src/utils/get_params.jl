@@ -1,7 +1,7 @@
 ### Functions for getting a single param ###
 """
 """
-function get_params(agent::AgentStruct, target_param::Union{String,Tuple})
+function Turing.get_params(agent::AgentStruct, target_param::Union{String,Tuple})
     #If the state is in the agent's parameters
     if target_param in keys(agent.params)
         #Extract it
@@ -16,7 +16,7 @@ end
 
 """
 """
-function get_params(substruct::Nothing, target_param::Union{String,Tuple})
+function Turing.get_params(substruct::Nothing, target_param::Union{String,Tuple})
     throw(
         ArgumentError("The specified parameter $target_param does not exist in the agent"),
     )
@@ -27,7 +27,7 @@ end
 ### Functions for getting multiple parameters ###
 """
 """
-function get_params(agent::AgentStruct, target_params::Vector)
+function Turing.get_params(agent::AgentStruct, target_params::Vector)
     #Initialize dict
     params = Dict()
 
@@ -44,7 +44,7 @@ end
 ### Function for getting all parameters ###
 """
 """
-function get_params(agent::AgentStruct)
+function Turing.get_params(agent::AgentStruct)
 
     #Collect names of all agent parameters
     target_params = collect(keys(agent.params))
@@ -62,7 +62,7 @@ function get_params(agent::AgentStruct)
 end
 
 
-function get_params(substruct::Nothing)
+function Turing.get_params(substruct::Nothing)
     #If the substruct is empty, return an empty list
     return Dict()
 end

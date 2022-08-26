@@ -8,8 +8,7 @@ export AgentStruct, ParamError
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions
 export fit_model
 export parameter_distribution_plot, predictive_simulation_plot, trajectory_plot, trajectory_plot!
-export get_history, get_params, get_states, set_params!, reset!
-export give_inputs!
+export get_history, get_states, get_params, set_params!, reset!, give_inputs!
 export get_posteriors
 
 #Types for agents and errors
