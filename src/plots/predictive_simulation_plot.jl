@@ -6,7 +6,7 @@ function predictive_simulation_plot(
     inputs::Vector,
     target_state::Union{String,Tuple};
     fixed_params::Dict = Dict(),
-    n_simulations::Int = 1000,
+    n_simulations::Int = 100,
     verbose::Bool = true,
     median_color::Union{String,Symbol} = :red,
     title::String = "Sampled trajectories",

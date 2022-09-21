@@ -10,7 +10,7 @@ function fit_model(
     n_chains = 1,
     verbose = true,
 )
-Function to fit an agent parameters.
+Function to fit an agent's parameters.
 """
 function fit_model(
     agent::AgentStruct,
