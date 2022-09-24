@@ -44,4 +44,5 @@ include("utils/reset.jl")
 include("utils/set_params.jl")
 include("utils/warn_premade_defaults.jl")
 include("utils/get_posteriors.jl")
+include("utils/pretty_printing.jl")
 end
