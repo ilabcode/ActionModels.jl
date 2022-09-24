@@ -19,5 +19,5 @@ function premade_rw_softmax(specs::Dict)
     states = Dict("value" => specs["initial_value"], "action_probability" => missing)
     settings = Dict()
 
-    return init_agent(action_model, nothing, params, states, settings)
+    return init_agent(action_model, params = params, states = states, settings = settings)
 end

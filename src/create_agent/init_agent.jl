@@ -1,7 +1,7 @@
 """
 """
 function init_agent(
-    action_model::Function,
+    action_model::Function;
     substruct::Any = nothing,
     params::Dict = Dict(),
     states::Dict = Dict(),
@@ -36,7 +36,7 @@ end
 """
 """
 function init_agent(
-    action_model::Vector{Function},
+    action_model::Vector{Function};
     substruct::Any = nothing,
     params::Dict = Dict(),
     states::Dict = Dict(),
