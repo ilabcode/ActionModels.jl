@@ -2,8 +2,8 @@ function Base.show(io::IO, agent::AgentStruct)
 
     ##Get information from agent struct
     action_model_name = string(agent.action_model)
-    n_params = length(agent.params)
-    n_states = length(agent.states)
+    n_params = length(get_params(agent)) 
+    n_states = length(get_states(agent))
     n_settings = length(agent.settings)
     n_observations = length(agent.history["action"])
 
