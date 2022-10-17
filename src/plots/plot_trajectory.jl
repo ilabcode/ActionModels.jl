@@ -1,6 +1,6 @@
 """
 """
-function plot_trajectory(agent::AgentStruct, target_state::Union{String,Tuple}; kwargs...)
+function plot_trajectory(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
     #If the target state is in the agent's history
     if target_state in keys(agent.history)
@@ -15,7 +15,7 @@ end
 
 """
 """
-function plot_trajectory!(agent::AgentStruct, target_state::Union{String,Tuple}; kwargs...)
+function plot_trajectory!(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
     #If the target state is in the agent's history
     if target_state in keys(agent.history)

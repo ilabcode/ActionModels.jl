@@ -1,4 +1,4 @@
-function binary_rw_softmax(agent::AgentStruct, input)
+function binary_rw_softmax(agent::Agent, input)
 
     #Read in parameters
     learning_rate = agent.params["learning_rate"]

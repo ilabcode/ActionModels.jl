@@ -2,7 +2,7 @@
 """
 function plot_predictive_simulation(
     param_distributions::Union{Chains,Dict},
-    agent::AgentStruct,
+    agent::Agent,
     inputs::Vector,
     target_state::Union{String,Tuple};
     fixed_params::Dict = Dict(),

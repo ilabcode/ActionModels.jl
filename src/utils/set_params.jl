@@ -1,7 +1,7 @@
 ###Function for setting a single parameter ###
 """
 """
-function set_params!(agent::AgentStruct, target_param::Union{String,Tuple}, param_value::Any)
+function set_params!(agent::Agent, target_param::Union{String,Tuple}, param_value::Any)
 
     #If the parameter exists in the agent
     if target_param in keys(agent.params)
@@ -24,7 +24,7 @@ end
 ### Function for setting multiple parameters
 """
 """
-function set_params!(agent::AgentStruct, params::Dict)
+function set_params!(agent::Agent, params::Dict)
 
     #For each parameter to set
     for (param_key, param_value) in params

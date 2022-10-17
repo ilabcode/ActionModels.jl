@@ -1,6 +1,6 @@
 """
 """
-Base.@kwdef mutable struct AgentStruct
+Base.@kwdef mutable struct Agent
     action_model::Function
     substruct::Any
     params::Dict{String,Any} = Dict()

@@ -1,7 +1,7 @@
 ### Functions for getting a single param ###
 """
 """
-function Turing.get_params(agent::AgentStruct, target_param::Union{String,Tuple})
+function Turing.get_params(agent::Agent, target_param::Union{String,Tuple})
     #If the state is in the agent's parameters
     if target_param in keys(agent.params)
         #Extract it
@@ -27,7 +27,7 @@ end
 ### Functions for getting multiple parameters ###
 """
 """
-function Turing.get_params(agent::AgentStruct, target_params::Vector)
+function Turing.get_params(agent::Agent, target_params::Vector)
     #Initialize dict
     params = Dict()
 
@@ -44,7 +44,7 @@ end
 ### Function for getting all parameters ###
 """
 """
-function Turing.get_params(agent::AgentStruct)
+function Turing.get_params(agent::Agent)
 
     #Collect names of all agent parameters
     target_params = collect(keys(agent.params))

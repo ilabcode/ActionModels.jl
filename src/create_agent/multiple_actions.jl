@@ -1,6 +1,6 @@
 """
 """
-function multiple_actions(agent::AgentStruct, input::Any)
+function multiple_actions(agent::Agent, input::Any)
 
     #Extract vector of action models
     action_models = agent.settings["action_models"]

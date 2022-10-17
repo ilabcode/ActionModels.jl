@@ -1,6 +1,6 @@
 """""
 function fit_model(
-    agent::AgentStruct,
+    agent::Agent,
     inputs::Array,
     actions::Vector,
     param_priors::Dict,
@@ -13,7 +13,7 @@ function fit_model(
 Function to fit an agent's parameters.
 """
 function fit_model(
-    agent::AgentStruct,
+    agent::Agent,
     inputs::Array,
     actions::Array,
     param_priors::Dict,

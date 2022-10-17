@@ -1,4 +1,4 @@
-function Base.show(io::IO, agent::AgentStruct)
+function Base.show(io::IO, agent::Agent)
 
     ##Get information from agent struct
     action_model_name = string(agent.action_model)

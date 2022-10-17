@@ -1,6 +1,6 @@
 """
 """
-function reset!(agent::AgentStruct)
+function reset!(agent::Agent)
 
     #For each of the agent's states
     for state_name in keys(agent.states)
