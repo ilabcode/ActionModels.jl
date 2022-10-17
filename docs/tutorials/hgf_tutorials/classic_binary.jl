@@ -28,7 +28,6 @@ hgf_params = Dict(
     ("x3", "evolution_rate") => -6.0,
     ("x3", "initial_mean") => 1,
     ("x3", "initial_precision") => 1,
-    ("u", "x1", "value_coupling") => 1.0,
     ("x1", "x2", "value_coupling") => 1.0,
     ("x2", "x3", "volatility_coupling") => 1.0,
 );
@@ -57,7 +56,6 @@ fixed_params = Dict(
     ("x2", "initial_precision") => 1,
     ("x3", "initial_mean") => 1,
     ("x3", "initial_precision") => 1,
-    ("u", "x1", "value_coupling") => 1.0,
     ("x1", "x2", "value_coupling") => 1.0,
     ("x2", "x3", "volatility_coupling") => 1.0,
     ("x2", "evolution_rate") => -3.0,
