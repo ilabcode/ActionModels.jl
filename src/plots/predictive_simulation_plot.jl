@@ -94,7 +94,7 @@ function predictive_simulation_plot(
             #If there is an error
         catch e
             #If the error is a user-specified Parameter Error
-            if e isa ParamError
+            if e isa RejectSampleError
                 if verbose
                     #Warn the user
                     @warn "A set of sampled parameters was rejected. If this occurs too often, try different parameter distributions"
@@ -129,9 +129,9 @@ function predictive_simulation_plot(
         #If there is an error
     catch e
         #If it is a PaeramError
-        if e isa ParamError
+        if e isa RejectSampleError
             throw(
-                ParamError(
+                RejectSampleError(
                     "Evolving the agent with the medians of the parameter distributions resulted in numerical errors. Try different parameter distributions",
                 ),
             )
