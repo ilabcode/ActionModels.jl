@@ -4,7 +4,7 @@ module ActionModels
 using Turing, Distributions, RecipesBase, Logging
 
 #Export functions
-export AgentStruct, ParamError
+export AgentStruct, RejectSampleError
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions
 export fit_model
 export parameter_distribution_plot, predictive_simulation_plot, trajectory_plot, trajectory_plot!
