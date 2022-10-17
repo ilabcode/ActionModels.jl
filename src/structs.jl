@@ -13,6 +13,6 @@ end
 """
 Custom error type which will result in rejection of a sample
 """
-struct RejectSampleError <: Exception
+struct RejectParameters <: Exception
     errortext::Any
 end

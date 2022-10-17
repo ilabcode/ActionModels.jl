@@ -26,12 +26,6 @@ git-tree-sha1 = "5c0b629df8a5566a06f5fef5100b53ea56e465a0"
 uuid = "1520ce14-60c1-5f80-bbc7-55ef81b5835c"
 version = "0.4.2"
 
-[[deps.ActionModels]]
-deps = ["Distributions", "Logging", "RecipesBase", "Turing"]
-git-tree-sha1 = "226691ade15b9ecb21e2f214dea3ddfc9629ba01"
-uuid = "320cf53b-cc3b-4b34-9a10-0ecb113566a3"
-version = "0.1.1"
-
 [[deps.Adapt]]
 deps = ["LinearAlgebra"]
 git-tree-sha1 = "195c5505521008abea5aee4f96930717958eac6f"
@@ -539,12 +533,6 @@ deps = ["Artifacts", "Cairo_jll", "Fontconfig_jll", "FreeType2_jll", "Glib_jll",
 git-tree-sha1 = "129acf094d168394e80ee1dc4bc06ec835e510a3"
 uuid = "2e76f6c2-a576-52d4-95c1-20adfe4de566"
 version = "2.8.1+1"
-
-[[deps.HierarchicalGaussianFiltering]]
-deps = ["ActionModels", "Distributions", "Logging", "RecipesBase", "Turing"]
-git-tree-sha1 = "2285b8ee3f13b32702703cd9626c4c80b4419da1"
-uuid = "63d42c3e-681c-42be-892f-a47f35336a79"
-version = "0.1.1"
 
 [[deps.HypergeometricFunctions]]
 deps = ["DualNumbers", "LinearAlgebra", "OpenLibm_jll", "SpecialFunctions", "Test"]

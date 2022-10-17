@@ -133,8 +133,8 @@ function fit_model(
                     end
                 end
             catch e
-                #If the custom errortype RejectSampleError occurs
-                if e isa RejectSampleError
+                #If the custom errortype RejectParameters occurs
+                if e isa RejectParameters
                     #Make Turing reject the sample
                     Turing.@addlogprob!(-Inf)
                 else

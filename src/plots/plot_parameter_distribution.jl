@@ -1,7 +1,7 @@
-@userplot Parameter_Distribution_Plot
+@userplot Plot_Parameter_Distribution
 
 @recipe function f(
-    pl::Parameter_Distribution_Plot;
+    pl::Plot_Parameter_Distribution;
     subplot_titles = Dict(),
     show_distributions = true,
     show_intervals = true,

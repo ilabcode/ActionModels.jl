@@ -1,6 +1,6 @@
 """
 """
-function predictive_simulation_plot(
+function plot_predictive_simulation(
     param_distributions::Union{Chains,Dict},
     agent::AgentStruct,
     inputs::Vector,
@@ -67,7 +67,7 @@ function predictive_simulation_plot(
             #For the first simulation
             if simulation_number == 1
                 #Initialize the trajectory plot
-                trajectory_plot(
+                plot_trajectory(
                     agent,
                     target_state;
                     color = :gray,
@@ -78,7 +78,7 @@ function predictive_simulation_plot(
                 #For other simulations
             else
                 #Add trajectories to the same plot
-                trajectory_plot!(
+                plot_trajectory!(
                     agent,
                     target_state;
                     color = :gray,
@@ -94,7 +94,7 @@ function predictive_simulation_plot(
             #If there is an error
         catch e
             #If the error is a user-specified Parameter Error
-            if e isa RejectSampleError
+            if e isa RejectParameters
                 if verbose
                     #Warn the user
                     @warn "A set of sampled parameters was rejected. If this occurs too often, try different parameter distributions"
@@ -129,9 +129,9 @@ function predictive_simulation_plot(
         #If there is an error
     catch e
         #If it is a PaeramError
-        if e isa RejectSampleError
+        if e isa RejectParameters
             throw(
-                RejectSampleError(
+                RejectParameters(
                     "Evolving the agent with the medians of the parameter distributions resulted in numerical errors. Try different parameter distributions",
                 ),
             )
@@ -147,7 +147,7 @@ function predictive_simulation_plot(
     end
 
     #Plot the median
-    plot = trajectory_plot!(
+    plot = plot_trajectory!(
         agent,
         target_state;
         color = median_color,

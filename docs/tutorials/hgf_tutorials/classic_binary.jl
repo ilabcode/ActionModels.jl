@@ -42,11 +42,11 @@ agent = premade_agent("hgf_unit_square_sigmoid_action", hgf, agent_params, verbo
 actions = give_inputs!(agent, inputs);
 
 # Plot the trajectory of the agent
-trajectory_plot(agent, ("u", "input_value"))
-trajectory_plot!(agent, ("x1", "prediction"))
+plot_trajectory(agent, ("u", "input_value"))
+plot_trajectory!(agent, ("x1", "prediction"))
 
-trajectory_plot(agent, ("x2", "posterior"))
-trajectory_plot(agent, ("x3", "posterior"))
+plot_trajectory(agent, ("x2", "posterior"))
+plot_trajectory(agent, ("x3", "posterior"))
 
 # Set fixed parameters
 fixed_params = Dict(
@@ -68,7 +68,7 @@ fixed_params = Dict(
 param_priors = Dict(("x2", "evolution_rate") => Normal(-3.0, 0.5));
 
 # Prior predictive plot
-predictive_simulation_plot(param_priors, agent, inputs, ("x1", "prediction_mean"), n_simulations = 3)
+plot_predictive_simulation(param_priors, agent, inputs, ("x1", "prediction_mean"), n_simulations = 3)
 
 # Get the actions from the MATLAB tutorial
 actions = CSV.read(data_path * "classic_binary_actions.csv", DataFrame)[!, 1];
@@ -88,7 +88,7 @@ chain = fit_model(
 plot(chain)
 
 # Plot the posterior
-parameter_distribution_plot(chain, param_priors)
+plot_parameter_distribution(chain, param_priors)
 
 # Posterior predictive plot
-predictive_simulation_plot(chain, agent, inputs, ("x1", "prediction_mean"), n_simulations = 3)
+plot_predictive_simulation(chain, agent, inputs, ("x1", "prediction_mean"), n_simulations = 3)
