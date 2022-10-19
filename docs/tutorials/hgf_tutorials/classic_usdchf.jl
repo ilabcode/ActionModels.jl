@@ -98,7 +98,7 @@ param_priors = Dict(
 plot_predictive_simulation(param_priors, agent, inputs, ("x1", "posterior_mean"); n_simulations = 3)
 
 # Do parameter recovery
-chain = fit_model(
+fitted_model = fit_model(
     agent,
     inputs,
     actions,
@@ -109,14 +109,14 @@ chain = fit_model(
 )
 
 # Plot the chains
-plot(chain)
+plot(fitted_model)
 
 # Plot prior posterior distributions
-plot_parameter_distribution(chain, param_priors)
+plot_parameter_distribution(fitted_model, param_priors)
 
 # Posterior predictive plot
 plot_predictive_simulation(
-    chain,
+    fitted_model,
     agent,
     inputs,
     ("x1", "posterior_mean");

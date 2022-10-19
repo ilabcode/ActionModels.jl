@@ -17,7 +17,7 @@
 
     ### Setup ###
     #Get arguments
-    chain = pl.args[1]
+    fitted_model = pl.args[1]
     param_priors = pl.args[2]
 
     #Get number of subplots
@@ -42,8 +42,8 @@
     #For each parameter
     for (param_key, param_prior) in param_priors
 
-        #Get posterior from the chain
-        param_posterior = Array(chain[:, string(param_key), :])[:]
+        #Get posterior from the fitted_model
+        param_posterior = Array(fitted_model[:, string(param_key), :])[:]
 
         ### Get uncertainty interval bar sizes ###
         #Get the quantiles for the prior and posterior
