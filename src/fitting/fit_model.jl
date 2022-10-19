@@ -23,6 +23,7 @@ function fit_model(
     n_iterations = 1000,
     n_chains = 1,
     verbose = true,
+    show_sample_rejections = false
 )
     #If there are different amounts of inputs and actions
     if size(inputs, 1) != size(actions, 1)
@@ -146,7 +147,7 @@ function fit_model(
     end
 
     #If warnings are to be ignored
-    if !verbose
+    if !show_sample_rejections
         #Create a logger which ignores messages below error level
         sampling_logger = Logging.SimpleLogger(Logging.Error)
         #Use that logger
