@@ -60,6 +60,7 @@ end
         seriestype --> :scatter
         label --> target_state
         markersize --> 5
+        title --> "State trajectory"
         state_history
     end
 end
