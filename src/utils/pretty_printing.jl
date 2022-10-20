@@ -5,7 +5,7 @@ function Base.show(io::IO, agent::Agent)
     n_params = length(get_params(agent)) 
     n_states = length(get_states(agent))
     n_settings = length(agent.settings)
-    n_observations = length(agent.history["action"])
+    n_observations = length(agent.history["action"]) - 1
 
     ##Print information
     #Basic info
@@ -32,5 +32,7 @@ function Base.show(io::IO, agent::Agent)
     end
 
     #Number of observations
-    println("This agent has received $n_observations inputs")
+    if n_observations >0
+        println("This agent has received $n_observations inputs")
+    end
 end
