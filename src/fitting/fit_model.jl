@@ -64,16 +64,29 @@ function fit_model(
     set_params!(agent, fixed_params)
     #Reset the agent
     reset!(agent)
-    #Run it forwards
-    test_actions = give_inputs!(agent, inputs)
 
-    #If the model returns a different amount of actions from what was inputted
-    if size(test_actions) != size(actions)
-        throw(
-            ArgumentError(
-                "The passed actions is a different shape from what the model returns",
-            ),
-        )
+    try
+        #Run it forwards
+        test_actions = give_inputs!(agent, inputs)
+        #If the model returns a different amount of actions from what was inputted
+        if size(test_actions) != size(actions)
+            throw(
+                ArgumentError(
+                    "the passed actions is a different shape from what the model returns",
+                ),
+            )
+        end
+    catch e
+        #If a RejectParameters error occurs
+        if e isa RejectParameters
+            #Warn the user that prior median parameter values gives a sample rejection
+            if show_sample_rejections
+                @warn "simulating with median parameter values from the prior results in a rejected sample."
+            end
+        else
+            #Otherwise throw the actual error
+            throw(e)
+        end
     end
 
 
