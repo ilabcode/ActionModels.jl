@@ -1,4 +1,4 @@
-function premade_rw_softmax(config::Dict)
+function premade_binary_rw_softmax(config::Dict)
 
     #Default parameters and settings
     default_config =

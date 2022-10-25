@@ -5,7 +5,7 @@ using Distributions
 
 @testset "binary RW" begin
     
-    agent = premade_agent("premade_rw_softmax")
+    agent = premade_agent("premade_binary_rw_softmax")
 
     inputs = [1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1]
     inputs_2 = [missing, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1, 1, 0, 1, 1, 1, 0, 1]
