@@ -2,13 +2,18 @@
 """
 """
 function Turing.get_params(agent::Agent, target_param::Union{String,Tuple})
-    #If the state is in the agent's parameters
+    #If the target parameter is in the agent's parameters
     if target_param in keys(agent.params)
         #Extract it
         param = agent.params[target_param]
+
+    #If the target parameter is in the agent's initial state parameters
+    elseif target_param isa Tuple && target_param[1] == "initial" && target_param[2] in keys(agent.initial_state_params)
+        #Extract it
+        param = agent.initial_state_params[target_param[2]] 
     else
         #Otherwise look in the substruct
-        param = ActionModels.get_params(agent.substruct, target_param)
+        param = get_params(agent.substruct, target_param)
     end
 
     return param
@@ -34,7 +39,7 @@ function Turing.get_params(agent::Agent, target_params::Vector)
     #Go through each state
     for param_name in target_params
         #Get them with get_history, and add to the tuple
-        params[param_name] = ActionModels.get_params(agent, param_name)
+        params[param_name] = get_params(agent, param_name)
     end
 
     return params
@@ -49,8 +54,14 @@ function Turing.get_params(agent::Agent)
     #Collect names of all agent parameters
     target_params = collect(keys(agent.params))
 
+    #Go through each key in the initial state params
+    for initial_state_key in keys(agent.initial_state_params)
+        #Add it to the target params
+        push!(target_params, ("initial", initial_state_key))
+    end
+
     #Get the agent's parameters
-    params = ActionModels.get_params(agent, target_params)
+    params = get_params(agent, target_params)
 
     #Get parameters from the substruct
     substruct_params = ActionModels.get_params(agent.substruct)

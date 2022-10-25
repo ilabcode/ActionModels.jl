@@ -15,8 +15,9 @@ function premade_rw_softmax(config::Dict)
     params = Dict(
         "learning_rate" => config["learning_rate"],
         "softmax_action_precision" => config["softmax_action_precision"],
+        ("initial", "value") => config["initial_value"],
     )
-    states = Dict("value" => config["initial_value"], "action_probability" => missing)
+    states = Dict("action_probability" => missing)
     settings = Dict()
 
     return init_agent(action_model, params = params, states = states, settings = settings)
