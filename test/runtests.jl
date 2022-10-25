@@ -7,6 +7,14 @@ using Turing
 using Plots
 using StatsPlots
 
+@testset "unit tests" begin
+    
+    #Check premade agents
+    include("test_premade_agent.jl")
+
+end
+
+
 # @testset "HGF tests" begin
     
 #     #Set up path for tutorials

@@ -58,7 +58,7 @@ function init_agent(
     for (state_key, initial_value) in agent.initial_state_params
 
         #If the state exists
-        if state_key in agent.states
+        if state_key in keys(agent.states)
             #Set initial state
             agent.states[state_key] = initial_value
 
@@ -73,7 +73,7 @@ function init_agent(
     end
 
     #For each specified state
-    for (state_key, state_value) in states
+    for (state_key, state_value) in agent.states
         #Add it to the history
         agent.history[state_key] = [state_value]
     end
