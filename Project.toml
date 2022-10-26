@@ -1,7 +1,7 @@
 name = "ActionModels"
 uuid = "320cf53b-cc3b-4b34-9a10-0ecb113566a3"
 authors = ["Peter Thestrup Waade <peter@waade.net>"]
-version = "0.1.1"
+version = "0.2.0"
 
 [deps]
 Distributions = "31c24e10-a181-5473-b8eb-7969acd0382f"
