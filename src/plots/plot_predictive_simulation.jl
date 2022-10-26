@@ -1,12 +1,12 @@
 """
 """
-function predictive_simulation_plot(
+function plot_predictive_simulation(
     param_distributions::Union{Chains,Dict},
-    agent::AgentStruct,
+    agent::Agent,
     inputs::Vector,
     target_state::Union{String,Tuple};
     fixed_params::Dict = Dict(),
-    n_simulations::Int = 1000,
+    n_simulations::Int = 100,
     verbose::Bool = true,
     median_color::Union{String,Symbol} = :red,
     title::String = "Sampled trajectories",
@@ -43,6 +43,8 @@ function predictive_simulation_plot(
     ### Plot single simulations with sampled parameters ###
     #Initialize counter for number of simulations
     simulation_number = 1
+    #Initialize counter for number of rejected samples
+    n_rejected_samples = 0
 
     while simulation_number <= n_simulations
 
@@ -67,7 +69,7 @@ function predictive_simulation_plot(
             #For the first simulation
             if simulation_number == 1
                 #Initialize the trajectory plot
-                trajectory_plot(
+                plot_trajectory(
                     agent,
                     target_state;
                     color = :gray,
@@ -78,7 +80,7 @@ function predictive_simulation_plot(
                 #For other simulations
             else
                 #Add trajectories to the same plot
-                trajectory_plot!(
+                plot_trajectory!(
                     agent,
                     target_state;
                     color = :gray,
@@ -94,11 +96,14 @@ function predictive_simulation_plot(
             #If there is an error
         catch e
             #If the error is a user-specified Parameter Error
-            if e isa ParamError
-                if verbose
-                    #Warn the user
-                    @warn "A set of sampled parameters was rejected. If this occurs too often, try different parameter distributions"
-                end
+            if e isa RejectParameters
+                
+                #Count the sample as rejected
+                n_rejected_samples += 1
+
+                #Advance the simulation counter
+                simulation_number += 1
+
                 #Skip the iteration
                 continue
             else
@@ -106,6 +111,20 @@ function predictive_simulation_plot(
                 throw(e)
             end
         end
+    end
+
+    #If all samples were rejected
+    if n_rejected_samples == n_simulations
+        #Warn
+        @warn "all $n_simulations sampled parameters were rejected. No plot is produced"
+
+        return nothing
+    end
+
+    #If some samples were rejected
+    if n_rejected_samples > 0
+        #Warn
+        @warn "$n_rejected_samples out of $n_simulations sampled parameters were rejected" 
     end
 
     ### Plot simulation with parameter medians ###
@@ -129,9 +148,9 @@ function predictive_simulation_plot(
         #If there is an error
     catch e
         #If it is a PaeramError
-        if e isa ParamError
+        if e isa RejectParameters
             throw(
-                ParamError(
+                RejectParameters(
                     "Evolving the agent with the medians of the parameter distributions resulted in numerical errors. Try different parameter distributions",
                 ),
             )
@@ -147,7 +166,7 @@ function predictive_simulation_plot(
     end
 
     #Plot the median
-    plot = trajectory_plot!(
+    plot = plot_trajectory!(
         agent,
         target_state;
         color = median_color,

@@ -1,7 +1,7 @@
 ### Functions for getting a single state
 """
 """
-function get_states(agent::AgentStruct, target_state::Union{String,Tuple})
+function get_states(agent::Agent, target_state::Union{String,Tuple})
     #If the state is in the agent's states
     if target_state in keys(agent.states)
         #Extract it from the agent
@@ -28,7 +28,7 @@ end
 ### Function for getting multiple states ###
 """
 """
-function get_states(agent::AgentStruct, target_states::Vector)
+function get_states(agent::Agent, target_states::Vector)
 
     #Initialize tuple for populating with states
     states = Dict()
@@ -46,7 +46,7 @@ end
 ### Function for getting all of an agent's states
 """
 """
-function get_states(agent::AgentStruct)
+function get_states(agent::Agent)
 
     #Get all state names for the agent
     target_states = collect(keys(agent.states))

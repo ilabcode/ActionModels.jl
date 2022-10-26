@@ -1,7 +1,7 @@
 ### Functions for getting a single state ###
 """
 """
-function get_history(agent::AgentStruct, target_state::Union{String,Tuple})
+function get_history(agent::Agent, target_state::Union{String,Tuple})
     #If the state is in the agent's history
     if target_state in keys(agent.history)
         #Extract it
@@ -29,7 +29,7 @@ end
 ### Functions for getting multiple states ###
 """
 """
-function get_history(agent::AgentStruct, target_states::Vector)
+function get_history(agent::Agent, target_states::Vector)
     #Initialize dict
     state_histories = Dict()
 
@@ -46,7 +46,7 @@ end
 ### Function for getting all states ###
 """
 """
-function get_history(agent::AgentStruct)
+function get_history(agent::Agent)
 
     #Get all states names in the agent's history
     target_states = collect(keys(agent.history))

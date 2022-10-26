@@ -10,7 +10,7 @@ global const premade_agents = Dict{String, Function}()
 
 Function for making a premade agent.
 """
-function premade_agent(model_name::String, params::Dict = Dict(); verbose::Bool = true)
+function premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
 
     #Check that the specified model is in the list of keys
     if model_name in keys(premade_agents)
@@ -18,7 +18,7 @@ function premade_agent(model_name::String, params::Dict = Dict(); verbose::Bool 
         #If warnings are not hidden
         if verbose
             #Create the specified model
-            agent = premade_agents[model_name](params)
+            agent = premade_agents[model_name](config)
 
         else
             #Create a logger which ignores messages below error level
@@ -26,7 +26,7 @@ function premade_agent(model_name::String, params::Dict = Dict(); verbose::Bool 
             #Use that logger
             agent = Logging.with_logger(silent_logger) do
                 #Create the specified model
-                premade_agents[model_name](params)
+                premade_agents[model_name](config)
             end
         end
 

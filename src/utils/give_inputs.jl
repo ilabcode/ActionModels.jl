@@ -1,9 +1,9 @@
 """
-    single_input!(agent::AgentStruct, input)
+    single_input!(agent::Agent, input)
 
-Function for giving an input to an AgentStruct.
+Function for giving an input to an Agent.
 """
-function single_input!(agent::AgentStruct, input::Any)
+function single_input!(agent::Agent, input::Any)
 
     #Run the action model to get the action distribution
     action_distribution = agent.action_model(agent, input)
@@ -39,11 +39,11 @@ end
 
 ### Functions for inputting multiple values ###
 """
-    give_inputs!(agent::AgentStruct, inputs::Real)
+    give_inputs!(agent::Agent, inputs::Real)
 
 Convenience method for inputting multiple observations to an agent. Input is here just a single value.
 """
-function give_inputs!(agent::AgentStruct, inputs::Real)
+function give_inputs!(agent::Agent, inputs::Real)
 
     #Input the single input
     single_input!(agent, inputs)
@@ -53,11 +53,11 @@ function give_inputs!(agent::AgentStruct, inputs::Real)
 end
 
 """
-    give_inputs!(agent::AgentStruct, inputs::Vector)
+    give_inputs!(agent::Agent, inputs::Vector)
 
 Function for inputting multiple observations to an agent. Input is structured as an Array, with each row being a single input consisting of multiple numbers.
 """
-function give_inputs!(agent::AgentStruct, inputs::Vector)
+function give_inputs!(agent::Agent, inputs::Vector)
 
     #Each value in the vector is a single input
     for input in inputs
@@ -72,11 +72,11 @@ function give_inputs!(agent::AgentStruct, inputs::Vector)
 end
 
 """
-    give_inputs!(agent::AgentStruct, inputs::Array)
+    give_inputs!(agent::Agent, inputs::Array)
 
 Function for inputting multiple observations to an agent. Input is structured as an Array, with each row being a single input consisting of multiple numbers.
 """
-function give_inputs!(agent::AgentStruct, inputs::Array)
+function give_inputs!(agent::Agent, inputs::Array)
 
     #Each row in the array is a single input
     for input in eachrow(inputs)

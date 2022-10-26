@@ -7,6 +7,7 @@ on:
       - dev
     tags: '*'
   pull_request:
+  workflow_dispatch:
 
 concurrency:
   # Skip intermediate builds: always.
@@ -23,9 +24,9 @@ jobs:
       matrix:
         version:
           - '1.7'
-#          - 'nightly'
+          - '1'
         os:
-#          - ubuntu-latest
+          - ubuntu-latest
           - macOS-latest
           - windows-latest
         arch:
