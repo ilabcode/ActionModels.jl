@@ -1,7 +1,7 @@
-@userplot Parameter_Distribution_Plot
+@userplot Plot_Parameter_Distribution
 
 @recipe function f(
-    pl::Parameter_Distribution_Plot;
+    pl::Plot_Parameter_Distribution;
     subplot_titles = Dict(),
     show_distributions = true,
     show_intervals = true,
@@ -17,7 +17,7 @@
 
     ### Setup ###
     #Get arguments
-    chain = pl.args[1]
+    fitted_model = pl.args[1]
     param_priors = pl.args[2]
 
     #Get number of subplots
@@ -42,8 +42,8 @@
     #For each parameter
     for (param_key, param_prior) in param_priors
 
-        #Get posterior from the chain
-        param_posterior = Array(chain[:, string(param_key), :])[:]
+        #Get posterior from the fitted_model
+        param_posterior = Array(fitted_model[:, string(param_key), :])[:]
 
         ### Get uncertainty interval bar sizes ###
         #Get the quantiles for the prior and posterior

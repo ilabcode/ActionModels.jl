@@ -4,12 +4,16 @@ module ActionModels
 using Turing, Distributions, RecipesBase, Logging
 
 #Export functions
-export AgentStruct, ParamError
+export Agent, RejectParameters
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions
 export fit_model
-export parameter_distribution_plot, predictive_simulation_plot, trajectory_plot, trajectory_plot!
+export plot_parameter_distribution, plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history, get_states, get_params, set_params!, reset!, give_inputs!
 export get_posteriors
+
+function __init__()
+    premade_agents["premade_binary_rw_softmax"] = premade_binary_rw_softmax
+end
 
 #Types for agents and errors
 include("structs.jl")
@@ -23,9 +27,9 @@ include("create_agent/multiple_actions.jl")
 include("fitting/fit_model.jl")
 
 #Plotting functions for agents
-include("plots/predictive_simulation_plot.jl")
-include("plots/parameter_distribution_plot.jl")
-include("plots/trajectory_plot.jl")
+include("plots/plot_predictive_simulation.jl")
+include("plots/plot_parameter_distribution.jl")
+include("plots/plot_trajectory.jl")
 
 #Functions for making premade agent
 include("premade_models/premade_agents.jl")
@@ -40,4 +44,5 @@ include("utils/reset.jl")
 include("utils/set_params.jl")
 include("utils/warn_premade_defaults.jl")
 include("utils/get_posteriors.jl")
+include("utils/pretty_printing.jl")
 end

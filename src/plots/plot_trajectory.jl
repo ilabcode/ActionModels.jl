@@ -1,50 +1,50 @@
 """
 """
-function trajectory_plot(agent::AgentStruct, target_state::Union{String,Tuple}; kwargs...)
+function plot_trajectory(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
     #If the target state is in the agent's history
     if target_state in keys(agent.history)
         #Plot that
-        agent_trajectory_plot(agent, target_state; kwargs...)
+        plot_trajectory_agent(agent, target_state; kwargs...)
         #Otherwise
     else
         #Look in the substruct
-        trajectory_plot(agent.substruct, target_state; kwargs...)
+        plot_trajectory(agent.substruct, target_state; kwargs...)
     end
 end
 
 """
 """
-function trajectory_plot!(agent::AgentStruct, target_state::Union{String,Tuple}; kwargs...)
+function plot_trajectory!(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
     #If the target state is in the agent's history
     if target_state in keys(agent.history)
         #Plot that
-        agent_trajectory_plot!(agent, target_state; kwargs...)
+        plot_trajectory_agent!(agent, target_state; kwargs...)
         #Otherwise
     else
         #Look in the substruct
-        trajectory_plot!(agent.substruct, target_state; kwargs...)
+        plot_trajectory!(agent.substruct, target_state; kwargs...)
     end
 end
 
 
 """
 """
-function trajectory_plot(substruct::Nothing, target_state::Union{String,Tuple}; kwargs...)
+function plot_trajectory(substruct::Nothing, target_state::Union{String,Tuple}; kwargs...)
     throw(ArgumentError("The specified state does not exist in the agent's history"))
 end
 
 """
 """
-function trajectory_plot!(substruct::Nothing, target_state::Union{String,Tuple}; kwargs...)
+function plot_trajectory!(substruct::Nothing, target_state::Union{String,Tuple}; kwargs...)
     throw(ArgumentError("The specified state does not exist in the history"))
 end
 
 
-@userplot Agent_Trajectory_Plot
+@userplot Plot_Trajectory_Agent
 
-@recipe function f(pl::Agent_Trajectory_Plot)
+@recipe function f(pl::Plot_Trajectory_Agent)
 
     #Get out the agent and the target state
     agent = pl.args[1]
@@ -60,6 +60,7 @@ end
         seriestype --> :scatter
         label --> target_state
         markersize --> 5
+        title --> "State trajectory"
         state_history
     end
 end

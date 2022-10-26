@@ -1,11 +1,18 @@
 """
 """
-function reset!(agent::AgentStruct)
+function reset!(agent::Agent)
 
     #For each of the agent's states
     for state_name in keys(agent.states)
-        #Set it to the first value in the history
-        agent.states[state_name] = agent.history[state_name][1]
+
+        #If the state has an initial state parameter
+        if state_name in keys(agent.initial_state_params)
+            #Set it to that value
+            agent.states[state_name] = agent.initial_state_params[state_name]
+        else
+            #Set it to the first value in the history
+            agent.states[state_name] = agent.history[state_name][1]
+        end
     end
 
     #For each state in the history

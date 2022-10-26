@@ -1,6 +1,6 @@
 """""
 function fit_model(
-    agent::AgentStruct,
+    agent::Agent,
     inputs::Array,
     actions::Vector,
     param_priors::Dict,
@@ -10,10 +10,10 @@ function fit_model(
     n_chains = 1,
     verbose = true,
 )
-Function to fit an agent parameters.
+Function to fit an agent's parameters.
 """
 function fit_model(
-    agent::AgentStruct,
+    agent::Agent,
     inputs::Array,
     actions::Array,
     param_priors::Dict,
@@ -23,6 +23,7 @@ function fit_model(
     n_iterations = 1000,
     n_chains = 1,
     verbose = true,
+    show_sample_rejections = false
 )
     #If there are different amounts of inputs and actions
     if size(inputs, 1) != size(actions, 1)
@@ -63,16 +64,29 @@ function fit_model(
     set_params!(agent, fixed_params)
     #Reset the agent
     reset!(agent)
-    #Run it forwards
-    test_actions = give_inputs!(agent, inputs)
 
-    #If the model returns a different amount of actions from what was inputted
-    if size(test_actions) != size(actions)
-        throw(
-            ArgumentError(
-                "The passed actions is a different shape from what the model returns",
-            ),
-        )
+    try
+        #Run it forwards
+        test_actions = give_inputs!(agent, inputs)
+        #If the model returns a different amount of actions from what was inputted
+        if size(test_actions) != size(actions)
+            throw(
+                ArgumentError(
+                    "the passed actions is a different shape from what the model returns",
+                ),
+            )
+        end
+    catch e
+        #If a RejectParameters error occurs
+        if e isa RejectParameters
+            #Warn the user that prior median parameter values gives a sample rejection
+            if show_sample_rejections
+                @warn "simulating with median parameter values from the prior results in a rejected sample."
+            end
+        else
+            #Otherwise throw the actual error
+            throw(e)
+        end
     end
 
 
@@ -133,8 +147,8 @@ function fit_model(
                     end
                 end
             catch e
-                #If the custom errortype ParamError occurs
-                if e isa ParamError
+                #If the custom errortype RejectParameters occurs
+                if e isa RejectParameters
                     #Make Turing reject the sample
                     Turing.@addlogprob!(-Inf)
                 else
@@ -146,7 +160,7 @@ function fit_model(
     end
 
     #If warnings are to be ignored
-    if !verbose
+    if !show_sample_rejections
         #Create a logger which ignores messages below error level
         sampling_logger = Logging.SimpleLogger(Logging.Error)
         #Use that logger
