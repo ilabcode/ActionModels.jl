@@ -3,7 +3,7 @@
 function plot_predictive_simulation(
     param_distributions::Union{Chains,Dict},
     agent::Agent,
-    inputs::Vector,
+    inputs::Array,
     target_state::Union{String,Tuple};
     fixed_params::Dict = Dict(),
     n_simulations::Int = 100,
