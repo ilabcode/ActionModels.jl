@@ -3,8 +3,7 @@ using Distributions
 
 agent = premade_agent("premade_binary_rw_softmax")
 
-param_priors = Dict("learning_rate" => Uniform(0,1),
-                    "softmax_action_precision" => Normal(0,1))
+param_priors = Dict("learning_rate" => Uniform(0,1))
 
 inputs = [1, 0, 1]
 
