@@ -6,5 +6,7 @@ using Test
 # using StatsPlots
 
 @testset "quick tests" begin
-    include("quick_tests.jl")
+    
+    # Test the quick tests that are used as pre-commit tests
+    include("quicktests.jl")
 end
