@@ -7,8 +7,8 @@ Returns a summary of the fitted parameters (parameters specified with param_prio
 # Arguments
  - 'agent::Agent': a specified agent created with either premade agent or init_agent.
  - 'inputs:Array': array of inputs.
- - 'actions::Vector': vector of actions.
- - 'param_priors::Dict': priors (written as distributions)for the parameters you wish to fit.
+ - 'actions::Array': array of actions.
+ - 'param_priors::Dict': priors (written as distributions) for the parameters you wish to fit.
  - 'fixed_params::Dict = Dict()': fixed parameters.
  - 'impute_missing_actions = false': if true, include missing actions in the fitting process.
  - 'sampler = NUTS()': specify the type of sampler.
