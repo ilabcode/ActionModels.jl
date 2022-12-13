@@ -1,5 +1,8 @@
 ### Function for extracting parameters from a Turing chain ###
 """
+    get_posteriors(chain::Chains; type::String = "median")
+
+Extracting parameters from a Turing chain
 """
 function get_posteriors(chain::Chains; type::String = "median")
 

@@ -1,3 +1,11 @@
+"""
+    binary_rw_softmax(agent::Agent, input)
+
+returns action distribution according to a binary Rescorla-Wagner softmax action model.
+Agent parameters needed in this action model are "learning_rate" and "softmax_action_precision"
+
+"""
+
 function binary_rw_softmax(agent::Agent, input)
 
     #Read in parameters
