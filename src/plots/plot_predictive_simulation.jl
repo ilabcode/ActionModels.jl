@@ -1,4 +1,23 @@
 """
+plot_predictive_simulation(param_distributions::Union{Chains,Dict}, agent::Agent, inputs::Array, target_state::Union{String,Tuple};
+    fixed_params::Dict = Dict(), n_simulations::Int = 100, verbose::Bool = true, median_color::Union{String,Symbol} = :red, title::String = "Sampled trajectories",
+    label::Union{String,Tuple} = target_state, alpha::Real = 0.1, linewidth::Real = 2,
+)
+
+compute predictive simulation of target state/states given a set of parameter distributions.
+
+# Arguments
+- 'param_distributions::Union{Chains,Dict}': The parameter distributions you want to sample from during the predictive simulation. This can be a turing chain of posteriors or a regular parameter distribution.
+- 'agent::Agent': specified premade agent or custom made agent.
+- 'inputs::Array': input observations to your agent
+- 'target_state::Union{String,Tuple}': the state(s) or actions you want to do simulate. Note that the target state(s) need to be in the agents history. 
+- 'fixed_params::Dict = Dict()': The fixed parameters which do not vary during the simulation.
+- 'n_simulations::Int = 100': amount of simulations you want to run.
+- 'verbose::Bool = true': if you wish to hide warnings set to false
+- 'median_color::Union{String,Symbol} = :red': specify color of median value in the plot
+- 'label::Union{String,Tuple} = target_state': label on graph
+- 'alpha::Real = 0.1': 
+- 'linewidth::Real = 2': specify linewidth on your plot
 """
 function plot_predictive_simulation(
     param_distributions::Union{Chains,Dict},

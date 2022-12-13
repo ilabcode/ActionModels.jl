@@ -1,5 +1,8 @@
 ### Functions for getting a single param ###
 """
+    get_params(agent::Agent, target_param::Union{String,Tuple})
+
+Get out target parameter from agent 
 """
 function Turing.get_params(agent::Agent, target_param::Union{String,Tuple})
     #If the target parameter is in the agent's parameters
@@ -31,6 +34,14 @@ end
 
 ### Functions for getting multiple parameters ###
 """
+    get_params(agent::Agent, target_params::Vector)
+
+Returns a vector of the target parameters specefied in target_params
+    
+    get_params(agent::Agent)
+
+Returns all parameters from agent
+
 """
 function Turing.get_params(agent::Agent, target_params::Vector)
     #Initialize dict

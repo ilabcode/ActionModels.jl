@@ -1,5 +1,9 @@
 """
+    plot_trajector(agent::Agent, target_state::Union{String,Tuple})
+
+plotting trajectory of target state/states from an agent.
 """
+
 function plot_trajectory(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
     #If the target state is in the agent's history

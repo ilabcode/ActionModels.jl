@@ -1,6 +1,11 @@
 ### Functions for getting a single state ###
 """
+    get_history(agent::Agent, target_state::Union{String,Tuple})
+
+Get history of an agents target state.
+
 """
+
 function get_history(agent::Agent, target_state::Union{String,Tuple})
     #If the state is in the agent's history
     if target_state in keys(agent.history)
@@ -28,7 +33,16 @@ end
 
 ### Functions for getting multiple states ###
 """
+    get_history(agent::Agent, target_states::Vector)
+
+Get history from a vector of states from an agent
+
+    get_history(agent::Agent)
+
+Getting all states' histories from agent
+
 """
+
 function get_history(agent::Agent, target_states::Vector)
     #Initialize dict
     state_histories = Dict()

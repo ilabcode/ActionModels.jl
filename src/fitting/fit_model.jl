@@ -1,16 +1,20 @@
 """""
-function fit_model(
-    agent::Agent,
-    inputs::Array,
-    actions::Vector,
-    param_priors::Dict,
-    fixed_params::Dict = Dict();
-    sampler = NUTS(),
-    n_iterations = 1000,
-    n_chains = 1,
-    verbose = true,
-)
-Function to fit an agent's parameters.
+    fit_model(agent::Agent,inputs::Array,actions::Vector,param_priors::Dict,fixed_params::Dict = Dict();
+    sampler = NUTS(),n_iterations = 1000, n_chains = 1,verbose = true,)
+
+Returns a summary of the fitted parameters (parameters specified with param_prios). 
+
+# Arguments
+ - 'agent::Agent': a specified agent created with either premade agent or init_agent.
+ - 'inputs:Array': array of inputs.
+ - 'actions::Vector': vector of actions.
+ - 'param_priors::Dict': priors (written as distributions)for the parameters you wish to fit.
+ - 'fixed_params::Dict = Dict()': fixed parameters.
+ - 'impute_missing_actions = false': if true, include missing actions in the fitting process.
+ - 'sampler = NUTS()': specify the type of sampler.
+ - 'n_iterations = 1000': iterations pr. chain.
+ - 'n_chains = 1': amount of chains.
+ - 'verbose = true': set to false to hide warnings
 """
 function fit_model(
     agent::Agent,

@@ -1,5 +1,9 @@
 ### Functions for getting a single state
 """
+    get_states(agent::Agent, target_state::Union{String,Tuple})
+
+extract target state from agent's states.
+
 """
 function get_states(agent::Agent, target_state::Union{String,Tuple})
     #If the state is in the agent's states
@@ -27,6 +31,10 @@ end
 
 ### Function for getting multiple states ###
 """
+    get_states(agent::Agent, target_states::Vector)
+
+specify a vector of target states you wish to extract.
+
 """
 function get_states(agent::Agent, target_states::Vector)
 
@@ -45,6 +53,10 @@ end
 
 ### Function for getting all of an agent's states
 """
+    Get_states(agent::Agent)
+
+Get all target states from an agent.
+
 """
 function get_states(agent::Agent)
 

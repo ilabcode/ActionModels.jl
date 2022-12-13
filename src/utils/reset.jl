@@ -1,4 +1,7 @@
 """
+    reset!(agent::Agent)
+
+reset an agent to initial state parameters.
 """
 function reset!(agent::Agent)
 

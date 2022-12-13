@@ -8,7 +8,8 @@ global const premade_agents = Dict{String, Function}()
         model_name::String, params_list::NamedTuple = (;)
     )
 
-Function for making a premade agent.
+Making a premade agent consisting of a model (a premade agent), and a list of configuations (parameter values) for the agent.
+
 """
 function premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
 
