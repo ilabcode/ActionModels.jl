@@ -1,0 +1,54 @@
+###Function for setting a single parameter ###
+"""
+set_parameters!(agent::Agent,  target_param::Union{String,Tuple}, param_value::Any)
+
+Function for setting a single parameter in an agent. Input to the function is an agent, the parameter name and the parameter value.
+"""
+function set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_value::Any)
+
+    #If the parameter exists in the agent's parameters
+    if target_param in keys(agent.parameters)
+        #Set it
+        agent.parameters[target_param] = param_value
+
+        #If the parameter exists in the agent's initial state parameters
+    elseif target_param isa Tuple &&
+           target_param[1] == "initial" &&
+           target_param[2] in keys(agent.initial_state_parameters)
+        #Set it
+        agent.initial_state_parameters[target_param[2]] = param_value
+
+    else
+        #Otherwise, look in the substruct
+        set_parameters!(agent.substruct, target_param, param_value)
+    end
+end
+
+"""
+"""
+function set_parameters!(
+    substruct::Nothing,
+    target_param::Union{String,Tuple},
+    param_value::Any,
+)
+    throw(
+        ArgumentError("The specified parameter $target_param does not exist in the agent"),
+    )
+end
+
+
+
+### Function for setting multiple parameters
+"""
+    set_parameters!(agent::Agent, parameters::Dict)
+
+Setting multiple parameters in dictionary where parameter name is specified followed by parameter value. 
+"""
+function set_parameters!(agent::Agent, parameters::Dict)
+
+    #For each parameter to set
+    for (param_key, param_value) in parameters
+        #Set that parameter
+        set_parameters!(agent, param_key, param_value)
+    end
+end

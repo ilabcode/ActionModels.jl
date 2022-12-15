@@ -9,15 +9,15 @@
 )
 
     #Initialize dictionary for storing sampled parameters
-    fitted_params = Dict()
+    fitted_parameters = Dict()
 
     #Give Turing prior distributions for each fitted parameter
     for (param_key, param_prior) in param_priors
-        fitted_params[param_key] ~ param_prior
+        fitted_parameters[param_key] ~ param_prior
     end
 
     #Set agent parameters to the sampled values
-    set_params!(agent, fitted_params)
+    set_parameters!(agent, fitted_parameters)
     reset!(agent)
 
     #If the input is a single vector
