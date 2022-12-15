@@ -1,5 +1,8 @@
 ### Functions for getting a single param ###
 """
+    get_params(agent::Agent, target_param::Union{String,Tuple})
+
+Get out target parameter from agent 
 """
 function Turing.get_params(agent::Agent, target_param::Union{String,Tuple})
     #If the target parameter is in the agent's parameters
@@ -7,10 +10,12 @@ function Turing.get_params(agent::Agent, target_param::Union{String,Tuple})
         #Extract it
         param = agent.params[target_param]
 
-    #If the target parameter is in the agent's initial state parameters
-    elseif target_param isa Tuple && target_param[1] == "initial" && target_param[2] in keys(agent.initial_state_params)
+        #If the target parameter is in the agent's initial state parameters
+    elseif target_param isa Tuple &&
+           target_param[1] == "initial" &&
+           target_param[2] in keys(agent.initial_state_params)
         #Extract it
-        param = agent.initial_state_params[target_param[2]] 
+        param = agent.initial_state_params[target_param[2]]
     else
         #Otherwise look in the substruct
         param = get_params(agent.substruct, target_param)
@@ -31,6 +36,14 @@ end
 
 ### Functions for getting multiple parameters ###
 """
+    get_params(agent::Agent, target_params::Vector)
+
+Returns a vector of the target parameters specefied in target_params
+    
+    get_params(agent::Agent)
+
+Returns all parameters from agent
+
 """
 function Turing.get_params(agent::Agent, target_params::Vector)
     #Initialize dict

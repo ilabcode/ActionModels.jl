@@ -2,7 +2,7 @@ function Base.show(io::IO, agent::Agent)
 
     ##Get information from agent struct
     action_model_name = string(agent.action_model)
-    n_params = length(get_params(agent)) 
+    n_params = length(get_params(agent))
     n_states = length(get_states(agent))
     n_settings = length(agent.settings)
     n_observations = length(agent.history["action"]) - 1
@@ -32,7 +32,7 @@ function Base.show(io::IO, agent::Agent)
     end
 
     #Number of observations
-    if n_observations >0
+    if n_observations > 0
         println("This agent has received $n_observations inputs")
     end
 end

@@ -1,3 +1,9 @@
+"""
+    warn_premade_defaults(defaults::Dict, config::Dict, prefix::String = "")
+
+Checking each default value, and inform whether default value is used
+"""
+
 function warn_premade_defaults(defaults::Dict, config::Dict, prefix::String = "")
 
     #Go through each default value

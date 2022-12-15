@@ -1,4 +1,9 @@
 """
+    multiple_actions(agent::Agent, input::Any)
+
+    If an agent is specified with multiple action models
+Runs each action model sequentially and returns the action distributions for each action model given agent and input.
+
 """
 function multiple_actions(agent::Agent, input::Any)
 
