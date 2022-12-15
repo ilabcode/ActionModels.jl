@@ -2,6 +2,20 @@
 # To enable this hook, name this file "pre-commit".
 # Remember to make it executable by calling the following in the terminal: chmod +x filename
 
+julia -e '
+    using Pkg
+    Pkg.activate("./docs")
+    using JuliaFormatter
+    format(".")
+    out = Cmd(`git diff --name-only`) |> read |> String
+    if out == ""
+        exit(0)
+    else
+        @error "Some files have been formatted !!!"
+        write(stdout, out)
+        exit(1)
+    end'
+
 #Setup
 reponame=$(basename `git rev-parse --show-toplevel`)
 
@@ -23,17 +37,3 @@ else
         #Inform that all tests passed
         echo  "\n -- All tests passed, commit completed -- \n"
 fi
-
-julia -e '
-    using Pkg
-    Pkg.activate("./docs")
-    using JuliaFormatter
-    format(".")
-    out = Cmd(`git diff --name-only`) |> read |> String
-    if out == ""
-        exit(0)
-    else
-        @error "Some files have been formatted !!!"
-        write(stdout, out)
-        exit(1)
-    end'
