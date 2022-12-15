@@ -1,5 +1,5 @@
 """""
-    fit_model(agent::Agent,inputs::Array,actions::Vector,param_priors::Dict,fixed_params::Dict = Dict();
+    fit_model(agent::Agent,inputs::Array,actions::Vector,param_priors::Dict,fixed_parameters::Dict = Dict();
     sampler = NUTS(),n_iterations = 1000, n_chains = 1,verbose = true,)
 
 Returns a summary of the fitted parameters (parameters specified with param_prios). 
@@ -9,7 +9,7 @@ Returns a summary of the fitted parameters (parameters specified with param_prio
  - 'inputs:Array': array of inputs.
  - 'actions::Array': array of actions.
  - 'param_priors::Dict': priors (written as distributions) for the parameters you wish to fit.
- - 'fixed_params::Dict = Dict()': fixed parameters.
+ - 'fixed_parameters::Dict = Dict()': fixed parameters.
  - 'impute_missing_actions = false': if true, include missing actions in the fitting process.
  - 'sampler = NUTS()': specify the type of sampler.
  - 'n_iterations = 1000': iterations pr. chain.
@@ -21,7 +21,7 @@ function fit_model(
     param_priors::Dict,
     inputs::Array,
     actions::Array;
-    fixed_params::Dict = Dict(),
+    fixed_parameters::Dict = Dict(),
     sampler = NUTS(),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
@@ -31,25 +31,25 @@ function fit_model(
     impute_missing_actions::Bool = false,
 )
     #Store old parameters for resetting the agent later
-    old_params = get_params(agent)
+    old_parameters = get_parameters(agent)
 
     ### CHECKS ###
     #Unless warnings are hidden
     if verbose
         #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
         if any(
-            key -> !(key in keys(param_priors)) && !(key in keys(fixed_params)),
-            keys(old_params),
+            key -> !(key in keys(param_priors)) && !(key in keys(fixed_parameters)),
+            keys(old_parameters),
         )
             @warn "the agent has parameters which are not specified in the fixed or sampled parameters. The agent's current parameter values are used as fixed parameters"
         end
 
         #If a parameter has been specified both in the fixed and sampled parameters
-        if any(key -> key in keys(fixed_params), keys(param_priors))
+        if any(key -> key in keys(fixed_parameters), keys(param_priors))
             @warn "one or more parameters have been specified both in the fixed and sampled parameters. The fixed parameter value is used"
 
             #Remove the parameter from the sampled parameters
-            for key in keys(fixed_params)
+            for key in keys(fixed_parameters)
                 if key in keys(param_priors)
                     delete!(param_priors, key)
                 end
@@ -77,18 +77,18 @@ function fit_model(
     end
 
     ### Set fixed parameters to agent ###
-    set_params!(agent, fixed_params)
+    set_parameters!(agent, fixed_parameters)
 
     ### Run forward once ###
     #Initialize dictionary for populating with median parameter values
-    sampled_params = Dict()
+    sampled_parameters = Dict()
     #Go through each of the agent's parameters
     for (param_key, param_prior) in param_priors
         #Add the median value to the tuple
-        sampled_params[param_key] = median(param_prior)
+        sampled_parameters[param_key] = median(param_prior)
     end
     #Set sampled parameters
-    set_params!(agent, sampled_params)
+    set_parameters!(agent, sampled_parameters)
     #Reset the agent
     reset!(agent)
 
@@ -239,16 +239,16 @@ function fit_model(
 
     ### CLEANUP ###
     #Reset the agent to its original parameters
-    set_params!(agent, old_params)
+    set_parameters!(agent, old_parameters)
     reset!(agent)
 
-    #Turing includes the dictionary name 'fitted_params' in the parameter names, so it must be removed
+    #Turing includes the dictionary name 'fitted_parameters' in the parameter names, so it must be removed
     #Initialize dict for replacement names
     replacement_param_names = Dict()
     #For each parameter
     for param_key in keys(param_priors)
-        #Set to replace the fitted_params[] version with just the parameter name
-        replacement_param_names["fitted_params[$param_key]"] = param_key
+        #Set to replace the fitted_parameters[] version with just the parameter name
+        replacement_param_names["fitted_parameters[$param_key]"] = param_key
     end
     #Input the dictionary to replace the names
     chains = replacenames(chains, replacement_param_names)

@@ -3,8 +3,8 @@
 Base.@kwdef mutable struct Agent
     action_model::Function
     substruct::Any
-    params::Dict = Dict()
-    initial_state_params::Dict{String,Any} = Dict()
+    parameters::Dict = Dict()
+    initial_state_parameters::Dict{String,Any} = Dict()
     states::Dict{String,Any} = Dict("action" => missing)
     settings::Dict{String,Any} = Dict()
     history::Dict{String,Vector{Any}} = Dict("action" => [missing])

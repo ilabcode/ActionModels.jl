@@ -23,7 +23,7 @@ function premade_binary_rw_softmax(config::Dict)
 
     ## Create agent 
     action_model = binary_rw_softmax
-    params = Dict(
+    parameters = Dict(
         "learning_rate" => config["learning_rate"],
         "softmax_action_precision" => config["softmax_action_precision"],
         ("initial", "value") => config[("initial", "value")],
@@ -35,5 +35,10 @@ function premade_binary_rw_softmax(config::Dict)
     )
     settings = Dict()
 
-    return init_agent(action_model, params = params, states = states, settings = settings)
+    return init_agent(
+        action_model,
+        parameters = parameters,
+        states = states,
+        settings = settings,
+    )
 end

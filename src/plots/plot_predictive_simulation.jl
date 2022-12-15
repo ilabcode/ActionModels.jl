@@ -1,6 +1,6 @@
 """
 plot_predictive_simulation(param_distributions::Union{Chains,Dict}, agent::Agent, inputs::Array, target_state::Union{String,Tuple};
-    fixed_params::Dict = Dict(), n_simulations::Int = 100, verbose::Bool = true, median_color::Union{String,Symbol} = :red, title::String = "Sampled trajectories",
+    fixed_parameters::Dict = Dict(), n_simulations::Int = 100, verbose::Bool = true, median_color::Union{String,Symbol} = :red, title::String = "Sampled trajectories",
     label::Union{String,Tuple} = target_state, alpha::Real = 0.1, linewidth::Real = 2,
 )
 
@@ -11,7 +11,7 @@ compute predictive simulation of target state/states given a set of parameter di
 - 'agent::Agent': specified premade agent or custom made agent.
 - 'inputs::Array': input observations to your agent
 - 'target_state::Union{String,Tuple}': the state(s) or actions you want to do simulate. Note that the target state(s) need to be in the agents history. 
-- 'fixed_params::Dict = Dict()': The fixed parameters which do not vary during the simulation.
+- 'fixed_parameters::Dict = Dict()': The fixed parameters which do not vary during the simulation.
 - 'n_simulations::Int = 100': amount of simulations you want to run.
 - 'verbose::Bool = true': if you wish to hide warnings set to false
 - 'median_color::Union{String,Symbol} = :red': specify color of median value in the plot
@@ -24,7 +24,7 @@ function plot_predictive_simulation(
     agent::Agent,
     inputs::Array,
     target_state::Union{String,Tuple};
-    fixed_params::Dict = Dict(),
+    fixed_parameters::Dict = Dict(),
     n_simulations::Int = 100,
     verbose::Bool = true,
     median_color::Union{String,Symbol} = :red,
@@ -35,11 +35,11 @@ function plot_predictive_simulation(
 )
 
     ### Setup ###
-    #Save old params for resetting the agent later
-    old_params = ActionModels.get_params(agent)
+    #Save old parameters for resetting the agent later
+    old_parameters = ActionModels.get_parameters(agent)
 
     #Set the fixed parameters to the agent
-    set_params!(agent, fixed_params)
+    set_parameters!(agent, fixed_parameters)
 
     #If a Turing Chains of posteriors has been inputted
     if param_distributions isa Chains
@@ -51,8 +51,8 @@ function plot_predictive_simulation(
     if verbose
         #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
         if any(
-            key -> !(key in keys(param_distributions)) && !(key in keys(fixed_params)),
-            keys(old_params),
+            key -> !(key in keys(param_distributions)) && !(key in keys(fixed_parameters)),
+            keys(old_parameters),
         )
             #Make a warning
             @warn "the agent has parameters which are not specified in the fixed or sampled parameters. The agent's current parameter values are used instead"
@@ -70,16 +70,16 @@ function plot_predictive_simulation(
         #Try to run the simulation and plot it
         try
             #Create empty tuple for populating with sampled parameter values
-            sampled_params = Dict()
+            sampled_parameters = Dict()
 
             #For each specified parameter 
             for (param_key, param_distribution) in param_distributions
                 #Add a sampled parameter value to the dict
-                sampled_params[param_key] = rand(param_distribution)
+                sampled_parameters[param_key] = rand(param_distribution)
             end
 
             #Set parameters
-            set_params!(agent, sampled_params)
+            set_parameters!(agent, sampled_parameters)
             reset!(agent)
 
             #Evolve agent
@@ -157,7 +157,7 @@ function plot_predictive_simulation(
     end
 
     #Set parameters
-    set_params!(agent, param_medians)
+    set_parameters!(agent, param_medians)
     reset!(agent)
 
     #Look for errors
@@ -195,7 +195,7 @@ function plot_predictive_simulation(
     )
 
     #Reset agent to old settings
-    set_params!(agent, old_params)
+    set_parameters!(agent, old_parameters)
     reset!(agent)
 
     return plot
