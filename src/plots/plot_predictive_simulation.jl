@@ -116,7 +116,7 @@ function plot_predictive_simulation(
         catch e
             #If the error is a user-specified Parameter Error
             if e isa RejectParameters
-                
+
                 #Count the sample as rejected
                 n_rejected_samples += 1
 
@@ -143,7 +143,7 @@ function plot_predictive_simulation(
     #If some samples were rejected
     if n_rejected_samples > 0
         #Warn
-        @warn "$n_rejected_samples out of $n_simulations sampled parameters were rejected" 
+        @warn "$n_rejected_samples out of $n_simulations sampled parameters were rejected"
     end
 
     ### Plot simulation with parameter medians ###

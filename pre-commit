@@ -1,0 +1,25 @@
+# !/bin/sh
+# To enable this hook, name this file "pre-commit".
+# Remember to make it executable by calling the following in the terminal: chmod +x filename
+
+#Setup
+reponame=$(basename `git rev-parse --show-toplevel`)
+
+#Intro text
+echo testing_failed " \n -- Running pre-commit hook -- \n"
+echo  " \n -- Testing $reponame -- \n"
+
+#Run quick tests
+julia --project=. test/quicktests.jl
+
+#If tests failed
+if [[ $? -ne 0 ]]; then
+        #Raise an error
+        echo  "\n -- ERROR: Testing failed, commit halted -- \n"
+        #Stop the commit
+        exit 1
+#Otherwise
+else
+        #Inform that all tests passed
+        echo  "\n -- All tests passed, commit completed -- \n"
+fi

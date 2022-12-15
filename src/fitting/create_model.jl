@@ -1,6 +1,12 @@
 """
 """
-@model function create_agent_model(agent, param_priors, inputs, actions, impute_missing_actions)
+@model function create_agent_model(
+    agent,
+    param_priors,
+    inputs,
+    actions,
+    impute_missing_actions,
+)
 
     #Initialize dictionary for storing sampled parameters
     fitted_params = Dict()
@@ -48,8 +54,7 @@
                     enumerate(action_probability_distribution)
 
                     #If the action isn't missing, or if missing actions are to be imputed
-                    if !ismissing(actions[timestep, action_indx]) ||
-                    impute_missing_actions
+                    if !ismissing(actions[timestep, action_indx]) || impute_missing_actions
                         #Pass it to Turing
                         actions[timestep, action_indx] ~ distribution
                     end

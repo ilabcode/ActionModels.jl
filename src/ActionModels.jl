@@ -7,7 +7,8 @@ using Turing, Distributions, RecipesBase, Logging, Distributed
 export Agent, RejectParameters
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions
 export create_agent_model, fit_model
-export plot_parameter_distribution, plot_predictive_simulation, plot_trajectory, plot_trajectory!
+export plot_parameter_distribution,
+    plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history, get_states, get_params, set_params!, reset!, give_inputs!
 export get_posteriors
 

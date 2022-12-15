@@ -10,10 +10,12 @@ function Turing.get_params(agent::Agent, target_param::Union{String,Tuple})
         #Extract it
         param = agent.params[target_param]
 
-    #If the target parameter is in the agent's initial state parameters
-    elseif target_param isa Tuple && target_param[1] == "initial" && target_param[2] in keys(agent.initial_state_params)
+        #If the target parameter is in the agent's initial state parameters
+    elseif target_param isa Tuple &&
+           target_param[1] == "initial" &&
+           target_param[2] in keys(agent.initial_state_params)
         #Extract it
-        param = agent.initial_state_params[target_param[2]] 
+        param = agent.initial_state_params[target_param[2]]
     else
         #Otherwise look in the substruct
         param = get_params(agent.substruct, target_param)
