@@ -2,7 +2,7 @@ function Base.show(io::IO, agent::Agent)
 
     ##Get information from agent struct
     action_model_name = string(agent.action_model)
-    n_params = length(get_params(agent)) 
+    n_parameters = length(get_parameters(agent))
     n_states = length(get_states(agent))
     n_settings = length(agent.settings)
     n_observations = length(agent.history["action"]) - 1
@@ -18,9 +18,9 @@ function Base.show(io::IO, agent::Agent)
         println("Substruct type: $substruct_type")
     end
 
-    #Params
-    if n_params > 0
-        println("Number of parameters: $n_params")
+    #parameters
+    if n_parameters > 0
+        println("Number of parameters: $n_parameters")
     end
 
     #States
@@ -32,7 +32,7 @@ function Base.show(io::IO, agent::Agent)
     end
 
     #Number of observations
-    if n_observations >0
+    if n_observations > 0
         println("This agent has received $n_observations inputs")
     end
 end

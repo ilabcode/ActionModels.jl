@@ -9,8 +9,8 @@ Agent parameters needed in this action model are "learning_rate" and "softmax_ac
 function binary_rw_softmax(agent::Agent, input)
 
     #Read in parameters
-    learning_rate = agent.params["learning_rate"]
-    action_precision = agent.params["softmax_action_precision"]
+    learning_rate = agent.parameters["learning_rate"]
+    action_precision = agent.parameters["softmax_action_precision"]
 
     #Read in states
     old_value = agent.states["value"]
