@@ -22,7 +22,7 @@ makedocs(;
     authors = "Peter Thestrup Waade ptw@cas.au.dk, Jacopo Comoglio jacopo.comoglio@gmail.com, Christoph Mathys chmathys@cas.au.dk
                   and contributors",
     repo = "https://github.com/ilabcode/ActionModels.jl/blob/{commit}{path}#{line}",
-    sitename = "HGF.jl",
+    sitename = "ActionModels.jl",
     format = Documenter.HTML(;
         prettyurls = get(ENV, "CI", "false") == "true",
         canonical = "https://ilabcode.github.io/ActionModels.jl",
