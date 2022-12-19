@@ -23,6 +23,6 @@ jobs:
     
     - name: Auto approve dependabot PRs
       if: github.actor == 'dependabot[bot]'
-      uses: hmarr/auto-approve-action@v2
+      uses: hmarr/auto-approve-action@v3
       with: 
         github-token: ${{ secrets.GITHUB_TOKEN }}
