@@ -1,24 +1,22 @@
 
 """
     init_agent(action_model::Function; substruct::Any = nothing, parameters::Dict = Dict(), states::Union{Dict, Vector} = Dict(),
-    settings::Dict = Dict(),)
-
-Function to initialize agent. 
+    settings::Dict = Dict())
+    
+Initialize and agent. 
 
 Note that action_model can also be specified as a vector of action models: action_model::Vector{Function}.
 In this case the action models will be stored in the agent's settings. In that case use the function 'multiple_actions'
 
 # Arguments
- - 'action_model::Function': input an action model either from premade action models or a custom actionmodel
- - 'substruct::Any = nothing': struct with own parameters and states which utility functions also get called on. Check advanced usage guide.
- - 'parameters::Dict = Dict()': Parameters of the agent. These are both parameters specifying initial states of the agent as well as the agents regular parameters.
- - 'states::Union{Dict, Vector} = Dict()': Write the states of the agent
- - 'settings::Dict = Dict()': used for variables that are not parameters or states that you want to use. e.g. if multiple action models are specified, they are stored in the settings.
+ - 'action_model::Function': a function specifying the agent's action model. Can be any function that takes an agent and a single input as arguments, and returns a probability distribution from which actions are sampled.
+ - 'substruct::Any = nothing': struct containing additional parameters and states. This structure also get passed to utility functions. Check advanced usage guide.
+ - 'parameters::Dict = Dict()': dictionary containing parameters of the agent. Keys are parameter names (strings, or tuples of strings), values are parameter values.
+ - 'states::Union{Dict, Vector} = Dict()': dictionary containing states of the agent. Keys are state names (strings, or tuples of strings), values are initial state values. Can also be a vector of state name strings.
+ - 'settings::Dict = Dict()': dictionary containing additional settings for the agent. Keys are setting names, values are setting values.
 
 """
-
 function init_agent() end
-
 
 
 function init_agent(

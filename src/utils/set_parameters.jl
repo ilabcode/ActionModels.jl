@@ -1,8 +1,8 @@
 ###Function for setting a single parameter ###
 """
-set_parameters!(agent::Agent,  target_param::Union{String,Tuple}, param_value::Any)
+    set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_value::Any)
 
-Function for setting a single parameter in an agent. Input to the function is an agent, the parameter name and the parameter value.
+Setting a single parameter value for an agent.
 """
 function set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_value::Any)
 
@@ -24,8 +24,6 @@ function set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_
     end
 end
 
-"""
-"""
 function set_parameters!(
     substruct::Nothing,
     target_param::Union{String,Tuple},
@@ -37,17 +35,16 @@ function set_parameters!(
 end
 
 
-
 ### Function for setting multiple parameters
 """
-    set_parameters!(agent::Agent, parameters::Dict)
+    set_parameters!(agent::Agent, parameter_values::Dict)
 
-Setting multiple parameters in dictionary where parameter name is specified followed by parameter value. 
+Set mutliple parameters values for an agent. Takes a dictionary of parameter names and values.
 """
-function set_parameters!(agent::Agent, parameters::Dict)
+function set_parameters!(agent::Agent, parameter_values::Dict)
 
     #For each parameter to set
-    for (param_key, param_value) in parameters
+    for (param_key, param_value) in parameter_values
         #Set that parameter
         set_parameters!(agent, param_key, param_value)
     end

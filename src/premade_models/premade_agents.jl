@@ -1,9 +1,8 @@
 """
     premade_binary_rw_softmax(config::Dict)
 
-Create premade agent according to binary Rescorla-Wagner softmax model.
-Parameters in this agent are "learning_rate" and "softmax_action_precision".
-
+Create premade agent that uses the binary_rw_softmax action model.
+Config: "learning_rate", "softmax_action_precision", ("initial", "value").
 """
 
 function premade_binary_rw_softmax(config::Dict)
@@ -30,7 +29,7 @@ function premade_binary_rw_softmax(config::Dict)
     )
     states = Dict(
         "value" => missing,
-        "transformed_value" => missing,
+        "value_probability" => missing,
         "action_probability" => missing,
     )
     settings = Dict()

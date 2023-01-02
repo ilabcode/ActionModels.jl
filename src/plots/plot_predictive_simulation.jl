@@ -4,20 +4,21 @@ plot_predictive_simulation(param_distributions::Union{Chains,Dict}, agent::Agent
     label::Union{String,Tuple} = target_state, alpha::Real = 0.1, linewidth::Real = 2,
 )
 
-compute predictive simulation of target state/states given a set of parameter distributions.
+Simulate distributions of states and actions for an agent, with parameters sampled from a specified distirbutions, and given a series of inputs.
 
 # Arguments
-- 'param_distributions::Union{Chains,Dict}': The parameter distributions you want to sample from during the predictive simulation. This can be a turing chain of posteriors or a regular parameter distribution.
-- 'agent::Agent': specified premade agent or custom made agent.
-- 'inputs::Array': input observations to your agent
-- 'target_state::Union{String,Tuple}': the state(s) or actions you want to do simulate. Note that the target state(s) need to be in the agents history. 
-- 'fixed_parameters::Dict = Dict()': The fixed parameters which do not vary during the simulation.
-- 'n_simulations::Int = 100': amount of simulations you want to run.
-- 'verbose::Bool = true': if you wish to hide warnings set to false
-- 'median_color::Union{String,Symbol} = :red': specify color of median value in the plot
-- 'label::Union{String,Tuple} = target_state': label on graph
-- 'alpha::Real = 0.1': 
-- 'linewidth::Real = 2': specify linewidth on your plot
+- 'param_distributions::Union{Chains,Dict}': Distributions to sample parameters from. Can be a dictionary containing keys and distributions, or a Turing Chain object containing the posterior distributions after fitting.
+- 'agent::Agent': an ActionModels agent object created with either premade_agent or init_agent.
+- 'inputs:Array': array of inputs. Each row is a timestep, and each column is a single input value.
+- 'target_state::Union{String,Tuple}': the state for which to plot the simulated distribution. If set to 'action', plot the action distribution. Note that the target state must be in the agent's history. 
+- 'fixed_parameters::Dict = Dict()': dictionary containing parameter values for parameters that are not fitted. Keys are parameter names, values are priors. For parameters not specified here and without priors, the parameter values of the agent are used instead.
+- 'n_simulations::Int = 100': set number of simulations you want to run.
+- 'verbose = true': set to false to hide warnings.
+- 'median_color::Union{String,Symbol} = :red': specify color of median value in the plot.
+- 'title::String = "Sampled trajectories"': title on graph.
+- 'label::Union{String,Tuple} = target_state': label on graph.
+- 'alpha::Real = 0.1': the transparency of each simulated trajectory line.
+- 'linewidth::Real = 2': specify linewidth on your plot.
 """
 function plot_predictive_simulation(
     param_distributions::Union{Chains,Dict},
