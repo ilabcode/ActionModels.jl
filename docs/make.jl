@@ -13,6 +13,8 @@ using Literate
 #     end
 # end
 
+# Literate.markdown("./src/Using_the_package/variations_of_util.jl",documenter=true)
+
 #Set documenter metadata
 DocMeta.setdocmeta!(ActionModels, :DocTestSetup, :(using ActionModels); recursive = true)
 

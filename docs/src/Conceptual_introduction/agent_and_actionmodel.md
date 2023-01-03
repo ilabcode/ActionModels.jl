@@ -21,15 +21,17 @@ We will introduce a very standard reinforcement learning action model, the binar
 
 When initializing an agent, we may in some cases need a starting value for certain states. These initial values are categorized as an 'initial state parameter'. In the premade Rescorla-Wagner agent the "value" state is initialized at 0 by default. The learning rate parameter and the action presicion are both set to 1. 
 
-The transformed value is calculated based on the input value (in the first run the initial state parameter for the "value" state) as seen in the equation below. In the first run the old value is equal to the initial state value. 
+The transformed value is calculated based on the input value (in the first run the initial state parameter for the "value" state) as seen in the equation below.  
 
-$transformed \; old \; value = \frac{1}{1+exp(-old \; value)}$ 
+
+$ \hat{q}_{n-1} =\frac{1}{1+exp(-q_{n-1})} $ 
 
 From this we can compute the new value from which an action probability can be calculated.
 
-$new \;value = old \; value + learning \; rate \cdot (input - transformed \;old \; value)$
+$ q_n = \hat{q}_{n-1}+ \alpha \cdot (u_n-\hat{q}_{n-1})$
 
-$Action\; probability =  \frac{1}{1+exp(-action \; precision \cdot new \; value)}$
+$ p=  \frac{1}{1+exp(-\beta \cdot q_n)}$
+
 
 The last state "action probability" is the mean of an Bernoulli distribution from which an action can be sampled.
 

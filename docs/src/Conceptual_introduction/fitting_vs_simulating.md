@@ -11,4 +11,3 @@ Fitting is an obvious path if you have action data from a participant, and you w
 Both simulating and fitting with the actionmodels.jl package is straight forward, and will be elaborated further on in the [fitting a model](../Using_the_package/fitting_an_agent_model_to_data.md) and [simulating with an agent](../Using_the_package/Simulation_with_an_agent.md) section.
 
 
-
