@@ -1,6 +1,5 @@
 """""
-    fit_model(agent::Agent,inputs::Array,actions::Vector,param_priors::Dict,fixed_parameters::Dict = Dict();
-    sampler = NUTS(),n_iterations = 1000, n_chains = 1,verbose = true,)
+    fit_model(agent::Agent, inputs::Array, actions::Vector, param_priors::Dict, kwargs...)
 
 Use Turing to fit the parameters of an agent to a set of inputs and corresponding actions.
 
@@ -17,6 +16,22 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  - 'verbose = true': set to false to hide warnings.
  - 'show_sample_rejections = false': set whether to show warnings whenever samples are rejected.
  - 'impute_missing_actions = false': set whether the values of missing actions should also be estimated by Turing.
+
+ # Examples
+```julia
+#Create a premade agent: binary Rescorla-Wagner
+agent = premade_agent("premade_binary_rw_softmax")
+
+#Set priors for the learning rate
+param_priors = Dict("learning_rate" => Uniform(0, 1))
+
+#Set inputs and actions
+inputs = [1, 0, 1]
+actions = [1, 1, 0]
+
+#Fit the model
+fit_model(agent, param_priors, inputs, actions, n_chains = 1, n_iterations = 10)
+```
 """
 function fit_model(
     agent::Agent,

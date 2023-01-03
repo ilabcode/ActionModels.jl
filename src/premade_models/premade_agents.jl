@@ -2,7 +2,11 @@
     premade_binary_rw_softmax(config::Dict)
 
 Create premade agent that uses the binary_rw_softmax action model.
-Config: "learning_rate", "softmax_action_precision", ("initial", "value").
+
+# Config defaults:
+ - "learning_rate": 1
+ - "softmax_action_precision": 1
+ - ("initial", "value"): 0
 """
 
 function premade_binary_rw_softmax(config::Dict)

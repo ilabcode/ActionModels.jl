@@ -3,7 +3,14 @@
     set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_value::Any)
 
 Setting a single parameter value for an agent.
+
+    set_parameters!(agent::Agent, parameter_values::Dict)
+
+Set mutliple parameters values for an agent. Takes a dictionary of parameter names and values.
 """
+function set_parameters! end
+
+### Function for setting a single parameter ###
 function set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_value::Any)
 
     #If the parameter exists in the agent's parameters
@@ -35,12 +42,7 @@ function set_parameters!(
 end
 
 
-### Function for setting multiple parameters
-"""
-    set_parameters!(agent::Agent, parameter_values::Dict)
-
-Set mutliple parameters values for an agent. Takes a dictionary of parameter names and values.
-"""
+### Function for setting multiple parameters ###
 function set_parameters!(agent::Agent, parameter_values::Dict)
 
     #For each parameter to set

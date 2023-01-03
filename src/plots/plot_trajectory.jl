@@ -1,7 +1,7 @@
 """
     plot_trajector(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
-plot trajectory of a state from an agent. 
+Plot trajectory of a state from an agent. Keyword arguments are passed to Plots.
 """
 function plot_trajectory end
 

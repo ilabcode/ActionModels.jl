@@ -2,6 +2,7 @@
     binary_rw_softmax(agent::Agent, input::Bool)
 
 Action model that learns from binary inputs with a classic Rescorla-Wagner model. Passes learnt probabilities through a softmax to get the action prpbability distribution.
+
 Parameters: "learning_rate" and "softmax_action_precision".
 States: "value", "value_probability", "action_probability".
 """

@@ -3,7 +3,7 @@
     init_agent(action_model::Function; substruct::Any = nothing, parameters::Dict = Dict(), states::Union{Dict, Vector} = Dict(),
     settings::Dict = Dict())
     
-Initialize and agent. 
+Initialize an agent. 
 
 Note that action_model can also be specified as a vector of action models: action_model::Vector{Function}.
 In this case the action models will be stored in the agent's settings. In that case use the function 'multiple_actions'
@@ -14,6 +14,66 @@ In this case the action models will be stored in the agent's settings. In that c
  - 'parameters::Dict = Dict()': dictionary containing parameters of the agent. Keys are parameter names (strings, or tuples of strings), values are parameter values.
  - 'states::Union{Dict, Vector} = Dict()': dictionary containing states of the agent. Keys are state names (strings, or tuples of strings), values are initial state values. Can also be a vector of state name strings.
  - 'settings::Dict = Dict()': dictionary containing additional settings for the agent. Keys are setting names, values are setting values.
+
+# Examples
+```julia
+## Create agent with a binary Rescorla-Wagner action model ##
+
+## Create action model function
+function binary_rw_softmax(agent::Agent, input::Union{Bool,Integer})
+
+    #Read in parameters
+    learning_rate = agent.parameters["learning_rate"]
+    action_precision = agent.parameters["softmax_action_precision"]
+
+    #Read in states
+    old_value = agent.states["value"]
+
+    #Sigmoid transform the value
+    old_value_probability = 1 / (1 + exp(-old_value))
+
+    #Get new value state
+    new_value = old_value + learning_rate * (input - old_value_probability)
+
+    #Pass through softmax to get action probability
+    action_probability = 1 / (1 + exp(-action_precision * new_value))
+
+    #Create Bernoulli normal distribution with mean of the target value and a standard deviation from parameters
+    action_distribution = Distributions.Bernoulli(action_probability)
+
+    #Update states
+    agent.states["value"] = new_value
+    agent.states["value_probability"], 1 / (1 + exp(-new_value))
+    agent.states["action_probability"], action_probability
+    #Add to history
+    push!(agent.history["value"], new_value)
+    push!(agent.history["value_probability"], 1 / (1 + exp(-new_value)))
+    push!(agent.history["action_probability"], action_probability)
+
+    return action_distribution
+end
+
+#Define requried parameters
+parameters = Dict(
+    "learning_rate" => 1,
+    "softmax_action_precision" => 1,
+    ("initial", "value") => 0,
+)
+
+#Define required states
+states = Dict(
+    "value" => missing,
+    "value_probability" => missing,
+    "action_probability" => missing,
+)
+
+#Create agent
+agent = init_agent(
+    binary_rw_softmax,
+    parameters = parameters,
+    states = states,
+    settings = settings,
+)
 
 """
 function init_agent() end
