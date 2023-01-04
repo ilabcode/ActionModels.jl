@@ -15,7 +15,7 @@ using ActionModels #hide
 
 # you can define a premade agent using the premade_agent() function. The function call is the following:
 
-premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
+#premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
 
 # Model_name is the type of premade agent you wish to use. You can get a list of premade agents with the command:
 
@@ -82,13 +82,13 @@ get_parameters(agent_custom_parameters)
 
 
 # The elements to specify in init_agent() can be seen below. 
-init_agent(
-    action_model::Function;
-    substruct::Any = nothing,
-    parameters::Dict = Dict(),
-    states::Union{Dict,Vector} = Dict(),
-    settings::Dict = Dict(),
-)
+#init_agent(
+ #   action_model::Function;
+ #   substruct::Any = nothing,
+ #   parameters::Dict = Dict(),
+ #   states::Union{Dict,Vector} = Dict(),
+  #  settings::Dict = Dict(),
+#)
 
 # The use of substructs and settings are optional, see advanced usage for more information on this.
 
@@ -102,8 +102,7 @@ parameters = Dict(
 
 
 # We can now define the action model to be used in the agent, which can be both premade or custom made.
-
-action_model = your_chosen_actionmodel
+action_model = ActionModels.premade_binary_rw_softmax
 
 
 
@@ -122,7 +121,7 @@ states = Dict(
 
 custom_agent = init_agent(
     action_model,
-    params = parameters,
+    parameters = parameters,
     states = states)
 
 # Let's have a look at the parameters and states in our agent. 

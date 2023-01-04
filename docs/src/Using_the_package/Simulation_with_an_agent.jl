@@ -14,7 +14,7 @@
 using ActionModels #hide
 
 
-give_inputs(agent::Agent, inputs::Real) 
+#give_inputs(agent::Agent, inputs::Real) 
 
 # When you give inputs to the agent, it produces actions according to the action model it is defined with.
 
@@ -67,7 +67,7 @@ using Plots
 
 # we can visualize the different types of states using the function:
 
-plot_trajectory(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
+#plot_trajectory(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
 # The default title when using plot_trajectory() is "state trajectory". This can be changed by adding a title-call as below. We can plot the actions and the action probability of the agent in two seperate plots:
 

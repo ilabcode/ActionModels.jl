@@ -50,7 +50,7 @@ set_parameters!(agent,("initial", "value"), 1 )
 # Setting multiple parameters in an agent
 set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision"=>0.5))
 
-# See the parameters we have set uising get_params function
+# See the parameters we have set uising get_parameters function
 get_parameters(agent)
 
 
@@ -90,7 +90,7 @@ actions = give_inputs!(agent,inputs)
 priors = Dict("softmax_action_precision" => Normal(1, 0.5), "learning_rate"=> Normal(1, 0.1))
 
 # Fit the model
-fitted_model = fit_model(agent, inputs, actions, priors)
+fitted_model = fit_model(agent,priors, inputs, actions)
 
 
 # We can now use the get_posteriors() 

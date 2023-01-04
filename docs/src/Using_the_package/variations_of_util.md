@@ -44,7 +44,7 @@ get_states(agent, ["transformed_value", "action"])
 
 ### get_parameters()
 
-get_parameters() work just like get_states, but will give you the parameters of the agent:
+get\_parameters() work just like get_states, but will give you the parameters of the agent:
 
 lets start with all parameters
 
@@ -52,13 +52,13 @@ lets start with all parameters
 get_parameters(agent)
 ````
 
-get a single parameter
+Get a single parameter
 
 ````@example variations_of_util
 get_parameters(agent,("initial", "value"))
 ````
 
-get multiple parameters
+Get multiple parameters
 
 ````@example variations_of_util
 get_parameters(agent, [("initial", "value"), "learning_rate"])
@@ -78,7 +78,7 @@ Setting multiple parameters in an agent
 set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision"=>0.5))
 ````
 
-See the parameters we have set uising get_params function
+See the parameters we have set uising get_parameters function
 
 ````@example variations_of_util
 get_parameters(agent)
@@ -86,25 +86,25 @@ get_parameters(agent)
 
 ### get_history()
 
-to get the history we need to give inputs to the agent. Let's start by giving a single input
+To get the history we need to give inputs to the agent. Let's start by giving a single input
 
 ````@example variations_of_util
 give_inputs!(agent, 1)
 ````
 
-we can now get the history of the agent's states. We can have a look at the "value" state
+We can now get the history of the agent's states. We can have a look at the "value" state.
 
 ````@example variations_of_util
 get_history(agent, "value")
 ````
 
-and get multiple states' histories
+Get multiple states' histories
 
 ````@example variations_of_util
 get_history(agent, ["value","action"])
 ````
 
-lastly, get all history of the agent
+Lastly, get all history of the agent
 
 ````@example variations_of_util
 get_history(agent)
@@ -112,24 +112,36 @@ get_history(agent)
 
 ### get_posteriors()
 
-get_posteirors() is a funcion for extracting parameters from a Turing chain. Let us set up a fitted model:
+get\_posteirors() is a funcion for extracting parameters from a Turing chain. Let us set up a fitted model:
 
-let us reset our agent and make it ready for new input
+Let us reset our agent and make it ready for new input
 
 ````@example variations_of_util
 reset!(agent)
+````
 
-#define a range of inputs
+Define a range of inputs
+
+````@example variations_of_util
 inputs = [1,0,0,1,1,0,1,0,1,0,0,0,0,0,1,1,1,0,0,1,0,1]
+````
 
-#define actions
+Define actions
+
+````@example variations_of_util
 actions = give_inputs!(agent,inputs)
+````
 
-#set a prior for the parameter we wish to fit
+Set a prior for the parameter we wish to fit
+
+````@example variations_of_util
 priors = Dict("softmax_action_precision" => Normal(1, 0.5), "learning_rate"=> Normal(1, 0.1))
+````
 
-#fit the model
-fitted_model = fit_model(agent, inputs, actions, priors)
+Fit the model
+
+````@example variations_of_util
+fitted_model = fit_model(agent,priors, inputs, actions)
 ````
 
 We can now use the get_posteriors()

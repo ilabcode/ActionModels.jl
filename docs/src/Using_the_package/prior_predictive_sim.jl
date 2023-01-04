@@ -52,7 +52,7 @@ get_states(agent)
 target_state = "action_probability"
 
 #see which parameter we wish to simulate from
-get_params(agent)
+get_parameters(agent)
 #Let us choose leanring rate, and set a prior
 prior_learning_rate = Dict("learning_rate" => Normal(1.2, 0.5))
 
@@ -72,7 +72,7 @@ plot_predictive_simulation(prior_learning_rate, agent, inputs, target_state)
 
 actions = give_inputs!(agent, inputs)
 
-fitted_model = fit_model(agent, inputs, actions, prior_learning_rate)
+fitted_model = fit_model(agent, prior_learning_rate, inputs, actions)
 
 # The plot\_predictive\_simulation() function recognizes a fitted model, more specifically a turing chain of posteriors. We can therefore input the fitted model as our posterior.
 

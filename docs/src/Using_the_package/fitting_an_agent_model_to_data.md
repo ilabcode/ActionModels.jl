@@ -71,7 +71,7 @@ actions = give_inputs!(agent,inputs)
 Let's take a look at what parameter in the agent we could fit:
 
 ````@example fitting_an_agent_model_to_data
-get_params(agent)
+get_parameters(agent)
 ````
 
 We want to fit learning_rate. Let us define a prior for the parameter. We set this prior as a normal distribution with mean 1 and standard deviation 0.5. It is important to note that it is possible to fit multiple parameters at the same time. In that case you would simply add more priors in the dict.
@@ -85,7 +85,7 @@ When we set a prior for a parameter it overwrites the parameter in the agent dur
 We have our agent, inputs, actions and priors. This is what we need to fit.
 
 ````@example fitting_an_agent_model_to_data
-fitted_model = fit_model(agent, inputs, actions, priors)
+fitted_model = fit_model(agent,  priors, inputs, actions)
 ````
 
 As output you are presented with the summary statistics.
@@ -119,7 +119,7 @@ Add an extra prior in the Dict
 ````@example fitting_an_agent_model_to_data
 multiple_priors = Dict("learning_rate" => Normal(1, 0.5),"softmax_action_precision"=> Normal(0.8,0.2))
 
-multiple_fit = fit_model(agent, inputs, actions, multiple_priors)
+multiple_fit = fit_model(agent, multiple_priors, inputs, actions)
 ````
 
 Plot the parameter distribution

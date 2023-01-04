@@ -20,7 +20,7 @@ using ActionModels #hide
 you can define a premade agent using the premade_agent() function. The function call is the following:
 
 ````@example Creating_your_agent
-premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
+#premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
 ````
 
 Model_name is the type of premade agent you wish to use. You can get a list of premade agents with the command:
@@ -106,13 +106,17 @@ If you wish to create your own custom agent, it is fairly simple and straight fo
 The elements to specify in init_agent() can be seen below.
 
 ````@example Creating_your_agent
-init_agent(
-    action_model::Function;
-    substruct::Any = nothing,
-    parameters::Dict = Dict(),
-    states::Union{Dict,Vector} = Dict(),
-    settings::Dict = Dict(),
-)
+#init_agent(
+````
+
+  action_model::Function;
+  substruct::Any = nothing,
+  parameters::Dict = Dict(),
+  states::Union{Dict,Vector} = Dict(),
+ settings::Dict = Dict(),
+
+````@example Creating_your_agent
+#)
 ````
 
 The use of substructs and settings are optional, see advanced usage for more information on this.
@@ -131,7 +135,7 @@ The ("initial", "state\_1") and ("initial", "state\_2") parameters are initial s
 We can now define the action model to be used in the agent, which can be both premade or custom made.
 
 ````@example Creating_your_agent
-action_model = your_chosen_actionmodel
+action_model = ActionModels.premade_binary_rw_softmax
 ````
 
 At this point we can define our states. These states are all set to missing, but the states that thave initial state parameters will be overwritten once we initialize our agent.
@@ -149,7 +153,7 @@ We can now input parameters, action model and states in the init_agent() functio
 ````@example Creating_your_agent
 custom_agent = init_agent(
     action_model,
-    params = parameters,
+    parameters = parameters,
     states = states)
 ````
 
