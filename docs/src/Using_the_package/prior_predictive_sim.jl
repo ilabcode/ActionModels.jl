@@ -1,5 +1,5 @@
 
-# # Prior/Posterior Predictive Simulations
+# # Predictive Simulations
 
 # In order to set a good prior, a prior predicitve simulation is a principled method for testing 
 
@@ -8,19 +8,19 @@
 
 # ## Overview
 
-# ###  - What prior/posterior predictive simulation is
-# ###  - Introduction to the plot\_predictive\_simulation() function
-# ###  - example of prior predictive simulation
-# ###  - example of posterior predictive simulation
+# -  [What prior/posterior predictive simulation is](#Predictive-simulations)
+#  - [Introduction to the plot\_predictive\_simulation() function](#The-plot\_predictive\_simulation())
+#  - [example of prior predictive simulation](#Example-of-prior-predictive-simulaiton)
+#  - [example of posterior predictive simulation](#Posterior-predictive-simulations)
 
 
 
-# ## prior/posterior predictive simulations
+# ## Predictive simulations
 
 # When we do prior predictive simulations, it is often with the goal of setting a reasonable prior based on our expectations on what range our target state might be in. An example could be, that we want to fit a target state influencing actions measured in reaction time. Our prior for this parameter should not make the agent produce negative reaction times during the simulation. 
 # Let us take a look at the figure illustrating the process:
 
-# ![Image1](./images/predictive_sim.png)
+# ![Image1](Using_the_package/images/predictive_sim.png)
 
 # We have a prior of one (or more) target parameters which we want to fit, and take a random sample from the prior distribution. This prior is placed in the agent alongside with earlier specified fixed parameters. We simulate forward and give the agent inputs. Depending on which target state you are interested in, you get the history of that state. 
 
@@ -32,15 +32,14 @@
 
 # The inputs to the function are the following
 
-# ![Image1](./images/plot_predictive_code.png)
+# ![Image1](Using_the_package/images/plot_predictive_code.png)
 
+# ### Example of prior predictive simulaiton
 # Let us go through a prior predictive simulation
 
 #load packages
 using ActionModels 
-using Plots 
-using Distributions 
-using StatsPlots 
+
 #Define an agent
 agent = premade_agent("premade_binary_rw_softmax")
 #Define input
@@ -53,12 +52,15 @@ target_state = "action_probability"
 
 #see which parameter we wish to simulate from
 get_parameters(agent)
+
 #Let us choose leanring rate, and set a prior
+using Distributions 
 prior_learning_rate = Dict("learning_rate" => Normal(1.2, 0.5))
 
 
 # Insert values in the function
-
+using Plots 
+using StatsPlots 
 plot_predictive_simulation(prior_learning_rate, agent, inputs, target_state)
 
 

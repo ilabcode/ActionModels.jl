@@ -3,14 +3,14 @@
 
 As a very general structue we can illustrate the relation between input and action/response as below. 
 
-![Image1](./images/action_input.png)
+![Image1](./src/images/action_input.png)
 *We can generate actions based on inputs. How we use the input to generate actions happens according to the action model*
 
 An action model is a *way* of assuming how an agents actions are generated from inputs. An action model can be modulated according to a specific experimental use or how we assume a specific agent operates. 
 
 The mapping between inputs and actions can be extended. We will add the following elements which all action models operate with: parameters and states. The new expanded version is seen below.
 
-![Image2](./images/structure_with_action_model.png)
+![Image2](./src/images/structure_with_action_model.png)
 *We can extend the action model arrow with parameters and states. Parameters are stable and contribute as constants to the system. States change and evolve according to input and parameters (the way states change happens accordingly to the structure of the action model).*
 
 When defining an agent, you also have to define an action model for the agent to use. you also define the states, parameters, and an optional substruct (see [advanced usage](Advanced_use/../../Advanced_use/complicated_custom_agents.md)) of the agent. 

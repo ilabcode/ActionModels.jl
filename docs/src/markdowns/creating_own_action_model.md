@@ -6,16 +6,15 @@ EditURL = "<unknown>/src/Using_the_package/creating_own_action_model.jl"
 
 ### In this section we will demonstrate the following
 
-  - A structure comparison between an agent and an action model
-  - Components and structure of an action model
-  - Tutorial on how to make the Rescorla-Wagner softmax action model
-  - Creating a custom agent to the action model with init_agent()
+  - [A structure comparison between an agent and an action model](#visual-structure-of-agent-and-action-model)
+  - [Tutorial on how to make the Rescorla-Wagner softmax action model](#Building-the-Rescorla-Wagner-action-model)
+  - [Creating a custom agent to the action model with init_agent()](#Create-An-Agent)
 
 An action model should always return an action distribution from which an aciton can be sampled.
 
 ### visual structure of agent and action model
 
-![Image1](./images/actionmodel_custom.png)
+![Image1](Using_the_package/images/actionmodel_custom.png)
 
 let us start by the left side of the model. We have an agent with a set of defined parameters, states and a setting.
 
@@ -29,7 +28,7 @@ When building a custom action model you will have to (roughly) think of 3 things
   - What does the update step constist of?
   - What variables (parameters and states) are used in the update step and which do I wish to save in the agent history?
 
-## Building the Rescorla-Wagner action model
+### Building the Rescorla-Wagner action model
 
 In this example we will construct an action model according to Rescorla-Wagner. First, let us recall the parameters and states needed for this action model.
 
@@ -48,28 +47,26 @@ function custom_rescorla_wagner_softmax(agent::Agent, input)
     learning_rate = agent.parameters["learning_rate"]
     action_precision = agent.parameters["softmax_action_precision"]
 
-    #Read in states with an initial value
-    old_value = agent.states["value"] 
+    # Read in states with an initial value
+    old_value = agent.states["value"]
 
-    #We dont have any settings in this model. If we had, we would read them in as well.
-
-    # ----- This is where the update step starts -------
+    ##We dont have any settings in this model. If we had, we would read them in as well.
+    ##-----This is where the update step starts -------
 
     # Sigmoid transform the value
-    old_value_probability = 1 / (1 + exp(-old_value))   
+    old_value_probability = 1 / (1 + exp(-old_value))
 
-    #Get new value state
-    new_value = old_value + learning_rate * (input - old_value_probability) 
+    ##Get new value state
+    new_value = old_value + learning_rate * (input - old_value_probability)
 
-    #Pass through softmax to get action probability
+    ##Pass through softmax to get action probability
     action_probability = 1 / (1 + exp(-action_precision * new_value))
 
-    #----- This is where the update step ends -------
+    ##-----This is where the update step ends -------
+    ##Create Bernoulli normal distribution our action probability which we calculated in the update step
+    action_distribution = Distributions.Bernoulli(action_probability)
 
-    #Create Bernoulli normal distribution our action probability which we calculated in the update step
-    action_distribution = Distributions.Bernoulli(action_probability) 
-
-    #Update the states and save them to agent's history
+    ##Update the states and save them to agent's history
 
     agent.states["value"] = new_value
     agent.states["transformed_value"] = 1 / (1 + exp(-new_value))
@@ -84,7 +81,9 @@ function custom_rescorla_wagner_softmax(agent::Agent, input)
 end
 ````
 
-We can define the agent now. Let us do it with the init_agent() function.
+### Create An Agent
+
+We can define the agent now. Let us do it with the init_agent() function. We need to define parameters, states and action model.
 
 ````@example creating_own_action_model
 #Set the parameters:
@@ -123,7 +122,7 @@ agent = init_agent(
     )
 ````
 
-To see how to simulate actions by giving input to the agent see section "Simulation with an agent".
+In the next section you will be introduced to premade agents and models.
 
 ---
 

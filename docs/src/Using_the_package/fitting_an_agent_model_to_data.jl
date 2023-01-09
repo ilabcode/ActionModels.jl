@@ -5,10 +5,10 @@
 
 # ## In this section the following will be demonstrated
 
-#   - Recap of what fitting a model is
-#   - The fit_model() function 
-#   - tutorial of fitting one and more parameters
-#   - Plotting posteriors
+#   - [Recap of fitting models](#So-far-with-the-Actionmodels.jl-package)
+#   - [The fit_model() function](#The-fit_model()-function)
+#   - [tutorial of fitting one and more parameters](#Tutorial-of-basic-use-of-fit_model())
+#   - [Plotting posteriors](#Plotting-functions)
 
 
 # ### So far with the Actionmodels.jl package
@@ -18,7 +18,7 @@
 
 # This can lead os to what is meant by "fitting". We will again reference the illustration of comparing simulation and fitting:
 
-# ![Image1](./images/fitting_vs_simulation.png)
+# ![Image1](Using_the_package/images/fitting_vs_simulation.png)
 
 # When we fit, we know the actions and inputs. As we have seen earlier with different parameter settings for agents, these change their "behavior" and actions quite drastically . When we fit the parameters of a model, we try to find the parameter values which make that model most likely to produce observed actions. 
 # Finding good guesses to these parameter values can be usefull when examining differences between groups in experimental settings. 
@@ -30,7 +30,7 @@
 # The fit_ model() function takes the following inputs:
 
 
-# ![Image1](./images/fit_model_image.png)
+# ![Image1](Using_the_package/images/fit_model_image.png)
 
 
 # Let us run through the inputs to the function one by one. 
@@ -86,6 +86,7 @@ plot(fitted_model)
 
 
 
+# ### Plotting functions
 # For plotting the prior against the posterior use the plot\_parameter\_distribution function. 
 
 # The first argument in the fuction is the fitted model and the second are the priors. The plot is a vizuialisation comparing the fitted parameters compared to priors

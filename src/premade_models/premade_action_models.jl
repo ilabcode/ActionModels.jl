@@ -29,8 +29,8 @@ function binary_rw_softmax(agent::Agent, input)
 
     #Update states
     agent.states["value"] = new_value
-    agent.states["transformed_value"], 1 / (1 + exp(-new_value))
-    agent.states["action_probability"], action_probability
+    agent.states["transformed_value"] = 1 / (1 + exp(-new_value))
+    agent.states["action_probability"] = action_probability
     #Add to history
     push!(agent.history["value"], new_value)
     push!(agent.history["transformed_value"], 1 / (1 + exp(-new_value)))

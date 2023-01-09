@@ -3,16 +3,15 @@
 # We will in this section introduce action simulation with the Actionmodels.jl package. 
 
 # ### contents of this section 
-#   - The give_inputs() function.
-#   - Giving a single input to the agent and retrieving history.
-#   - Resetting the agent to initial state values.
-#   - Give_inputs() with a vector of inputs.
-#   - Get state history of a single state in the agent.
+#   - [The give_inputs() function](#Giving-Inputs-To-Agent)
+#   - [Giving a single input to the agent and retrieving history](#Give-a-single-input)
+#   - [Resetting the agent to initial state values](#Reset-Agent)
+#   - [Give_inputs() with a vector of inputs](#Multiple-Inputs)
+#   - [Plot State Trajectories](#Plotting-Trajectories-of-states)
+
+# ### Giving Inputs To Agent
 
 # With the ActionModels package you can, once you have defined your agent, use the function give_inputs to simulate actions.
-
-using ActionModels #hide
-
 
 #give_inputs(agent::Agent, inputs::Real) 
 
@@ -20,15 +19,16 @@ using ActionModels #hide
 
 # As can be seen in the figure below, when we know all parameter values, states and the inputs we can simulate actions
 
-# ![Image1](./images/fitting_vs_simulation.png)
+# ![Image1](Using_the_package/images/fitting_vs_simulation.png)
 
 # The type of inputs you can give to your agent depends on the agent and the action it generates depends on the corresponding action model.
 
 # Let us define our agent and use the dedault parameter configurations
+using ActionModels 
 
 agent = premade_agent("premade_binary_rw_softmax")
 
-
+# ### Give a single input
 # we can now give the agent a single input with the give_inputs!() function. The inputs for the Rescorla-Wagner agent are binary, so we input the value 1. 
 give_inputs!(agent, 1)
 
@@ -41,6 +41,7 @@ get_history(agent)
 # You can see in the "value" state contains two numbers. The first number is the initial state parameter which is set in the agent's configurations (see "Creating your agent" for more on the parameters and states). The second value in the "value" state is updated by the input.
 # The three other states are initialized with "missing" and evolve as we give it inputs. The states in the agent are updated according to which computations the action model does with the input. For more information on the Rescorla-Wagner action model, check out the [LINK TO CHAPTER]
 
+# ### Reset Agent
 # We would like to reset the agent to its default values with the reset!() function:
 
 reset!(agent)
@@ -49,6 +50,7 @@ reset!(agent)
 
 get_history(agent)
 
+# ### Multiple Inputs
 # We will now define a sequence of inputs to the agent. 
 
 inputs = [1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0]
@@ -61,15 +63,15 @@ actions = give_inputs!(agent, inputs)
 get_history(agent,"action_probability")
 
 
-# ## Plotting Trajectories of states
-
-using Plots 
+# ### Plotting Trajectories of states
 
 # we can visualize the different types of states using the function:
 
 #plot_trajectory(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
 # The default title when using plot_trajectory() is "state trajectory". This can be changed by adding a title-call as below. We can plot the actions and the action probability of the agent in two seperate plots:
+using Plots 
+using StatsPlots
 
 plot_trajectory(agent,"action", title = "actions")
 

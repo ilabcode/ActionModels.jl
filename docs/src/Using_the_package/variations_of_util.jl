@@ -4,18 +4,18 @@
 
 
 #  ## Content
-#  ### - get_states()
-#  ### - get_parameters()
-#  ### - set_parameters()
-#  ### - get_history()
-#  ###s - get_posteriors() and reset()
+#   - [getting states of an agent with: get_states()](#Getting-States)
+#   - [getting parameters of an agent with: get_parameters()](#Getting-Parameters)
+#   - [setting parameters of an agent with: set_parameters()](#Setting-Parameters)
+#   - [getting history of an agent with: get_history()](#Getting-History)
+#   - [resetting an agent with reset!() and getting posteriors with get_posteriors()](#Getting-Posteriors)
 
 # We will define an agent to use during demonstrations of the utility functions:
 using ActionModels #hide
 
 agent = premade_agent("premade_binary_rw_softmax")
 
-# ### get_states()
+# ### Getting States
 # The get_states() function can give you a single state, multiple states and all states of an agent. 
 
 # Let's start with all states
@@ -28,7 +28,7 @@ get_states(agent, "transformed_value")
 get_states(agent, ["transformed_value", "action"])
 
 
-# ### get_parameters()
+# ### Getting Parameters
 
 # get\_parameters() work just like get_states, but will give you the parameters of the agent:
 
@@ -42,7 +42,7 @@ get_parameters(agent,("initial", "value"))
 get_parameters(agent, [("initial", "value"), "learning_rate"])
 
 
-# ### set_parameters()
+# ### Setting Parameters
 
 # Setting a single parameter in an agent
 set_parameters!(agent,("initial", "value"), 1 )
@@ -54,7 +54,7 @@ set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision"=>0.
 get_parameters(agent)
 
 
-# ### get_history()
+# ### Getting History 
 
 # To get the history we need to give inputs to the agent. Let's start by giving a single input
 
@@ -73,7 +73,7 @@ get_history(agent, ["value","action"])
 get_history(agent)
 
 
-# ### get_posteriors()
+# ### Getting Posteriors 
 
 # get\_posteirors() is a funcion for extracting parameters from a Turing chain. Let us set up a fitted model:
 
@@ -87,12 +87,12 @@ inputs = [1,0,0,1,1,0,1,0,1,0,0,0,0,0,1,1,1,0,0,1,0,1]
 actions = give_inputs!(agent,inputs)
 
 # Set a prior for the parameter we wish to fit
+using Distributions
 priors = Dict("softmax_action_precision" => Normal(1, 0.5), "learning_rate"=> Normal(1, 0.1))
 
 # Fit the model
-fitted_model = fit_model(agent,priors, inputs, actions)
+fitted_model = fit_model(agent, priors, inputs, actions)
 
 
 # We can now use the get_posteriors() 
-
 get_posteriors(fitted_model)

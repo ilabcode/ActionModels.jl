@@ -2,18 +2,17 @@ using ActionModels
 using Documenter
 using Literate
 
-# #Remove old tutorial markdown files
-# for filename in readdir("src/tutorials")
-#     rm("src/tutorials/" * filename)
-# end
+ #Remove old tutorial markdown files
+ for filename in readdir("src/markdowns")
+     rm("src/markdowns/" * filename)
+ end
 #Generate new tutorial markdown files
-# for filename in readdir("tutorials")
-#     if endswith(filename, ".jl")
-#         Literate.markdown("tutorials/" * filename, "src/tutorials", documenter = true)
-#     end
-# end
+ for filename in readdir("src/Using_the_package")
+     if endswith(filename, ".jl")
+         Literate.markdown("./src/Using_the_package/" * filename, "src/Markdowns", documenter = true)
+     end
+ end
 
-# Literate.markdown("./src/Using_the_package/variations_of_util.jl",documenter=true)
 
 #Set documenter metadata
 DocMeta.setdocmeta!(ActionModels, :DocTestSetup, :(using ActionModels); recursive = true)
