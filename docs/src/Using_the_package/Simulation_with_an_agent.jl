@@ -156,7 +156,7 @@ function continuous_rescorla_wagner_softmax(agent, input)
 
     ##-----This is where the update step ends ------- 
     ##Create Bernoulli normal distribution our action probability which we calculated in the update step
-    action_distributions = Distributions.Normal(new_value,0.3)
+    action_distributions = Distributions.Normal(new_value, 0.3)
 
     ##Update the states and save them to agent's history 
 
@@ -173,32 +173,34 @@ end
 
 # Define an agent
 
-parameters =
-    Dict("learning_rate" => 1, "softmax_action_precision" => 1, ("initial", "value_cont") => 0,("initial", "value_binary") => 0,)
+parameters = Dict(
+    "learning_rate" => 1,
+    "softmax_action_precision" => 1,
+    ("initial", "value_cont") => 0,
+    ("initial", "value_binary") => 0,
+)
 
 # We set the initial state parameter for "value" state because we need a starting value in the update step. 
 
 # Let us define the states in the agent:
 states = Dict(
     "value_cont" => missing,
-    "value_binary"=> missing,
+    "value_binary" => missing,
     "input" => missing,
     "transformed_value" => missing,
     "action_probability" => missing,
-    )
+)
 
 
-agent = init_agent([continuous_rescorla_wagner_softmax,
-                        custom_rescorla_wagner_softmax], 
-                        parameters = parameters, 
-                        states = states)
-
-
-
-inputs = [1,0,1,1,1,0,0,1,0,1,0,0,0,1,1,1,0,0,1,1,0,1,0,0,1,1,0]
-
-
-multiple_actions(agent,inputs)
+agent = init_agent(
+    [continuous_rescorla_wagner_softmax, custom_rescorla_wagner_softmax],
+    parameters = parameters,
+    states = states,
+)
 
 
 
+inputs = [1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0]
+
+
+multiple_actions(agent, inputs)

@@ -5,4 +5,3 @@
 # A subtruct is a method to extend the computational power of an agent. Instead of all update steps are present in the action model, we can add a level of updates through the substruct. 
 
 # In a subtruct you can work with more states, define more parameters and in general fit more complex phenomena.
-

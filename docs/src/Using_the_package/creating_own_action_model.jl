@@ -61,7 +61,7 @@ function continuous_rescorla_wagner_softmax(agent, input)
 
     ##-----This is where the update step ends ------- 
     ##Create Bernoulli normal distribution our action probability which we calculated in the update step
-    action_distribution = Distributions.Normal(new_value,0.3)
+    action_distribution = Distributions.Normal(new_value, 0.3)
 
     ##Update the states and save them to agent's history 
 
@@ -77,36 +77,33 @@ end
 
 #Define agent
 
-parameters =
-    Dict("learning_rate" => 1, ("initial", "value") => 0)
+parameters = Dict("learning_rate" => 1, ("initial", "value") => 0)
 
 # We set the initial state parameter for "value" state because we need a starting value in the update step. 
 
 # Let us define the states in the agent:
-states = Dict(
-    "value" => missing,
-    "input" => missing,
-    )
+states = Dict("value" => missing, "input" => missing)
 
 
-agent = init_agent(continuous_rescorla_wagner_softmax, parameters = parameters, states = states)
+agent =
+    init_agent(continuous_rescorla_wagner_softmax, parameters = parameters, states = states)
 
 
-inputs = [1,2,3,4,6,4,10,2,1]
+inputs = [1, 2, 3, 4, 6, 4, 10, 2, 1]
 
-give_inputs!(agent,inputs)
+give_inputs!(agent, inputs)
 
 plot_trajectory(agent, "action")
-plot_trajectory!(agent,"input")
+plot_trajectory!(agent, "input")
 
 reset!(agent)
 
 # With binary inputs
-inputs = [0,1,0,0,1,1,1,0,0,1]
-give_inputs!(agent,inputs)
+inputs = [0, 1, 0, 0, 1, 1, 1, 0, 0, 1]
+give_inputs!(agent, inputs)
 #-
 plot_trajectory(agent, "action")
-plot_trajectory!(agent,"input")
+plot_trajectory!(agent, "input")
 
 # ## A Binary Rescorla-Wagner
 
@@ -176,9 +173,8 @@ action_model = custom_rescorla_wagner_softmax
 # We can now initialize our agent with the action model, parameters and states.
 agent = init_agent(action_model, parameters = parameters, states = states)
 
-inputs = [1,0,0,0,1,1,0,1,0]
+inputs = [1, 0, 0, 0, 1, 1, 0, 1, 0]
 
-give_inputs!(agent,inputs)
+give_inputs!(agent, inputs)
 
 plot_trajectory(agent, "action")
-
