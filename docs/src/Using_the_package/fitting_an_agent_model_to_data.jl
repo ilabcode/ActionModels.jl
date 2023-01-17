@@ -3,7 +3,7 @@
 # The core of behavioral and cognitive computational modelling is to fit our models to data. One of the many essential features in the ActionModels.jl package is to fit your data with high speed and good stable performance.
 
 
-# ## In this section the following will be demonstrated
+# In this section the following will be demonstrated
 
 #   - [Recap of fitting models](#So-far-with-the-Actionmodels.jl-package)
 #   - [The fit_model() function](#The-fit_model()-function)
@@ -11,14 +11,14 @@
 #   - [Plotting posteriors](#Plotting-functions)
 
 
-# ### So far with the Actionmodels.jl package
+# ## So far with the Actionmodels.jl package
 
 # During the tutorial you should be comfortable with the terms agents, actions, action models, states and parameters as well as how to simulate actions. 
 # We can deifne a premade agent or create a custom agent with different kinds of action models. You can change the parameters of the agents and simulate actions by giving them inputs. You might have tried out for yourself how simulated actions change depending on which parameter values you set in your agent. 
 
 # This can lead os to what is meant by "fitting". We will again reference the illustration of comparing simulation and fitting:
 
-# ![Image1](Using_the_package/images/fitting_vs_simulation.png)
+# ![Image1](../images/fitting_vs_simulation.png)
 
 # When we fit, we know the actions and inputs. As we have seen earlier with different parameter settings for agents, these change their "behavior" and actions quite drastically . When we fit the parameters of a model, we try to find the parameter values which make that model most likely to produce observed actions. 
 # Finding good guesses to these parameter values can be usefull when examining differences between groups in experimental settings. 
@@ -30,7 +30,7 @@
 # The fit_ model() function takes the following inputs:
 
 
-# ![Image1](Using_the_package/images/fit_model_image.png)
+# ![Image1](../images/fit_model_image.png)
 
 
 # Let us run through the inputs to the function one by one. 
@@ -60,9 +60,9 @@ agent = premade_agent("premade_binary_rw_softmax")
 
 # Let's give the agent some input and simulate a set of actions:
 
-inputs = [1,0,0,1,1,0,1,0,1,0,0,0,0,0,1,1,1,0,0,1,0,1]
+inputs = [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1]
 
-actions = give_inputs!(agent,inputs)
+actions = give_inputs!(agent, inputs)
 
 # Let's take a look at what parameter in the agent we could fit: 
 
@@ -76,7 +76,7 @@ priors = Dict("learning_rate" => Normal(1, 0.5))
 
 # We have our agent, inputs, actions and priors. This is what we need to fit.
 
-fitted_model = fit_model(agent,  priors, inputs, actions)
+fitted_model = fit_model(agent, priors, inputs, actions)
 
 # As output you are presented with the summary statistics. 
 
@@ -103,7 +103,8 @@ get_posteriors(fitted_model)
 # By adding multiple parameter priors you can autimatically fit them with fit\_model. Let's say you also want to fit softmax\_action\_precision.
 
 # Add an extra prior in the Dict
-multiple_priors = Dict("learning_rate" => Normal(1, 0.5),"softmax_action_precision"=> Normal(0.8,0.2))
+multiple_priors =
+    Dict("learning_rate" => Normal(1, 0.5), "softmax_action_precision" => Normal(0.8, 0.2))
 
 multiple_fit = fit_model(agent, multiple_priors, inputs, actions)
 
@@ -112,5 +113,3 @@ plot_parameter_distribution(multiple_fit, multiple_priors)
 
 # Extract the posteriors from the Turing chain
 get_posteriors(multiple_fit)
-
-

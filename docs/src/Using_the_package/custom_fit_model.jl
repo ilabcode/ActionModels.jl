@@ -4,7 +4,7 @@
 
 
 
-#  ### Strucure of create\_agent\_model is the following:
+#  ## Strucure of create\_agent\_model is the following:
 
 
 # we start by specifying function name and the inputs
@@ -19,7 +19,7 @@
     ##Initialize dictionary for storing sampled parameters
     fitted_parameters = Dict()
 
-##--------- Sample parameters from the priors set, and set the parameters in the agent ---------
+    ##--------- Sample parameters from the priors set, and set the parameters in the agent ---------
 
     ##Give Turing prior distributions for each fitted parameter
     for (param_key, param_prior) in param_priors
@@ -30,7 +30,7 @@
     set_parameters!(agent, fitted_parameters)
     reset!(agent)
 
-## ----------- Specify settings for whether inputs are as vectors or arrays ---------
+    ## ----------- Specify settings for whether inputs are as vectors or arrays ---------
 
     ##If the input is a single vector
     if inputs isa Vector
@@ -42,7 +42,7 @@
     end
 
 
-## ---------- Go through inputs and get the action probability distribution from the agent ------
+    ## ---------- Go through inputs and get the action probability distribution from the agent ------
 
     ##For each timestep and input
     for (timestep, input) in iterator
@@ -51,9 +51,9 @@
 
             ##Get the action probability distribution from the action model
             action_probability_distribution = agent.action_model(agent, input)
- 
-## ---- if one single action is made at each timestep (if only one action model is specified in the configurations ) ----
-            
+
+            ## ---- if one single action is made at each timestep (if only one action model is specified in the configurations ) ----
+
             if actions isa Vector
 
                 ##If the action isn't missing, or if missing actions are to be imputed
@@ -62,8 +62,8 @@
                     actions[timestep] ~ action_probability_distribution
                 end
 
-## ---- if multiple actions are made at each timestep (if more action models are specified in the configurations ) ----
-        
+                ## ---- if multiple actions are made at each timestep (if more action models are specified in the configurations ) ----
+
             elseif actions isa Array
 
                 ##Go throgh each action distribution
@@ -78,7 +78,7 @@
                 end
             end
 
-##--------- If an error occurs -----------
+            ##--------- If an error occurs -----------
 
         catch e
             ##If the custom errortype RejectParameters occurs
@@ -94,7 +94,7 @@
 end
 
 
-#  ### Strucure of fit_model()
+#  ## Strucure of fit_model()
 
 # The different elements in the code are seperated.
 
@@ -115,9 +115,9 @@ function fit_model(
 )
     ##Store old parameters for resetting the agent later
     old_parameters = get_parameters(agent)
-    
-    
-## -------------- CHECKS START ---------------- #
+
+
+    ## -------------- CHECKS START ---------------- #
 
     ##Unless warnings are hidden
     if verbose
@@ -204,9 +204,9 @@ function fit_model(
     end
 
 
-##--------------- FIT MODEL START ----------- #
+    ##--------------- FIT MODEL START ----------- #
 
-##------- Fit model with one core specified ------ #
+    ##------- Fit model with one core specified ------ #
 
     ##If only one core is specified, use sequentiel sampling
     if n_cores == 1
@@ -232,7 +232,7 @@ function fit_model(
             end
         end
 
-##------- Fit model with one multiple cores specified ------ #
+        ##------- Fit model with one multiple cores specified ------ #
 
     elseif n_cores > 1
 
@@ -253,7 +253,7 @@ function fit_model(
             remove_workers_at_end = false
         end
 
- ##------ Setup distribution of information to processes for parallellization -----
+        ##------ Setup distribution of information to processes for parallellization -----
 
         ##Load packages on worker processes
         @everywhere @eval using ActionModels
@@ -267,7 +267,7 @@ function fit_model(
         @everywhere actions = $actions
         @everywhere impute_missing_actions = $impute_missing_actions
 
-##----- fit model to inputs with shown sample rejection warnings ------
+        ##----- fit model to inputs with shown sample rejection warnings ------
 
         if show_sample_rejections
             ##Fit model to inputs and actions, as many separate chains as specified
@@ -287,7 +287,7 @@ function fit_model(
                 1:n_chains,
             )
 
-##----- fit model to inputs not showing sample rejection warnings ------
+            ##----- fit model to inputs not showing sample rejection warnings ------
 
         else
             ##Create a logger which ignores messages below error level
@@ -314,7 +314,7 @@ function fit_model(
             end
         end
 
-## ----- end configurations: worker cleanup and combining chains -------
+        ## ----- end configurations: worker cleanup and combining chains -------
         ##If workers are to be removed
         if remove_workers_at_end
             ##Remove workers
@@ -332,7 +332,7 @@ function fit_model(
     ##Concatenate chains together
     chains = chainscat(chains...)
 
-##-------------- CLEANUP ----------------
+    ##-------------- CLEANUP ----------------
 
     ##Reset the agent to its original parameters
     set_parameters!(agent, old_parameters)
@@ -351,4 +351,3 @@ function fit_model(
 
     return chains
 end
-

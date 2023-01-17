@@ -9,7 +9,7 @@
 #   - [Give_inputs() with a vector of inputs](#Multiple-Inputs)
 #   - [Plot State Trajectories](#Plotting-Trajectories-of-states)
 
-# ### Giving Inputs To Agent
+# ## Giving Inputs To Agent
 
 # With the ActionModels package you can, once you have defined your agent, use the function give_inputs to simulate actions.
 
@@ -19,16 +19,16 @@
 
 # As can be seen in the figure below, when we know all parameter values, states and the inputs we can simulate actions
 
-# ![Image1](Using_the_package/images/fitting_vs_simulation.png)
+# ![Image1](../images/fitting_vs_simulation.png)
 
 # The type of inputs you can give to your agent depends on the agent and the action it generates depends on the corresponding action model.
 
 # Let us define our agent and use the dedault parameter configurations
-using ActionModels 
+using ActionModels
 
 agent = premade_agent("premade_binary_rw_softmax")
 
-# ### Give a single input
+# ## Give a single input
 # we can now give the agent a single input with the give_inputs!() function. The inputs for the Rescorla-Wagner agent are binary, so we input the value 1. 
 give_inputs!(agent, 1)
 
@@ -41,7 +41,7 @@ get_history(agent)
 # You can see in the "value" state contains two numbers. The first number is the initial state parameter which is set in the agent's configurations (see "Creating your agent" for more on the parameters and states). The second value in the "value" state is updated by the input.
 # The three other states are initialized with "missing" and evolve as we give it inputs. The states in the agent are updated according to which computations the action model does with the input. For more information on the Rescorla-Wagner action model, check out the [LINK TO CHAPTER]
 
-# ### Reset Agent
+# ## Reset Agent
 # We would like to reset the agent to its default values with the reset!() function:
 
 reset!(agent)
@@ -50,7 +50,7 @@ reset!(agent)
 
 get_history(agent)
 
-# ### Multiple Inputs
+# ## Multiple Inputs
 # We will now define a sequence of inputs to the agent. 
 
 inputs = [1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0]
@@ -60,32 +60,32 @@ inputs = [1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 1, 1, 0]
 actions = give_inputs!(agent, inputs)
 
 # We can in the same manner get the history of the agent's states. We will have a look at the action state:
-get_history(agent,"action_probability")
+get_history(agent, "action_probability")
 
 
-# ### Plotting Trajectories of states
+# ## Plotting Trajectories of states
 
 # we can visualize the different types of states using the function:
 
 #plot_trajectory(agent::Agent, target_state::Union{String,Tuple}; kwargs...)
 
 # The default title when using plot_trajectory() is "state trajectory". This can be changed by adding a title-call as below. We can plot the actions and the action probability of the agent in two seperate plots:
-using Plots 
+using Plots
 using StatsPlots
 
-plot_trajectory(agent,"action", title = "actions")
+plot_trajectory(agent, "action", title = "actions")
 
 # We can change the state to plotting the action_probability
 
-plot_trajectory(agent,"action_probability", title="acton probability")
+plot_trajectory(agent, "action_probability", title = "acton probability")
 
 # We can add a new linetype for the plot:
 
-plot_trajectory(agent,"action_probability", title="acton probability",linetype = :path)
+plot_trajectory(agent, "action_probability", title = "acton probability", linetype = :path)
 
 # We can layer the plots by adding "!" at the function call. We can add the actions plot to prior action probability plot:
 
-plot_trajectory!(agent,"action", title = "action probability and action")
+plot_trajectory!(agent, "action", title = "action probability and action")
 
 
 # ## If your agent computes more actions 
@@ -94,7 +94,111 @@ plot_trajectory!(agent,"action", title = "action probability and action")
 # you can use the "multiple_actions()" function. When setting up this type of agent, you define the different action models you want to use for each one of the wanted actions. 
 # Currently in the ActionModels.jl package we have not yet predefined actionmodels for different actions. For multiple actions you should define your own action models (see the advanced usage for how to do this)
 
-# If we were to define an agent with multiple action models, let's for this example say action_model_1 and action_model_2. The agent would be defined as:
+# we define our two action models. A continuous and binary Rescorla Wagner:
 
-# ---- EXAMPLE WITH INIT_AGENT WITH MULTIPLE ACTIONS ------
+using ActionModels
+using Distributions
+# Binary Rescorla Wagner
+function custom_rescorla_wagner_softmax(agent, input)
+
+    ## Read in parameters from the agent
+    learning_rate = agent.parameters["learning_rate"]
+    action_precision = agent.parameters["softmax_action_precision"]
+
+    ## Read in states with an initial value
+    old_value = agent.states["value_binary"]
+
+    ##We dont have any settings in this model. If we had, we would read them in as well. 
+    ##-----This is where the update step starts ------- 
+
+    ## Sigmoid transform the value
+    old_value_probability = 1 / (1 + exp(-old_value))
+
+    ##Get new value state
+    new_value = old_value + learning_rate * (input - old_value_probability)
+
+    ##Pass through softmax to get action probability
+    action_probability = 1 / (1 + exp(-action_precision * new_value))
+
+    ##-----This is where the update step ends ------- 
+    ##Create Bernoulli normal distribution our action probability which we calculated in the update step
+    action_distributions = Distributions.Bernoulli(action_probability)
+
+    ##Update the states and save them to agent's history 
+
+    agent.states["value_binary"] = new_value
+    agent.states["transformed_value"] = 1 / (1 + exp(-new_value))
+    agent.states["action_probability"] = action_probability
+
+    push!(agent.history["value_binary"], new_value)
+    push!(agent.history["transformed_value"], 1 / (1 + exp(-new_value)))
+    push!(agent.history["action_probability"], action_probability)
+
+    ## return the action distribution to sample actions from
+    return action_distributions
+end
+
+
+# Continuous Rescorla Wagner
+function continuous_rescorla_wagner_softmax(agent, input)
+
+    ## Read in parameters from the agent
+    learning_rate = agent.parameters["learning_rate"]
+
+    ## Read in states with an initial value
+    old_value = agent.states["value_cont"]
+
+    ##We dont have any settings in this model. If we had, we would read them in as well. 
+    ##-----This is where the update step starts ------- 
+
+    ##Get new value state
+    new_value = old_value + learning_rate * (input - old_value)
+
+    ##-----This is where the update step ends ------- 
+    ##Create Bernoulli normal distribution our action probability which we calculated in the update step
+    action_distributions = Distributions.Normal(new_value,0.3)
+
+    ##Update the states and save them to agent's history 
+
+    agent.states["value_cont"] = new_value
+    agent.states["input"] = input
+
+    push!(agent.history["value_cont"], new_value)
+    push!(agent.history["input"], input)
+
+    ## return the action distribution to sample actions from
+    return action_distributions
+end
+
+
+# Define an agent
+
+parameters =
+    Dict("learning_rate" => 1, "softmax_action_precision" => 1, ("initial", "value_cont") => 0,("initial", "value_binary") => 0,)
+
+# We set the initial state parameter for "value" state because we need a starting value in the update step. 
+
+# Let us define the states in the agent:
+states = Dict(
+    "value_cont" => missing,
+    "value_binary"=> missing,
+    "input" => missing,
+    "transformed_value" => missing,
+    "action_probability" => missing,
+    )
+
+
+agent = init_agent([continuous_rescorla_wagner_softmax,
+                        custom_rescorla_wagner_softmax], 
+                        parameters = parameters, 
+                        states = states)
+
+
+
+inputs = [1,0,1,1,1,0,0,1,0,1,0,0,0,1,1,1,0,0,1,1,0,1,0,0,1,1,0]
+
+
+multiple_actions(agent,inputs)
+
+
 

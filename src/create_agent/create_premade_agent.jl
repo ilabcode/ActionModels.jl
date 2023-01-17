@@ -1,7 +1,7 @@
 #Create global dictionary for storing functions that create premade agents
 """
 """
-global const premade_agents = Dict{String, Function}()
+const global premade_agents = Dict{String,Function}()
 
 """
     function premade_agent(

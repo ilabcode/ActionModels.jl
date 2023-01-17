@@ -1,6 +1,6 @@
 
 
-# ## Welcome to the ActionModels.jl package!
+# # Welcome to the ActionModels.jl package!
 
 # ActionModels.jl is a powerfull and novel package for computational modelling of behavior and cognition. The package is developed with a intention to make computaitonal modelling intuitive, fast and easily adaptive to your experimental and simulation needs. 
 
@@ -23,8 +23,8 @@ agent = premade_agent("premade_binary_rw_softmax")
 
 # Set inputs and give inputs to agent
 
-inputs = [1,0,0,0,1,1,1,1,0,1,0,1,0,1,1]
-actions = give_inputs!(agent,inputs)
+inputs = [1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1]
+actions = give_inputs!(agent, inputs)
 
 using StatsPlots
 plot_trajectory(agent, "action_probability")
@@ -38,7 +38,7 @@ priors = Dict("learning_rate" => Normal(0.5, 0.5))
 chains = fit_model(agent, priors, inputs, actions, n_chains = 1, n_iterations = 10)
 
 # Plot prior and posterior
-plot_parameter_distribution(chains,priors)
+plot_parameter_distribution(chains, priors)
 
 # Get posteriors from chains
 
@@ -58,9 +58,3 @@ get_posteriors(chains)
 # The agent contains a set of "states" and "parameters". The parameters in an agent are analogous to some preconcieved belief of the agent that can't be changed during the experiment. A very caricatured example could be if the participant had a strong color preference for one of the buttons which influences their decisions on a constant level. When we model behvaior and set these parameters they are related to some theoretically grounded elements from the action model. We will later build an action model from scratch where real parameters will show up.
 
 # The states in an agent change over time, and the way they change depend on the action model. This structure will be elaborated more on in the next section where we go into depth with agents and action models.
-
-
-
-
-
-

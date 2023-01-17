@@ -7,7 +7,7 @@
 #    - [Set one and more parameter values in an agent](#Set-one-and-more-parameter-values-in-an-agent)
 #    - [Defining an agent with custom parameter values](#Defining-an-agent-with-custom-parameter-values)
 
-# ### Defining an agent with premade_agent()
+# ## Defining an agent with premade_agent()
 
 
 using ActionModels #hide
@@ -18,7 +18,7 @@ using ActionModels #hide
 
 # Model_name is the type of premade agent you wish to use. You can get a list of premade agents with the command:
 
-premade_agent("help") 
+premade_agent("help")
 
 # Lets create an agent. We will use the "premade\_binary\_rw\_softmax" agent with the "binary\_rw\_softmax" action model. You define a default premade agent with the syntax below:
 agent = premade_agent("premade_binary_rw_softmax")
@@ -27,7 +27,7 @@ agent = premade_agent("premade_binary_rw_softmax")
 # The premade agents are initialized with a set of configurations for parameters, states and initial state parameters.
 
 
-# ### Get an overview of the parameters and states in a premade agent 
+# ## Get an overview of the parameters and states in a premade agent 
 
 # Let us have a look at the parameters in our predefined agent with the fucntion get_parameters
 
@@ -47,7 +47,7 @@ get_states(agent)
 get_states(agent, "transformed_value")
 
 
-# ### Set one and more parameter values in an agent
+# ## Set one and more parameter values in an agent
 
 # As mentioned above, the premade agent is equipped with dedault parameter values. If you wish to change these values you can do it in different ways.
 # We can change one of the parameters in our agent like below by specifying parameter and the value to set the parameter to.
@@ -58,16 +58,25 @@ get_parameters(agent)
 
 # If you wish to change multiple parameters in the agent, you can define a dict of parameters folowed by the value like this
 
-set_parameters!(agent, Dict("learning_rate" => 0.79,    
-                        "softmax_action_precision" => 0.60, 
-                        ("initial", "value") => 1))
-                        
-# ### Defining an agent with custom parameter values
+set_parameters!(
+    agent,
+    Dict(
+        "learning_rate" => 0.79,
+        "softmax_action_precision" => 0.60,
+        ("initial", "value") => 1,
+    ),
+)
+
+# ## Defining an agent with custom parameter values
 
 # If you know which parameter values you wish to use when defining your agent, you can specify them in the beginning as a dict() with parameter name as a string followed by the value.
-agent_custom_parameters = premade_agent("premade_binary_rw_softmax", Dict("learning_rate" => 0.7, 
-                                        "softmax_action_precision" => 0.8, 
-                                        ("initial", "value") => 1)
+agent_custom_parameters = premade_agent(
+    "premade_binary_rw_softmax",
+    Dict(
+        "learning_rate" => 0.7,
+        "softmax_action_precision" => 0.8,
+        ("initial", "value") => 1,
+    ),
 )
 
 #and we can retrieve the new parameters with the get_parameters() function

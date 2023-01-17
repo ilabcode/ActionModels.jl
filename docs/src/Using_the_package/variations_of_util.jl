@@ -3,7 +3,7 @@
 # This section contains a list of convenient utility functions. Many of these are used throughout the documentation and you can find all here.
 
 
-#  ## Content
+# Content
 #   - [getting states of an agent with: get_states()](#Getting-States)
 #   - [getting parameters of an agent with: get_parameters()](#Getting-Parameters)
 #   - [setting parameters of an agent with: set_parameters()](#Setting-Parameters)
@@ -15,7 +15,7 @@ using ActionModels #hide
 
 agent = premade_agent("premade_binary_rw_softmax")
 
-# ### Getting States
+# ## Getting States
 # The get_states() function can give you a single state, multiple states and all states of an agent. 
 
 # Let's start with all states
@@ -28,7 +28,7 @@ get_states(agent, "transformed_value")
 get_states(agent, ["transformed_value", "action"])
 
 
-# ### Getting Parameters
+# ## Getting Parameters
 
 # get\_parameters() work just like get_states, but will give you the parameters of the agent:
 
@@ -36,25 +36,25 @@ get_states(agent, ["transformed_value", "action"])
 get_parameters(agent)
 
 # Get a single parameter
-get_parameters(agent,("initial", "value"))
+get_parameters(agent, ("initial", "value"))
 
 # Get multiple parameters
 get_parameters(agent, [("initial", "value"), "learning_rate"])
 
 
-# ### Setting Parameters
+# ## Setting Parameters
 
 # Setting a single parameter in an agent
-set_parameters!(agent,("initial", "value"), 1 )
+set_parameters!(agent, ("initial", "value"), 1)
 
 # Setting multiple parameters in an agent
-set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision"=>0.5))
+set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision" => 0.5))
 
 # See the parameters we have set uising get_parameters function
 get_parameters(agent)
 
 
-# ### Getting History 
+# ## Getting History 
 
 # To get the history we need to give inputs to the agent. Let's start by giving a single input
 
@@ -66,14 +66,14 @@ get_history(agent, "value")
 
 # Get multiple states' histories
 
-get_history(agent, ["value","action"])
+get_history(agent, ["value", "action"])
 
 # Lastly, get all history of the agent
 
 get_history(agent)
 
 
-# ### Getting Posteriors 
+# ## Getting Posteriors 
 
 # get\_posteirors() is a funcion for extracting parameters from a Turing chain. Let us set up a fitted model:
 
@@ -81,14 +81,15 @@ get_history(agent)
 reset!(agent)
 
 # Define a range of inputs
-inputs = [1,0,0,1,1,0,1,0,1,0,0,0,0,0,1,1,1,0,0,1,0,1]
+inputs = [1, 0, 0, 1, 1, 0, 1, 0, 1, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 1, 0, 1]
 
 # Define actions
-actions = give_inputs!(agent,inputs)
+actions = give_inputs!(agent, inputs)
 
 # Set a prior for the parameter we wish to fit
 using Distributions
-priors = Dict("softmax_action_precision" => Normal(1, 0.5), "learning_rate"=> Normal(1, 0.1))
+priors =
+    Dict("softmax_action_precision" => Normal(1, 0.5), "learning_rate" => Normal(1, 0.1))
 
 # Fit the model
 fitted_model = fit_model(agent, priors, inputs, actions)

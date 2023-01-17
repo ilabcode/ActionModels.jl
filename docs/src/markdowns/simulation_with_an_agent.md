@@ -68,7 +68,6 @@ As you can see below, we have cleared the history of the agent.
 get_history(agent)
 ````
 
-### Multiple Inputs
 We will now define a sequence of inputs to the agent.
 
 ````@example simulation_with_an_agent
@@ -98,9 +97,6 @@ we can visualize the different types of states using the function:
 The default title when using plot_trajectory() is "state trajectory". This can be changed by adding a title-call as below. We can plot the actions and the action probability of the agent in two seperate plots:
 
 ````@example simulation_with_an_agent
-using Plots
-using StatsPlots
-
 plot_trajectory(agent,"action", title = "actions")
 ````
 
