@@ -1,9 +1,20 @@
-### Functions for getting a single param ###
 """
     get_parameters(agent::Agent, target_param::Union{String,Tuple})
 
-Get out target parameter from agent 
+Get a single parameter from an agent. Returns a single value.
+
+    get_parameters(agent::Agent, target_param::Vector)
+
+Get a set of parameter values from an agent. Returns a dictionary of parameters and their values.
+
+    get_parameters(agent::Agent)
+
+Get all parameters from an agent. Returns a dictionary of parameters and their values.
 """
+function get_parameters end
+
+
+### Functions for getting a single param ###
 function get_parameters(agent::Agent, target_param::Union{String,Tuple})
     #If the target parameter is in the agent's parameters
     if target_param in keys(agent.parameters)
@@ -24,8 +35,6 @@ function get_parameters(agent::Agent, target_param::Union{String,Tuple})
     return param
 end
 
-"""
-"""
 function get_parameters(substruct::Nothing, target_param::Union{String,Tuple})
     throw(
         ArgumentError("The specified parameter $target_param does not exist in the agent"),
@@ -35,16 +44,6 @@ end
 
 
 ### Functions for getting multiple parameters ###
-"""
-    get_parameters(agent::Agent, target_parameters::Vector)
-
-Returns a vector of the target parameters specefied in target_parameters
-    
-    get_parameters(agent::Agent)
-
-Returns all parameters from agent
-
-"""
 function get_parameters(agent::Agent, target_parameters::Vector)
     #Initialize dict
     parameters = Dict()
@@ -60,8 +59,6 @@ end
 
 
 ### Function for getting all parameters ###
-"""
-"""
 function get_parameters(agent::Agent)
 
     #Collect names of all agent parameters
@@ -84,7 +81,6 @@ function get_parameters(agent::Agent)
 
     return parameters
 end
-
 
 function get_parameters(substruct::Nothing)
     #If the substruct is empty, return an empty list

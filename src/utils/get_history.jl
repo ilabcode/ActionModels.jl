@@ -1,11 +1,20 @@
-### Functions for getting a single state ###
 """
     get_history(agent::Agent, target_state::Union{String,Tuple})
 
-Get history of an agents target state.
+Get the history of a single state from an agent. Returns a vector.
 
+    get_history(agent::Agent, target_states::Vector)
+
+Get set of a vector of states from an agent. Returns a dictionary of states and their histories.
+
+    get_history(agent::Agent)
+
+Get histories for states from an agent. Returns a dictionary of states and their histories.
 """
+function get_history end
 
+
+### Functions for getting a single state ###
 function get_history(agent::Agent, target_state::Union{String,Tuple})
     #If the state is in the agent's history
     if target_state in keys(agent.history)
@@ -19,8 +28,6 @@ function get_history(agent::Agent, target_state::Union{String,Tuple})
     return state_history
 end
 
-"""
-"""
 function get_history(substruct::Nothing, target_state::Union{String,Tuple})
     throw(
         ArgumentError(
@@ -32,17 +39,6 @@ end
 
 
 ### Functions for getting multiple states ###
-"""
-    get_history(agent::Agent, target_states::Vector)
-
-Get history from a vector of states from an agent
-
-    get_history(agent::Agent)
-
-Getting all states' histories from agent
-
-"""
-
 function get_history(agent::Agent, target_states::Vector)
     #Initialize dict
     state_histories = Dict()
@@ -58,8 +54,6 @@ end
 
 
 ### Function for getting all states ###
-"""
-"""
 function get_history(agent::Agent)
 
     #Get all states names in the agent's history
@@ -77,8 +71,6 @@ function get_history(agent::Agent)
     return state_histories
 end
 
-"""
-"""
 function get_history(substruct::Nothing)
     #For empty substructs, return an empty list
     return Dict()

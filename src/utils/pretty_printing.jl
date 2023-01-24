@@ -13,7 +13,7 @@ function Base.show(io::IO, agent::Agent)
     println("Action model name: $action_model_name")
 
     #Substruct info
-    if agent.substruct != nothing
+    if !isnothing(agent.substruct)
         substruct_type = string(typeof(agent.substruct))
         println("Substruct type: $substruct_type")
     end
@@ -24,7 +24,7 @@ function Base.show(io::IO, agent::Agent)
     end
 
     #States
-    println("Number of states (including the action): $n_states")
+    println("Number of states (including the action): $n_states")s
 
     #Settings
     if n_settings > 0

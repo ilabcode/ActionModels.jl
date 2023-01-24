@@ -1,4 +1,7 @@
 """
+    create_agent_model(agent,param_priors,inputs,actions,impute_missing_actions)
+
+Create a Turing model object used for fitting an ActionModels agent.
 """
 @model function create_agent_model(
     agent,

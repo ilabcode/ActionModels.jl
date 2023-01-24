@@ -1,7 +1,7 @@
 """
-    single_input!(agent::Agent, input)
+    single_input!(agent::Agent, input::Any)
 
-Function for giving an input to an Agent.
+Give a single input to an Agent and let it evolve. Returns the agent's action.
 """
 function single_input!(agent::Agent, input::Any)
 
@@ -37,26 +37,22 @@ function single_input!(agent::Agent, input::Any)
 end
 
 
-### Functions for inputting multiple values ###
 """
-    give_inputs!(agent::Agent, inputs::Real)
+    give_inputs!(agent::Agent, inputs)
 
-Convenience method for inputting multiple observations to an agent. Input is here just a single value.
+Give inputs to an agent. Input can be a single value, a vector of values, or an array of values. Returns the agent's action trajectory, without the initial state.
 """
+function give_inputs! end
+
 function give_inputs!(agent::Agent, inputs::Real)
 
     #Input the single input
     single_input!(agent, inputs)
 
     #Return the action trajectory
-    return agent.states["action"]
+    return agent.history["action"][2:end]
 end
 
-"""
-    give_inputs!(agent::Agent, inputs::Vector)
-
-Function for inputting multiple observations to an agent. Input is structured as an Array, with each row being a single input consisting of multiple numbers.
-"""
 function give_inputs!(agent::Agent, inputs::Vector)
 
     #Each value in the vector is a single input
@@ -71,11 +67,6 @@ function give_inputs!(agent::Agent, inputs::Vector)
     return agent.history["action"][2:end]
 end
 
-"""
-    give_inputs!(agent::Agent, inputs::Array)
-
-Function for inputting multiple observations to an agent. Input is structured as an Array, with each row being a single input consisting of multiple numbers.
-"""
 function give_inputs!(agent::Agent, inputs::Array)
 
     #Each row in the array is a single input

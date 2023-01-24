@@ -1,9 +1,8 @@
 """
     warn_premade_defaults(defaults::Dict, config::Dict, prefix::String = "")
 
-Checking each default value, and inform whether default value is used
+Check if any config values have not been set by the user, and warns them that it is using defaults.
 """
-
 function warn_premade_defaults(defaults::Dict, config::Dict, prefix::String = "")
 
     #Go through each default value

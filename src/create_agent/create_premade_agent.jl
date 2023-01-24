@@ -1,16 +1,20 @@
 #Create global dictionary for storing functions that create premade agents
 """
+    premade_agents::Dict{String,Function}
+
+Global dictionary constant that contains premade agents. This is updated by other packages that add new premade agents.
 """
 const global premade_agents = Dict{String,Function}()
 
 """
-    function premade_agent(
-        model_name::String, params_list::NamedTuple = (;)
-    )
+    premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
 
-Making a premade agent consisting of a model (a premade agent), and a list of configuations (parameter values) for the agent.
+Create an agent from the list of premade agents.
 
-The current premade agents are: ["premade_binary_rw_softmax"]
+# Arguments
+ - 'model_name::String': Name of the premade model. Returns a list of possible model names if set to 'help'. 
+ - 'config::Dict = Dict()': A dictionary with configurations for the agent, like parameters and settings.
+ - 'verbose::Bool = true': If set to false, warnings are hidden.
 """
 function premade_agent(model_name::String, config::Dict = Dict(); verbose::Bool = true)
 
