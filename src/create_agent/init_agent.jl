@@ -14,7 +14,7 @@ In this case the action models will be stored in the agent's settings. In that c
  - 'parameters::Dict = Dict()': dictionary containing parameters of the agent. Keys are parameter names (strings, or tuples of strings), values are parameter values.
  - 'states::Union{Dict, Vector} = Dict()': dictionary containing states of the agent. Keys are state names (strings, or tuples of strings), values are initial state values. Can also be a vector of state name strings.
  - 'settings::Dict = Dict()': dictionary containing additional settings for the agent. Keys are setting names, values are setting values.
-
+ - 'shared_parameters::Dict = Dict()': dictionary containing shared parameters. Keys are the the name of the shared parameter, values are the value of the shared parameter followed by a vector of the parameters sharing that value.
 # Examples
 ```julia
 ## Create agent with a binary Rescorla-Wagner action model ##
@@ -85,9 +85,7 @@ function init_agent(
     parameters::Dict = Dict(),
     states::Union{Dict,Vector} = Dict(),
     settings::Dict = Dict(),
-    # ------CHANGE ------------
     shared_parameters::Dict = Dict(),
-    # ------CHANGE END --------
 )
 
     ##Create action model struct
@@ -154,7 +152,6 @@ function init_agent(
         end
     end
 
-    # --------- CHANGES -----------------
     #Go through each specified shared parameter
     for (shared_parameter_key, dict_value) in shared_parameters
         #Unpack the shared parameter value and the derived parameters
@@ -172,7 +169,6 @@ function init_agent(
             derived_parameters = derived_parameters,
         )
     end
-    # --------- CHANGES -----------------
 
     #For each specified state
     for (state_key, state_value) in agent.states

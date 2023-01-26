@@ -23,7 +23,6 @@ function get_parameters(agent::Agent, target_param::Union{String,Tuple})
         param = agent.parameters[target_param]
 
         #If the target parameter is in the agent's initial state parameters
-        # CHANGE------------
     elseif target_param isa Tuple &&
            target_param[1] == "initial" &&
            target_param[2] in keys(agent.initial_state_parameters)
