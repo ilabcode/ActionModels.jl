@@ -20,7 +20,7 @@ struct RejectParameters <: Exception
 end
 
 """
-Shared parameters
+Type for shared parameters containing both the parameter value and a vector of parameter names that will share that value
 """
 Base.@kwdef mutable struct SharedParameter
     value::Real
