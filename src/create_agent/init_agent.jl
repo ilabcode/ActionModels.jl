@@ -160,7 +160,7 @@ function init_agent(
         if shared_parameter_key in derived_parameters
             throw(
                 ArgumentError(
-                    "Error: The shared parameter is part of the list of derived parameters",
+                    "The shared parameter $shared_parameter_key is also in the list of parameters to share the parameter value",
                 ),
             )
         end
@@ -180,8 +180,6 @@ function init_agent(
 end
 
 
-"""
-"""
 function init_agent(
     action_model::Vector{Function};
     substruct::Any = nothing,
