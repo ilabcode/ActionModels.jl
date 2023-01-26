@@ -4,7 +4,7 @@ module ActionModels
 using Turing, Distributions, RecipesBase, Logging, Distributed
 
 #Export functions
-export Agent, RejectParameters
+export Agent, RejectParameters, SharedParameter
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions
 export create_agent_model, fit_model
 export plot_parameter_distribution,
