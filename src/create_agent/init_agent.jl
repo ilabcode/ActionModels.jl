@@ -85,6 +85,9 @@ function init_agent(
     parameters::Dict = Dict(),
     states::Union{Dict,Vector} = Dict(),
     settings::Dict = Dict(),
+    # ------CHANGE ------------
+    shared_parameters::Dict = Dict(),
+    # ------CHANGE END --------
 )
 
     ##Create action model struct
@@ -150,6 +153,26 @@ function init_agent(
             )
         end
     end
+
+    # --------- CHANGES -----------------
+    #Go through each specified shared parameter
+    for (shared_parameter_key, dict_value) in shared_parameters
+        #Unpack the shared parameter value and the derived parameters
+        (shared_parameter_value, derived_parameters) = dict_value
+        #check if the name of the shared parameter is part of its own derived parameters
+        if shared_parameter_key in derived_parameters
+            throw(
+                ArgumentError(
+                    "Error: The shared parameter is part of the list of derived parameters",
+                ),
+            )
+        end
+        agent.shared_parameters[shared_parameter_key] = SharedParameter(
+            value = shared_parameter_value,
+            derived_parameters = derived_parameters,
+        )
+    end
+    # --------- CHANGES -----------------
 
     #For each specified state
     for (state_key, state_value) in agent.states

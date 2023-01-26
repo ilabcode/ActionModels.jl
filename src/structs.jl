@@ -7,6 +7,9 @@ Base.@kwdef mutable struct Agent
     initial_state_parameters::Dict{String,Any} = Dict()
     states::Dict{String,Any} = Dict("action" => missing)
     settings::Dict{String,Any} = Dict()
+#------ CHANGES --------
+    shared_parameters::Dict = Dict()
+#------ CHANGES --------
     history::Dict{String,Vector{Any}} = Dict("action" => [missing])
 end
 
@@ -17,3 +20,13 @@ Custom error type which will result in rejection of a sample
 struct RejectParameters <: Exception
     errortext::Any
 end
+
+#------ CHANGES --------
+"""
+Shared parameters
+"""
+Base.@kwdef mutable struct SharedParameter
+    value::Real
+    derived_parameters::Vector
+end
+#------ CHANGES --------
