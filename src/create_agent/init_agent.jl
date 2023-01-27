@@ -1,24 +1,82 @@
 
 """
     init_agent(action_model::Function; substruct::Any = nothing, parameters::Dict = Dict(), states::Union{Dict, Vector} = Dict(),
-    settings::Dict = Dict(),)
-
-Function to initialize agent. 
+    settings::Dict = Dict())
+    
+Initialize an agent. 
 
 Note that action_model can also be specified as a vector of action models: action_model::Vector{Function}.
 In this case the action models will be stored in the agent's settings. In that case use the function 'multiple_actions'
 
 # Arguments
- - 'action_model::Function': input an action model either from premade action models or a custom actionmodel
- - 'substruct::Any = nothing': struct with own parameters and states which utility functions also get called on. Check advanced usage guide.
- - 'parameters::Dict = Dict()': Parameters of the agent. These are both parameters specifying initial states of the agent as well as the agents regular parameters.
- - 'states::Union{Dict, Vector} = Dict()': Write the states of the agent
- - 'settings::Dict = Dict()': used for variables that are not parameters or states that you want to use. e.g. if multiple action models are specified, they are stored in the settings.
+ - 'action_model::Function': a function specifying the agent's action model. Can be any function that takes an agent and a single input as arguments, and returns a probability distribution from which actions are sampled.
+ - 'substruct::Any = nothing': struct containing additional parameters and states. This structure also get passed to utility functions. Check advanced usage guide.
+ - 'parameters::Dict = Dict()': dictionary containing parameters of the agent. Keys are parameter names (strings, or tuples of strings), values are parameter values.
+ - 'states::Union{Dict, Vector} = Dict()': dictionary containing states of the agent. Keys are state names (strings, or tuples of strings), values are initial state values. Can also be a vector of state name strings.
+ - 'settings::Dict = Dict()': dictionary containing additional settings for the agent. Keys are setting names, values are setting values.
+ - 'shared_parameters::Dict = Dict()': dictionary containing shared parameters. Keys are the the name of the shared parameter, values are the value of the shared parameter followed by a vector of the parameters sharing that value.
+# Examples
+```julia
+## Create agent with a binary Rescorla-Wagner action model ##
+
+## Create action model function
+function binary_rw_softmax(agent::Agent, input::Union{Bool,Integer})
+
+    #Read in parameters
+    learning_rate = agent.parameters["learning_rate"]
+    action_precision = agent.parameters["softmax_action_precision"]
+
+    #Read in states
+    old_value = agent.states["value"]
+
+    #Sigmoid transform the value
+    old_value_probability = 1 / (1 + exp(-old_value))
+
+    #Get new value state
+    new_value = old_value + learning_rate * (input - old_value_probability)
+
+    #Pass through softmax to get action probability
+    action_probability = 1 / (1 + exp(-action_precision * new_value))
+
+    #Create Bernoulli normal distribution with mean of the target value and a standard deviation from parameters
+    action_distribution = Distributions.Bernoulli(action_probability)
+
+    #Update states
+    agent.states["value"] = new_value
+    agent.states["value_probability"], 1 / (1 + exp(-new_value))
+    agent.states["action_probability"], action_probability
+    #Add to history
+    push!(agent.history["value"], new_value)
+    push!(agent.history["value_probability"], 1 / (1 + exp(-new_value)))
+    push!(agent.history["action_probability"], action_probability)
+
+    return action_distribution
+end
+
+#Define requried parameters
+parameters = Dict(
+    "learning_rate" => 1,
+    "softmax_action_precision" => 1,
+    ("initial", "value") => 0,
+)
+
+#Define required states
+states = Dict(
+    "value" => missing,
+    "value_probability" => missing,
+    "action_probability" => missing,
+)
+
+#Create agent
+agent = init_agent(
+    binary_rw_softmax,
+    parameters = parameters,
+    states = states,
+    settings = settings,
+)
 
 """
-
 function init_agent() end
-
 
 
 function init_agent(
@@ -27,6 +85,7 @@ function init_agent(
     parameters::Dict = Dict(),
     states::Union{Dict,Vector} = Dict(),
     settings::Dict = Dict(),
+    shared_parameters::Dict = Dict(),
 )
 
     ##Create action model struct
@@ -93,6 +152,24 @@ function init_agent(
         end
     end
 
+    #Go through each specified shared parameter
+    for (shared_parameter_key, dict_value) in shared_parameters
+        #Unpack the shared parameter value and the derived parameters
+        (shared_parameter_value, derived_parameters) = dict_value
+        #check if the name of the shared parameter is part of its own derived parameters
+        if shared_parameter_key in derived_parameters
+            throw(
+                ArgumentError(
+                    "The shared parameter $shared_parameter_key is also in the list of parameters to share the parameter value",
+                ),
+            )
+        end
+        agent.shared_parameters[shared_parameter_key] = SharedParameter(
+            value = shared_parameter_value,
+            derived_parameters = derived_parameters,
+        )
+    end
+
     #For each specified state
     for (state_key, state_value) in agent.states
         #Add it to the history
@@ -103,8 +180,6 @@ function init_agent(
 end
 
 
-"""
-"""
 function init_agent(
     action_model::Vector{Function};
     substruct::Any = nothing,

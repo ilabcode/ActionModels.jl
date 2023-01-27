@@ -2,7 +2,8 @@
 """
     get_posteriors(chain::Chains; type::String = "median")
 
-Extracting parameters from a Turing chain
+Extract parameters from a Turing Chain object. Returns a dictionary of parameters and their posteriors. 
+'type' can be set to either 'median', in which case median values are extracted, or 'distribution', in which case full posterior distributions are extracted.
 """
 function get_posteriors(chain::Chains; type::String = "median")
 

@@ -1,7 +1,7 @@
 """
     reset!(agent::Agent)
 
-reset an agent to initial state parameters.
+Reset an agent to its initial state. Use initial state parameters when specified, and otherwise just use the first value in the state history.
 """
 function reset!(agent::Agent)
 
@@ -28,8 +28,6 @@ function reset!(agent::Agent)
     reset!(agent.substruct)
 end
 
-"""
-"""
 function reset!(substruct::Nothing)
     return nothing
 end

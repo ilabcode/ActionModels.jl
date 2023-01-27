@@ -1,20 +1,37 @@
 """""
-    fit_model(agent::Agent,inputs::Array,actions::Vector,param_priors::Dict,fixed_parameters::Dict = Dict();
-    sampler = NUTS(),n_iterations = 1000, n_chains = 1,verbose = true,)
+    fit_model(agent::Agent, inputs::Array, actions::Vector, param_priors::Dict, kwargs...)
 
-Returns a summary of the fitted parameters (parameters specified with param_prios). 
+Use Turing to fit the parameters of an agent to a set of inputs and corresponding actions.
 
 # Arguments
- - 'agent::Agent': a specified agent created with either premade agent or init_agent.
- - 'inputs:Array': array of inputs.
- - 'actions::Array': array of actions.
- - 'param_priors::Dict': priors (written as distributions) for the parameters you wish to fit.
- - 'fixed_parameters::Dict = Dict()': fixed parameters.
- - 'impute_missing_actions = false': if true, include missing actions in the fitting process.
- - 'sampler = NUTS()': specify the type of sampler.
- - 'n_iterations = 1000': iterations pr. chain.
- - 'n_chains = 1': amount of chains.
- - 'verbose = true': set to false to hide warnings
+ - 'agent::Agent': an ActionModels agent object created with either premade_agent or init_agent.
+ - 'param_priors::Dict': dictionary containing priors (as Distribution objects) for fitted parameters. Keys are parameter names, values are priors.
+ - 'inputs:Array': array of inputs. Each row is a timestep, and each column is a single input value.
+ - 'actions::Array': array of actions. Each row is a timestep, and each column is a single action.
+ - 'fixed_parameters::Dict = Dict()': dictionary containing parameter values for parameters that are not fitted. Keys are parameter names, values are priors. For parameters not specified here and without priors, the parameter values of the agent are used instead.
+ - 'sampler = NUTS()': specify the type of Turing sampler.
+ - 'n_cores = 1': set number of cores to use for parallelization. If set to 1, no parallelization is used.
+ - 'n_iterations = 1000': set number of iterations per chain.
+ - 'n_chains = 2': set number of amount of chains.
+ - 'verbose = true': set to false to hide warnings.
+ - 'show_sample_rejections = false': set whether to show warnings whenever samples are rejected.
+ - 'impute_missing_actions = false': set whether the values of missing actions should also be estimated by Turing.
+
+ # Examples
+```julia
+#Create a premade agent: binary Rescorla-Wagner
+agent = premade_agent("premade_binary_rw_softmax")
+
+#Set priors for the learning rate
+param_priors = Dict("learning_rate" => Uniform(0, 1))
+
+#Set inputs and actions
+inputs = [1, 0, 1]
+actions = [1, 1, 0]
+
+#Fit the model
+fit_model(agent, param_priors, inputs, actions, n_chains = 1, n_iterations = 10)
+```
 """
 function fit_model(
     agent::Agent,
