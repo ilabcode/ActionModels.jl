@@ -25,6 +25,20 @@ function set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_
         #Set it
         agent.initial_state_parameters[target_param[2]] = param_value
 
+        #If the target param is a shared parameter
+    elseif target_param in keys(agent.shared_parameters)
+
+        #Extract shared parameter
+        shared_parameter = agent.shared_parameters[target_param]
+
+        #Set the shared parameter value
+        setfield!(shared_parameter, :value, param_value)
+
+        #For each derived parameter
+        for derived_param in shared_parameter.derived_parameters
+            #Set that parameter
+            set_parameters!(agent, derived_param, param_value)
+        end
     else
         #Otherwise, look in the substruct
         set_parameters!(agent.substruct, target_param, param_value)
