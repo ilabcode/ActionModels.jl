@@ -1,7 +1,7 @@
 
 """
     init_agent(action_model::Function; substruct::Any = nothing, parameters::Dict = Dict(), states::Union{Dict, Vector} = Dict(),
-    settings::Dict = Dict())
+    settings::Dict = Dict(), shared_parameters::Dict = Dict())
     
 Initialize an agent. 
 

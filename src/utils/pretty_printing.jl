@@ -24,7 +24,7 @@ function Base.show(io::IO, agent::Agent)
     end
 
     #States
-    println("Number of states (including the action): $n_states")s
+    println("Number of states (including the action): $n_states")
 
     #Settings
     if n_settings > 0
