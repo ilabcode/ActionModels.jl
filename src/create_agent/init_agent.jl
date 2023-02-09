@@ -146,6 +146,17 @@ function init_agent(
             value = shared_parameter_value,
             derived_parameters = derived_parameters,
         )
+        #check if the name of the shared parameter is part of its own derived parameters
+        if shared_parameter_key in derived_parameters
+            throw(
+                ArgumentError(
+                    "The shared parameter $shared_parameter_key is among the parameters it is defined to set",
+                ),
+            )
+        end
+        #Set the parameters 
+        set_parameters!(agent, shared_parameter_key, shared_parameter_value)
+        reset!(substruct)
 
     end
 
@@ -177,17 +188,6 @@ function init_agent(
 
     #Check agent for settings of shared parameters
     check_agent(agent)
-
-    #Go through each specified shared parameter in order to set it
-    for (shared_parameter_key, dict_value) in shared_parameters
-        #Unpack the shared parameter value and the derived parameters
-        (shared_parameter_value, derived_parameters) = dict_value
-
-        #Set the parameters 
-        set_parameters!(agent, shared_parameter_key, shared_parameter_value)
-        reset!(substruct)
-    end
-
 
     return agent
 end
