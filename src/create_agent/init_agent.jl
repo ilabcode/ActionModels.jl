@@ -134,26 +134,22 @@ function init_agent(
         agent.states["action"] = missing
     end
 
-    
+
 
     #Go through each specified shared parameter
     for (shared_parameter_key, dict_value) in shared_parameters
         #Unpack the shared parameter value and the derived parameters
         (shared_parameter_value, derived_parameters) = dict_value
 
+        #Set the shared parameter in the agent
         agent.shared_parameters[shared_parameter_key] = SharedParameter(
             value = shared_parameter_value,
             derived_parameters = derived_parameters,
         )
-        #Check agent for settings of shared parameters
-        check_agent(agent)
-
-        #Set the parameters 
-        set_parameters!(agent, shared_parameter_key, shared_parameter_value)
-        reset!(substruct)
-
+        
     end
 
+    
 
     #Initialize states
     for (state_key, initial_value) in agent.initial_state_parameters
@@ -179,6 +175,18 @@ function init_agent(
         agent.history[state_key] = [state_value]
     end
 
+    #Check agent for settings of shared parameters
+    check_agent(agent)
+
+    #Go through each specified shared parameter in order to set it
+    for (shared_parameter_key, dict_value) in shared_parameters
+        #Unpack the shared parameter value and the derived parameters
+        (shared_parameter_value, derived_parameters) = dict_value
+
+        #Set the parameters 
+        set_parameters!(agent, shared_parameter_key, shared_parameter_value)
+        reset!(substruct)
+    end
 
 
     return agent

@@ -78,14 +78,14 @@ function get_parameters(agent::Agent)
     #Collect keys for initial state parameters
     initial_state_parameter_keys =
         map(x -> ("initial", x), collect(keys(agent.initial_state_parameters)))
-        
+
     #Collect keys for shared parameters
     shared_parameter_keys = collect(keys(agent.shared_parameters))
 
     #Combine all parameter keys into one
     target_parameters =
         vcat(parameter_keys, initial_state_parameter_keys, shared_parameter_keys)
-    
+
     #If there are shared parameters
     if length(shared_parameter_keys) > 0
         #Go through each shared parameter
@@ -97,7 +97,7 @@ function get_parameters(agent::Agent)
             filter!(x -> x[1] ∉ shared_parameter.derived_parameters, substruct_parameters)
         end
     end
-    
+
     #Get the agent's parameter values
     agent_parameters = get_parameters(agent, target_parameters)
 
