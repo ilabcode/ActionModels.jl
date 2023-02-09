@@ -146,10 +146,10 @@ function init_agent(
             value = shared_parameter_value,
             derived_parameters = derived_parameters,
         )
-        
+
     end
 
-    
+
 
     #Initialize states
     for (state_key, initial_value) in agent.initial_state_parameters
