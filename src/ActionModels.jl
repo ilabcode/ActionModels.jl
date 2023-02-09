@@ -5,7 +5,7 @@ using Turing, Distributions, RecipesBase, Logging, Distributed
 
 #Export functions
 export Agent, RejectParameters, SharedParameter
-export init_agent, premade_agent, warn_premade_defaults, multiple_actions
+export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
 export create_agent_model, fit_model
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
@@ -23,7 +23,7 @@ include("structs.jl")
 include("create_agent/init_agent.jl")
 include("create_agent/create_premade_agent.jl")
 include("create_agent/multiple_actions.jl")
-
+include("create_agent/check_agent.jl")
 #Functions for fitting agents to data
 include("fitting/create_model.jl")
 include("fitting/fit_model.jl")
