@@ -69,6 +69,9 @@ end
 ### Function for getting all parameters ###
 function get_parameters(agent::Agent)
 
+    #Get all parameters from the substruct
+    substruct_parameters = get_parameters(agent.substruct)
+
     #Collect keys for parameters
     parameter_keys = collect(keys(agent.parameters))
 
@@ -85,22 +88,22 @@ function get_parameters(agent::Agent)
 
     #If there are shared parameters
     if length(shared_parameter_keys) > 0
-
         #Go through each shared parameter
         for shared_parameter in values(agent.shared_parameters)
             #Remove derived parameters from the list
             filter!(x -> x ∉ shared_parameter.derived_parameters, target_parameters)
+
+            #Filter the substruct parameter dictionary to remove parameters with keys that are derived parameters
+            filter!(x -> x[1] ∉ shared_parameter.derived_parameters, substruct_parameters)
         end
     end
 
     #Get the agent's parameter values
-    parameters = get_parameters(agent, target_parameters)
+    agent_parameters = get_parameters(agent, target_parameters)
 
-    #Get parameters from the substruct
-    substruct_parameters = get_parameters(agent.substruct)
+    #Merge agent parameters and substruct parameters
+    parameters = merge(agent_parameters, substruct_parameters)
 
-    #Merge substruct parameters and agent parameters
-    parameters = merge(parameters, substruct_parameters)
     return parameters
 end
 

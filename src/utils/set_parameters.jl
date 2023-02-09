@@ -36,6 +36,7 @@ function set_parameters!(agent::Agent, target_param::Union{String,Tuple}, param_
 
         #For each derived parameter
         for derived_param in shared_parameter.derived_parameters
+
             #Set that parameter
             set_parameters!(agent, derived_param, param_value)
         end
