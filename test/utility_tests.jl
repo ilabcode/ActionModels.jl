@@ -29,4 +29,3 @@ get_history(agent, "value")
 get_history(agent)
 
 reset!(agent)
-

@@ -18,7 +18,7 @@ using Test
     end
 
     @testset "fitting tests" begin
-        
+
     end
 
 end
