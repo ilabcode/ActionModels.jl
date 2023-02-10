@@ -22,10 +22,10 @@ agent = premade_agent("premade_binary_rw_softmax")
 get_states(agent)
 
 # Get a single state
-get_states(agent, "transformed_value")
+get_states(agent, "value")
 
 # Get multiple states
-get_states(agent, ["transformed_value", "action"])
+get_states(agent, ["value", "action"])
 
 
 # ## Getting Parameters

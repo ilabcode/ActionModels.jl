@@ -3,15 +3,15 @@ using Documenter
 using Literate
 
 #Remove old tutorial markdown files
-for filename in readdir("src/markdowns")
-    rm("src/markdowns/" * filename)
+for filename in readdir("docs/src/markdowns")
+    rm("docs/src/markdowns/" * filename)
 end
-#Generate new tutorial markdown files
-for filename in readdir("src/Using_the_package")
+
+for filename in readdir("docs/src/Using_the_package")
     if endswith(filename, ".jl")
         Literate.markdown(
-            "./src/Using_the_package/" * filename,
-            "src/Markdowns",
+            "docs/src/Using_the_package/" * filename,
+            "docs/src/markdowns",
             documenter = true,
         )
     end
