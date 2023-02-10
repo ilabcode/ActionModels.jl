@@ -5,8 +5,20 @@ using Test
 # using Plots
 # using StatsPlots
 
-@testset "quick tests" begin
+@testset "all tests" begin
 
-    # Test the quick tests that are used as pre-commit tests
-    include("quicktests.jl")
+    @testset "quick tests" begin
+
+        # Test the quick tests that are used as pre-commit tests
+        include("quicktests.jl")
+    end
+
+    @testset "utility tests" begin
+        include("utility_tests.jl")
+    end
+
+    @testset "fitting tests" begin
+
+    end
+
 end

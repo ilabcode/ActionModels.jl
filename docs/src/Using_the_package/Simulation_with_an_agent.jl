@@ -62,7 +62,6 @@ actions = give_inputs!(agent, inputs)
 # We can in the same manner get the history of the agent's states. We will have a look at the action state:
 get_history(agent, "action_probability")
 
-
 # ## Plotting Trajectories of states
 
 # we can visualize the different types of states using the function:
@@ -203,4 +202,4 @@ agent = init_agent(
 inputs = [1, 0, 1, 1, 1, 0, 0, 1, 0, 1, 0, 0, 0, 1, 1, 1, 0, 0, 1, 1, 0, 1, 0, 0, 1, 1, 0]
 
 
-multiple_actions(agent, inputs)
+#multiple_actions(agent, inputs)
