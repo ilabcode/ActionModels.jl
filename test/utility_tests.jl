@@ -7,9 +7,9 @@ agent = premade_agent("premade_binary_rw_softmax")
 #Variations of get_states
 get_states(agent)
 
-get_states(agent, "transformed_value")
+get_states(agent, "value_probability")
 
-get_states(agent, ["transformed_value", "action"])
+get_states(agent, ["value_probability", "action"])
 
 #Variations of get_parameters
 get_parameters(agent)
