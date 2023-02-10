@@ -3,11 +3,11 @@ name: Documentation
 on:
   push:
     branches:
-      - quick_tests
+      - main
     tags: '*'
   pull_request:
     branches:
-      - quick_tests
+      - main
 
 # This allows a subsequently queued workflow run to interrupt previous runs
 concurrency:

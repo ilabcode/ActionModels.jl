@@ -44,7 +44,7 @@ get_states(agent)
 # the "value" state is initialized with an initial state parameter (this is the ("initial", "value") parameter seen in the get_parameters(agent) call). The other states are missing due to the fact, that the agent has not recieved any inputs. 
 # You can get specific states by inputting the state you wish to retrieve. This will get more interesting once we give the agents inputs.
 
-get_states(agent, "transformed_value")
+get_states(agent, "value")
 
 
 # ## Set one and more parameter values in an agent

@@ -6,12 +6,12 @@ using Literate
 for filename in readdir("docs/src/markdowns")
     rm("docs/src/markdowns/" * filename)
 end
-#Generate new tutorial markdown files
+
 for filename in readdir("docs/src/Using_the_package")
     if endswith(filename, ".jl")
         Literate.markdown(
             "docs/src/Using_the_package/" * filename,
-            "docs/src/Markdowns",
+            "docs/src/markdowns",
             documenter = true,
         )
     end
@@ -44,7 +44,7 @@ makedocs(;
             "markdowns/premade_agents_and_models.md",
         ]
         "Agent Based Simulation" =>
-            ["markdowns/Simulation_with_an_agent.md", "markdowns/variations_of_util.md"]
+            ["markdowns/simulation_with_an_agent.md", "markdowns/variations_of_util.md"]
         "Fitting an Agent Model" => [
             "markdowns/fitting_an_agent_model_to_data.md",
             "markdowns/prior_predictive_sim.md",
@@ -53,4 +53,4 @@ makedocs(;
     ],
 )
 
-deploydocs(; repo = "github.com/ilabcode/ActionModels.jl", devbranch = "origin/quick_tests")
+deploydocs(; repo = "github.com/ilabcode/ActionModels.jl", devbranch = "dev")
