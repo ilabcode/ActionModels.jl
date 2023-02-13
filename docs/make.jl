@@ -53,4 +53,4 @@ makedocs(;
     ],
 )
 
-deploydocs(; repo = "github.com/ilabcode/ActionModels.jl", devbranch = "main")
+deploydocs(; repo = "github.com/ilabcode/ActionModels.jl", devbranch = "main",push_preview = false)
