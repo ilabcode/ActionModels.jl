@@ -33,7 +33,7 @@ In this part of the documentation the ideas and intuition will be grounded for u
    
    1. [Using Premade Agent Models](markdowns/premade_agents_and_models.md)
    
-5. [Agent Based Simulation](markdowns/simulation_with_an_agent.md)
+5. [Agent Based Simulation](markdowns/Simulation_with_an_agent.md)
    
    1. [Utility Functions](markdowns/variations_of_util.md)
    
@@ -42,9 +42,6 @@ In this part of the documentation the ideas and intuition will be grounded for u
     1. [Predictive Simulations](markdowns/prior_predictive_sim.md)
    
  7. [Advanced usage](markdowns/custom_fit_model.md)
-
-
-[Creating your agent](markdowns/creating_your_agent.md)
 
 [Simulation with an agent](markdowns/simulation_with_an_agent.md)
 
