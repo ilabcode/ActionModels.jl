@@ -44,7 +44,7 @@ makedocs(;
             "markdowns/premade_agents_and_models.md",
         ]
         "Agent Based Simulation" =>
-            ["markdowns/simulation_with_an_agent.md", "markdowns/variations_of_util.md"]
+            ["markdowns/Simulation_with_an_agent.md", "markdowns/variations_of_util.md"]
         "Fitting an Agent Model" => [
             "markdowns/fitting_an_agent_model_to_data.md",
             "markdowns/prior_predictive_sim.md",
@@ -53,4 +53,4 @@ makedocs(;
     ],
 )
 
-deploydocs(; repo = "github.com/ilabcode/ActionModels.jl", devbranch = "dev")
+deploydocs(; repo = "github.com/ilabcode/ActionModels.jl", devbranch = "main")
