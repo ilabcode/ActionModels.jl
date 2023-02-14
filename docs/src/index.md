@@ -13,50 +13,53 @@ Documentation for [ActionModels](https://github.com/ilabcode/ActionModels.jl). T
 
 In this part of the documentation the ideas and intuition will be grounded for using the action models module. bla bla
 
-[Introduction](markdowns/Introduction.md)
 
-[Agent and actionmodel](Conceptual_introduction/agent_and_actionmodel.md)
+[Agent and actionmodel](generated_markdown_files/agent_and_actionmodel.md)
 
-[Fitting and simulating](Conceptual_introduction/fitting_vs_simulating.md)
+[Fitting and simulating](generated_markdown_files/fitting_vs_simulating.md)
 
 
 ## Using the package
 
 
-1. [Introduction](markdowns/Introduction.md)
+1. [Introduction](generated_markdown_files/Introduction.md)
    
-2. [Agent and actionmodel](Conceptual_introduction/agent_and_actionmodel.md)
+2. [Agent and actionmodel](generated_markdown_files/agent_and_actionmodel.md)
    
-3. [Fitting and simulating](Conceptual_introduction/fitting_vs_simulating.md)
+3. [Fitting and simulating](generated_markdown_files/fitting_vs_simulating.md)
    
-4. [Creating Your Model](markdowns/creating_own_action_model.md)
+4. [Creating Your Model](generated_markdown_files/creating_own_action_model.md)
    
-   1. [Using Premade Agent Models](markdowns/premade_agents_and_models.md)
+   1. [Using Premade Agent Models](generated_markdown_files
+/premade_agents_and_models.md)
    
-5. [Agent Based Simulation](markdowns/Simulation_with_an_agent.md)
+5. [Agent Based Simulation](generated_markdown_files/Simulation_with_an_agent.md)
    
-   1. [Utility Functions](markdowns/variations_of_util.md)
+   1. [Utility Functions](generated_markdown_files
+/variations_of_util.md)
    
-6. [Fitting An Agent Model ](markdowns/fitting_an_agent_model_to_data.md)
+6. [Fitting An Agent Model ](generated_markdown_files/fitting_an_agent_model_to_data.md)
 
-    1. [Predictive Simulations](markdowns/prior_predictive_sim.md)
+    1. [Predictive Simulations](generated_markdown_files
+   /prior_predictive_sim.md)
    
- 7. [Advanced usage](markdowns/custom_fit_model.md)
+ 7. [Advanced usage](generated_markdown_files
+/custom_fit_model.md)
 
-[Simulation with an agent](markdowns/simulation_with_an_agent.md)
+[Simulation with an agent](generated_markdown_files/simulation_with_an_agent.md)
 
-[Creating your action model](markdowns/creating_own_action_model.md)
+[Creating your action model](generated_markdown_files/creating_own_action_model.md)
 
-[fitting and agent model to data](markdowns/fitting_an_agent_model_to_data.md)
+[fitting and agent model to data](generated_markdown_files/fitting_an_agent_model_to_data.md)
 
-[prior and posterior predictive simulation](markdowns/prior_predictive_sim.md)
+[prior and posterior predictive simulation](generated_markdown_files/prior_predictive_sim.md)
 
-[utility functions](markdowns/variations_of_util.md)
+[utility functions](generated_markdown_files/variations_of_util.md)
 ## Advanced use
 
-[complicated custom agents](markdowns/complicated_custom_agents.md)
+[complicated custom agents](generated_markdown_files/complicated_custom_agents.md)
 
-[Custom fit_model() function](markdowns/custom_fit_model.md)
+[Custom fit_model() function](generated_markdown_files/custom_fit_model.md)
 ## Functions
 
 ```@index
