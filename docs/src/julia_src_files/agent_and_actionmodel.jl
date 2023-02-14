@@ -40,8 +40,3 @@
 # The process described above is what we define as simulating actions. We know the inputs, parameters and states of the agent and returns actions. We can reverse this process and infer the parameters of an agent based on their actions in response to inputs. 
 
 # This will be further elaborated in [fitting vs. simulating](./fitting_vs_simulating.md)
-
-
-
-
-
