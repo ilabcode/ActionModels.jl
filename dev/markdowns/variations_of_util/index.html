@@ -43,25 +43,25 @@
  1
  0
  1</code></pre><p>Define actions</p><pre><code class="language-julia hljs">actions = give_inputs!(agent, inputs)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">22-element Vector{Any}:
-  true
- false
-  true
-  true
-  true
  false
   true
  false
  false
  false
+  true
+  true
+  true
+ false
+  true
      ⋮
-  true
-  true
  false
   true
+  true
+ false
  false
  false
   true
- false
+  true
   true</code></pre><p>Set a prior for the parameter we wish to fit</p><pre><code class="language-julia hljs">using Distributions
 priors =
     Dict(&quot;softmax_action_precision&quot; =&gt; Normal(1, 0.5), &quot;learning_rate&quot; =&gt; Normal(1, 0.1))</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{String, Distributions.Normal{Float64}} with 2 entries:
@@ -71,8 +71,8 @@ priors =
 Iterations        = 501:1:1500
 Number of chains  = 2
 Samples per chain = 1000
-Wall duration     = 1.22 seconds
-Compute duration  = 1.21 seconds
+Wall duration     = 1.17 seconds
+Compute duration  = 1.16 seconds
 parameters        = softmax_action_precision, learning_rate
 internals         = lp, n_steps, is_accept, acceptance_rate, log_density, hamiltonian_energy, hamiltonian_energy_error, max_hamiltonian_energy_error, tree_depth, numerical_error, step_size, nom_step_size
 
@@ -80,16 +80,16 @@ Summary Statistics
                 parameters      mean       std   naive_se      mcse         es ⋯
                     Symbol   Float64   Float64    Float64   Float64     Float6 ⋯
 
-  softmax_action_precision    0.8373    0.4244     0.0095    0.0096   1804.529 ⋯
-             learning_rate    0.9990    0.1003     0.0022    0.0024   1518.779 ⋯
+  softmax_action_precision    0.5951    0.4112     0.0092    0.0086   1637.049 ⋯
+             learning_rate    0.9974    0.0999     0.0022    0.0020   1928.202 ⋯
                                                                3 columns omitted
 
 Quantiles
                 parameters      2.5%     25.0%     50.0%     75.0%     97.5%
                     Symbol   Float64   Float64   Float64   Float64   Float64
 
-  softmax_action_precision    0.0359    0.5467    0.8262    1.1294    1.6539
-             learning_rate    0.8016    0.9320    0.9997    1.0608    1.1951
+  softmax_action_precision   -0.2159    0.3246    0.5973    0.8807    1.3760
+             learning_rate    0.7963    0.9290    0.9975    1.0647    1.1887
 </code></pre><p>We can now use the get_posteriors()</p><pre><code class="language-julia hljs">get_posteriors(fitted_model)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">Dict{Any, Any} with 2 entries:
-  &quot;softmax_action_precision&quot; =&gt; 0.826201
-  &quot;learning_rate&quot;            =&gt; 0.999663</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Simulation_with_an_agent/">« Simulating actions with an agent</a><a class="docs-footer-nextpage" href="../fitting_an_agent_model_to_data/">Fitting an agent model to data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Monday 13 February 2023 10:52">Monday 13 February 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
+  &quot;softmax_action_precision&quot; =&gt; 0.597301
+  &quot;learning_rate&quot;            =&gt; 0.997498</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../Simulation_with_an_agent/">« Simulating actions with an agent</a><a class="docs-footer-nextpage" href="../fitting_an_agent_model_to_data/">Fitting an agent model to data »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 0.27.24 on <span class="colophon-date" title="Thursday 16 February 2023 13:29">Thursday 16 February 2023</span>. Using Julia version 1.8.5.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
