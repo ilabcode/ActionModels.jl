@@ -17,7 +17,8 @@ using Test
         include("utility_tests.jl")
     end
 
-    @testset "fitting tests" begin
+    @testset "plot and fitting tests" begin
+        include("fitting_tests.jl")
 
     end
 
