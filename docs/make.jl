@@ -2,18 +2,29 @@ using ActionModels
 using Documenter
 using Literate
 
-#Remove old tutorial markdown files
+#Remove old tutorial markdown files 
+
 for filename in readdir("docs/src/generated_markdown_files")
     rm("docs/src/generated_markdown_files/" * filename)
 end
 
+#Make Julia source files to markdowns
 for filename in readdir("docs/src/julia_src_files")
     if endswith(filename, ".jl")
-        Literate.markdown(
-            "docs/src/julia_src_files/" * filename,
-            "docs/src/generated_markdown_files",
-            documenter = true,
-        )
+        #Place the index file in another folder than the rest of the documentation
+        if startswith(filename, "index")
+            Literate.markdown(
+                "docs/src/Julia_src_files/" * filename,
+                "docs/src",
+                documenter = true,
+            )
+        else
+            Literate.markdown(
+                "docs/src/julia_src_files/" * filename,
+                "docs/src/generated_markdown_files",
+                documenter = true,
+            )
+        end
     end
 end
 
