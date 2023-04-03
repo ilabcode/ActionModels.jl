@@ -1,7 +1,7 @@
 using ActionModels
 using Distributions
 
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("binary_rw_softmax")
 
 param_priors = Dict("learning_rate" => Uniform(0, 1))
 
