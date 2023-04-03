@@ -26,3 +26,12 @@ Base.@kwdef mutable struct SharedParameter
     value::Real
     derived_parameters::Vector
 end
+
+
+"""
+"""
+Base.@kwdef struct Multilevel
+    group::Union{Symbol,String}
+    distribution = Normal
+    parameters::Vector{String} = []
+end
