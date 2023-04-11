@@ -51,6 +51,7 @@ function fit_model(
     verbose::Bool = true,
     show_sample_rejections::Bool = false,
     impute_missing_actions::Bool = false,
+    sampler_kwargs...,
 )
     ### SETUP ###
 
@@ -234,7 +235,7 @@ function fit_model(
         chains = Logging.with_logger(sampling_logger) do
 
             #Fit model to data, as many chains as specified
-            map(i -> sample(model, sampler, n_iterations), 1:n_chains)
+            map(i -> sample(model, sampler, n_iterations, sampler_kwargs...), 1:n_chains)
         end
 
         #Otherwise, use parallel sampling
@@ -298,6 +299,7 @@ function fit_model(
                     sampler,
                     n_iterations,
                     save_state = false,
+                    sampler_kwargs...,
                 ),
                 1:n_chains,
             )
