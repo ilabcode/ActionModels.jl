@@ -24,7 +24,7 @@ end
 @testset "documentation tests" begin
     AM_path = dirname(dirname(pathof(ActionModels)))
     documentation_path = AM_path * "/docs/src/julia_src_files/"
-    
+
     # Test the quick tests that are used as pre-commit tests
     include(documentation_path * "agent_and_actionmodel.jl")
     include(documentation_path * "complicated_custom_agents.jl")
