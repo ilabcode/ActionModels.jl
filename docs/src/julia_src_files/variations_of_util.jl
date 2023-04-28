@@ -13,7 +13,7 @@
 # We will define an agent to use during demonstrations of the utility functions:
 using ActionModels #hide
 
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("binary_rw_softmax")
 
 # ## Getting States
 # The get_states() function can give you a single state, multiple states and all states of an agent. 

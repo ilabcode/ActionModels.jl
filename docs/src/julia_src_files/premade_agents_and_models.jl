@@ -21,7 +21,7 @@ using ActionModels #hide
 premade_agent("help")
 
 # Lets create an agent. We will use the "premade\_binary\_rw\_softmax" agent with the "binary\_rw\_softmax" action model. You define a default premade agent with the syntax below:
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("binary_rw_softmax")
 
 # In the Actionmodels.jl package, an agent struct consists of the action model name (which can be premade or custom), parameters and states.  
 # The premade agents are initialized with a set of configurations for parameters, states and initial state parameters.
@@ -71,7 +71,7 @@ set_parameters!(
 
 # If you know which parameter values you wish to use when defining your agent, you can specify them in the beginning as a dict() with parameter name as a string followed by the value.
 agent_custom_parameters = premade_agent(
-    "premade_binary_rw_softmax",
+    "binary_rw_softmax",
     Dict(
         "learning_rate" => 0.7,
         "softmax_action_precision" => 0.8,
