@@ -1,9 +1,5 @@
 using ActionModels
 using Test
-# using CSV
-# using DataFrames
-# using Plots
-# using StatsPlots
 
 @testset "all tests" begin
 

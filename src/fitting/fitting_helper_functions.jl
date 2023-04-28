@@ -228,10 +228,15 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
         #Go through each group with that parameter
         for group in parameter_info.group_levels
 
+            #As default, group indicators are separated form parameter names with a space
+            separator = " "
+
             #If there are no group dependencies
             if isempty(group)
                 #Don't print anything
                 group_string = ""
+                #And don't have a separator
+                separator = ""
 
                 #If there is only one group
             elseif length(group) == 1
@@ -245,7 +250,7 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             end
 
             #Set a replacement name
-            replacement_names["multilevel_parameters[$(parameter_info.name)][$group]"] = "$group_string $(parameter_info.name)"
+            replacement_names["multilevel_parameters[$(parameter_info.name)][$group]"] = "$group_string$separator$(parameter_info.name)"
         end
     end
 
@@ -256,10 +261,15 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
         #Go through each group with that parameter
         for group in parameter_info.group_levels
 
+            #As default, group indicators are separated form parameter names with a space
+            separator = " "
+
             #If there are no group dependencies
             if isempty(group)
                 #Don't print anything
                 group_string = ""
+                #And don't have a separator
+                separator = ""
 
                 #If there is only one group
             elseif length(group) == 1
@@ -270,10 +280,11 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             else
                 #Print the whole group dependency tuple
                 group_string = group
+
             end
 
             #Set a replacement name
-            replacement_names["agent_parameters[$group][$(parameter_info.name)]"] = "$group_string $(parameter_info.name)"
+            replacement_names["agent_parameters[$group][$(parameter_info.name)]"] = "$group_string$separator$(parameter_info.name)"
 
         end
     end
