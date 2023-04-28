@@ -1,10 +1,10 @@
 module ActionModels
 
 #Load packages
-using Turing, Distributions, RecipesBase, Logging, Distributed
+using Turing, Distributions, DataFrames, RecipesBase, Logging, Distributed
 
 #Export functions
-export Agent, RejectParameters, SharedParameter
+export Agent, RejectParameters, SharedParameter, Multilevel
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
 export create_agent_model, fit_model
 export plot_parameter_distribution,
@@ -13,7 +13,7 @@ export get_history, get_states, get_parameters, set_parameters!, reset!, give_in
 export get_posteriors
 
 function __init__()
-    premade_agents["premade_binary_rw_softmax"] = premade_binary_rw_softmax
+    premade_agents["binary_rw_softmax"] = premade_binary_rw_softmax
 end
 
 #Types for agents and errors
@@ -25,8 +25,10 @@ include("create_agent/create_premade_agent.jl")
 include("create_agent/multiple_actions.jl")
 include("create_agent/check_agent.jl")
 #Functions for fitting agents to data
+include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
 include("fitting/fit_model.jl")
+include("fitting/prefit_checks.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")
