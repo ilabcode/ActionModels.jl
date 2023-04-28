@@ -35,3 +35,14 @@ Base.@kwdef struct Multilevel
     distribution = Normal
     parameters::Vector{String} = []
 end
+
+"""
+"""
+Base.@kwdef mutable struct ParameterInfo
+    name::Union{String,Tuple}
+    group_dependencies::Vector
+    group_levels::Union{Array,Matrix} = []
+    multilevel_dependent::Bool
+    distribution::Any
+    parameters::Vector
+end

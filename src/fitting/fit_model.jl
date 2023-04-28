@@ -40,7 +40,8 @@ function fit_model(
     agent::Agent,
     priors::Dict,
     data::DataFrame;
-    group_cols::Vector = [],
+    independent_group_cols::Vector = [],
+    multilevel_group_cols::Vector = [],
     input_cols::Vector = [:input],
     action_cols::Vector = [:action],
     fixed_parameters::Dict = Dict(),
@@ -56,7 +57,8 @@ function fit_model(
     ### SETUP ###
 
     #Convert column names to symbols
-    group_cols = Symbol.(group_cols)
+    independent_group_cols = Symbol.(independent_group_cols)
+    multilevel_group_cols = Symbol.(multilevel_group_cols)
     input_cols = Symbol.(input_cols)
     action_cols = Symbol.(action_cols)
 
@@ -71,7 +73,8 @@ function fit_model(
         agent = agent,
         data = data,
         priors = priors,
-        group_cols = group_cols,
+        independent_group_cols = independent_group_cols,
+        multilevel_group_cols = multilevel_group_cols,
         input_cols = input_cols,
         action_cols = action_cols,
         fixed_parameters = fixed_parameters,
@@ -93,149 +96,85 @@ function fit_model(
     ## Store whether there are multiple inputs and actions ##
     multiple_inputs = length(input_cols) > 1
     multiple_actions = length(action_cols) > 1
+    multilevel = length(multilevel_group_cols) > 0
 
-    ## Extract information from dataframe ##
-    #Create empty containers for grouped actions and inputs
-    inputs = Dict()
-    actions = Dict()
-    group_combinations = []
+    ## Structure multilevel parameter information ##
+    general_parameters_info = extract_structured_parameter_info(;
+        priors = priors,
+        multilevel_group_cols = multilevel_group_cols,
+    )
 
-    #Go through each group
-    for (group_key, group_data) in pairs(groupby(data, group_cols))
-        #Store inputs and actions in matreces
-        inputs[Tuple(group_key)] = Array(group_data[:, input_cols])
-        actions[Tuple(group_key)] = Array(group_data[:, action_cols])
+    ## Structure data ##
+    #Group data into independent groups
+    independence_grouped_dataframe = groupby(data, independent_group_cols)
 
-        #Add the group_key
-        push!(group_combinations, Tuple(group_key))
-    end
+    #Initialize vectors of independent datasets and their keys
+    independent_groups_keys = []
+    independent_groups_info = []
 
-    ## Create list of amount of groups to be dependent on ##
-    group_dependency_levels = collect(0:length(group_cols))
+    #Go through data for each independent group
+    for (independent_group_key, independent_group_data) in
+        pairs(independence_grouped_dataframe)
 
-    ## Create dictionary with group levels per group ##
-    #Initialize empty dict
-    group_levels = Dict()
+        ## Get the key for the independent group ##
+        #If there is only independent group distinction
+        if length(independent_group_cols) == 1
 
-    #For each column in the group columns
-    for group_col in group_cols
-        #Save the unique levels from the column
-        group_levels[group_col] = unique(data[:, group_col])
-    end
+            #Get out that group level as key
+            independent_group_key = independent_group_data[1, first(independent_group_cols)]
 
-    ## Create dictionary with the groups that each parameter depends on ##
-    #Create dictionary where each parameter has all levels
-    group_dependencies = Dict(zip(keys(priors), repeat([copy(group_cols)], length(priors))))
-
-    #Go through each specified prior
-    for (parameter_key, info) in priors
-
-        #For hierarchically dependent parameters 
-        if info isa Multilevel
-
-            #If the specified group is not in the group columns
-            if info.group ∉ group_cols
-                throw(
-                    ArgumentError(
-                        "the parameter $parameter_key depends on the group $(info.group), but this group is not in the specified group columns",
-                    ),
-                )
-            end
-
-            #Recursively remove its group from all higher parameters 
-            remove_higher_dependencies!(info, group_dependencies, priors, [])
-        end
-    end
-
-    ## Create dictionary with all necessary information about parameters ##
-    #Initialize empty dict
-    hierarchical_parameters_information = Dict()
-
-    #Create subdicts for each 
-    for n in group_dependency_levels
-        hierarchical_parameters_information[n] = Dict()
-    end
-
-    #Go through each prior
-    for (parameter_key, info) in priors
-
-        #Get out the group dependencies for the parameter
-        parameter_group_dependencies = group_dependencies[parameter_key]
-
-        #If there are no group dependencies
-        if isempty(parameter_group_dependencies)
-            #There are no group levels
-            parameter_group_levels = [()]
-
-            #Otherwise
+            #If there are multiple
         else
-            #Get out all group combinations for the parameter
-            parameter_group_levels = collect(
-                Iterators.product(
-                    map(key -> group_levels[key], parameter_group_dependencies)...,
-                ),
-            )
+            #Save the key for the independent group as a tuple
+            independent_group_key = Tuple(independent_group_data[1, independent_group_cols])
         end
 
-        #For multilevel dependent parameters
-        if info isa Multilevel
-            #Set the multilevel dependency to true
-            multilevel_dependent = true
+        #Add it as a key
+        push!(independent_groups_keys, independent_group_key)
 
-            #Extract the distribution and parameters
-            distribution = info.distribution
-            parameters = info.parameters
-
-            #For normal parameters
-        else
-            #Set the multilevel dependency to false
-            multilevel_dependent = false
-
-            #Extract the distribution and parameters
-            distribution = info
-            parameters = []
-        end
-
-        #Save the information for using when fitting
-        hierarchical_parameters_information[length(parameter_group_dependencies)][parameter_key] =
-            (
-                group_dependencies = parameter_group_dependencies,
-                group_levels = parameter_group_levels,
-                multilevel_dependent = multilevel_dependent,
-                distribution = distribution,
-                parameters = parameters,
-            )
+        #Extract and save data as dicts of multilevel grouped arrays
+        push!(
+            independent_groups_info,
+            extract_structured_data(
+                data = independent_group_data,
+                multilevel_group_cols = multilevel_group_cols,
+                input_cols = input_cols,
+                action_cols = action_cols,
+                general_parameters_info = general_parameters_info,
+            ),
+        )
     end
 
-    #Extract the information for the parameters at the agent level
-    agent_parameters_information =
-        hierarchical_parameters_information[pop!(group_dependency_levels)]
-
+    ## Copy the fitting info for each chain that is to be sampled ##
+    fit_info_all = repeat(independent_groups_info, n_chains)
 
     ### FIT MODEL ###
     #If only one core has been specified, use sequential sampling
     if n_cores == 1
 
-        ### FIT MODEL ###
-        #Initialize Turing model
-        model = create_agent_model(
-            agent,
-            hierarchical_parameters_information,
-            agent_parameters_information,
-            inputs,
-            actions,
-            group_combinations,
-            group_dependency_levels,
-            multiple_inputs,
-            multiple_actions,
-            impute_missing_actions,
-        )
-
         #Use the logger specified earlier
         chains = Logging.with_logger(sampling_logger) do
 
-            #Fit model to data, as many chains as specified
-            map(i -> sample(model, sampler, n_iterations; sampler_kwargs...), 1:n_chains)
+            #Fit model to data, as many sets of fititng info as specified
+            map(
+                fit_info -> sample(
+                    create_agent_model(
+                        agent,
+                        fit_info.multilevel_parameters_info,
+                        fit_info.agent_parameters_info,
+                        fit_info.inputs,
+                        fit_info.actions,
+                        fit_info.multilevel_groups,
+                        multiple_inputs,
+                        multiple_actions,
+                        impute_missing_actions,
+                    ),
+                    sampler,
+                    n_iterations;
+                    sampler_kwargs...,
+                ),
+                fit_info_all,
+            )
         end
 
         #Otherwise, use parallel sampling
@@ -255,8 +194,7 @@ function fit_model(
             @warn """
             n_cores was set to > 1, but workers have already been created. No new workers were created, and the existing ones are used for parallelization.
             Note that the following variable names are broadcast to the workers:
-            sampler agent hierarchical_parameters_information agent_parameters_information inputs actions
-            group_combinations group_dependency_levels multiple_inputs multiple_actions impute_missing_actions
+            agent fit_info_all multiple_inputs multiple_actions impute_missing_actions sampler
             """
             #Set flag to not remove the workers later
             remove_workers_at_end = false
@@ -265,43 +203,36 @@ function fit_model(
         #Load packages on worker processes
         @everywhere @eval using ActionModels, Turing
         #Broadcast necessary information to workers
-        @everywhere sampler = $sampler
         @everywhere agent = $agent
-        @everywhere hierarchical_parameters_information =
-            $hierarchical_parameters_information
-        @everywhere agent_parameters_information = $agent_parameters_information
-        @everywhere inputs = $inputs
-        @everywhere actions = $actions
-        @everywhere group_combinations = $group_combinations
-        @everywhere group_dependency_levels = $group_dependency_levels
+        @everywhere fit_info_all = $fit_info_all
         @everywhere multiple_inputs = $multiple_inputs
         @everywhere multiple_actions = $multiple_actions
         @everywhere impute_missing_actions = $impute_missing_actions
+        @everywhere sampler = $sampler
 
         #Use the specified logger
         chains = Logging.with_logger(sampling_logger) do
 
             #Fit model to inputs and actions, as many separate chains as specified
             pmap(
-                i -> sample(
+                fit_info -> sample(
                     create_agent_model(
                         agent,
-                        hierarchical_parameters_information,
-                        agent_parameters_information,
-                        inputs,
-                        actions,
-                        group_combinations,
-                        group_dependency_levels,
+                        fit_info.multilevel_parameters_info,
+                        fit_info.agent_parameters_info,
+                        fit_info.inputs,
+                        fit_info.actions,
+                        fit_info.multilevel_groups,
                         multiple_inputs,
                         multiple_actions,
                         impute_missing_actions,
                     ),
                     sampler,
-                    n_iterations,
-                    save_state = false;
+                    n_iterations;
+                    save_state = false,
                     sampler_kwargs...,
                 ),
-                1:n_chains,
+                fit_info_all,
             )
         end
 
@@ -312,86 +243,47 @@ function fit_model(
         end
     end
 
-    #Concatenate chains together
-    chains = chainscat(chains...)
-
     ### CLEANUP ###
-    #Initialize dict for replacement names
-    replacement_names = Dict()
 
-    ## Set replacement names for hierarchical parameters ##
-    #Go through each amount of group dependencies
-    for n_dependencies in group_dependency_levels
+    ## Combine chains correctly ##
+    #If there was only one dataset to be fit
+    if length(independent_group_cols) == 0
 
-        #Go through each hierarchical parameter
-        for (parameter_key, parameter_info) in
-            hierarchical_parameters_information[n_dependencies]
+        #Concatenate all the chains together
+        results = chainscat(chains...)
 
-            #Go through each group with that parameter
-            for group in parameter_info.group_levels
+        #Rename parameter names
+        results = rename_chains(results, first(independent_groups_info))
 
-                #If there are no group dependencies
-                if isempty(group)
-                    #Don't print anything
-                    group_string = ""
+        #If there were multiple independent groups
+    else
 
-                    #If there is only one group
-                elseif length(group) == 1
-                    #Extract the group from the tuple it is in
-                    group_string = group[1]
+        #Initialize dictionary for results for each group
+        results = Dict()
 
-                    #If there are multiple group dependencies
-                else
-                    #Print the whole group dependency tuple
-                    group_string = group
-                end
+        #Go through each independent group
+        for (group_indx, (independent_group_key, independent_group_info)) in
+            enumerate(zip(independent_groups_keys, independent_groups_info))
 
-                #Set a replacement name
-                replacement_names["hierarchical_parameters[$parameter_key][$group]"] = "$group_string $parameter_key"
+            #Get the chains belonging to that group and concatenate them
+            group_chains =
+                chainscat(chains[group_indx:length(independent_groups_info):end]...)
 
-            end
+            #Rename parameter names
+            group_chains = rename_chains(group_chains, independent_group_info)
+
+            #Concatenate them, and store them
+            results[independent_group_key] = group_chains
         end
     end
 
-    ## Set replacement names for agent parameters ##
-    #Go through each agent parameter
-    for (parameter_key, parameter_info) in agent_parameters_information
-
-        #Go through each group with that parameter
-        for group in parameter_info.group_levels
-
-            #If there are no group dependencies
-            if isempty(group)
-                #Don't print anything
-                group_string = ""
-
-                #If there is only one group
-            elseif length(group) == 1
-                #Extract the group from the tuple it is in
-                group_string = group[1]
-
-                #If there are multiple group dependencies
-            else
-                #Print the whole group dependency tuple
-                group_string = group
-            end
-
-            #Set a replacement name
-            replacement_names["agent_parameters[$group][$parameter_key]"] = "$group_string $parameter_key"
-
-        end
-    end
-
-    #Input the dictionary to replace the names
-    chains = replacenames(chains, replacement_names)
-
-    return chains
+    return results
 end
 
 
-###########################
-### FITTING TWO VECTORS ###
-###########################
+############################
+### FITTING TWO MATRECES ###
+############################
 """""
     fit_model(agent::Agent, inputs::Array, actions::Vector, param_priors::Dict, kwargs...)
 Use Turing to fit the parameters of an agent to a set of inputs and corresponding actions.

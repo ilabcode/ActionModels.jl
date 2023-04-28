@@ -5,7 +5,8 @@ function prefit_checks(;
     agent,
     data,
     priors,
-    group_cols,
+    independent_group_cols,
+    multilevel_group_cols,
     input_cols,
     action_cols,
     fixed_parameters,
@@ -50,7 +51,7 @@ function prefit_checks(;
 
 
     #Check that user-specified columns exist in the dataset
-    if any(group_cols .∉ Ref(Symbol.(names(data))))
+    if any(multilevel_group_cols .∉ Ref(Symbol.(names(data))))
         throw(
             ArgumentError(
                 "There are specified group columns that do not exist in the dataframe",

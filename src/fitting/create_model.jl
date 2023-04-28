@@ -5,38 +5,85 @@ Create a Turing model object used for fitting an ActionModels agent.
 """
 @model function create_agent_model(
     agent::Agent,
-    hierarchical_parameters_information::Dict,
-    agent_parameters_information::Dict,
+    multilevel_parameters_info::Vector,
+    agent_parameters_info::Vector,
     inputs::Dict,
     actions::Dict,
-    groups::Vector,
-    group_dependency_levels::Vector,
-    multiple_inputs,
-    multiple_actions,
+    multilevel_groups::Vector,
+    multiple_inputs::Bool,
+    multiple_actions::Bool,
     impute_missing_actions::Bool,
 )
     #Initialize dictionaries for storing sampled parameters
-    hierarchical_parameters = Dict()
+    multilevel_parameters = Dict()
     agent_parameters = Dict()
 
-    #Go from few to many group dependencies
-    for n_dependencies in group_dependency_levels
+    #Go through each multilevel parameter
+    for parameter_info in multilevel_parameters_info
 
-        #Go through each parameter with amount of group dependencies
-        for (parameter_key, parameter_info) in
-            hierarchical_parameters_information[n_dependencies]
+        #Set up a sub-dictionary for the value of this parameter in each group
+        multilevel_parameters[parameter_info.name] = Dict()
 
-            #Set up a sub-dictionary for the value of this parameter in each group
-            hierarchical_parameters[parameter_key] = Dict()
+        #Go through each group that the parameter belongs to
+        for group in parameter_info.group_levels
 
-            #Go through each group that the parameter belongs to
-            for group in parameter_info.group_levels
+            #If the parameter does not depend on a higher level
+            if !parameter_info.multilevel_dependent
+
+                #Sample the parameter from the given prior distribution
+                multilevel_parameters[parameter_info.name][group] ~
+                    parameter_info.distribution
+
+                #Otherwise if it depends on a higher-level parameter
+            else
+
+                #Create empty vector for storing distribution parameter values
+                distribution_parameters = []
+
+                #Go through each parameter in the higher-level distribution
+                for distribution_parameter_key in parameter_info.parameters
+
+                    #Get the dictionary of parameter values in the parent
+                    parent_parameters = multilevel_parameters[distribution_parameter_key]
+
+                    #Get out the different groups that the parent can belong to
+                    parent_parameters_groups = collect(keys(parent_parameters))
+
+                    #Find the group of the parent which the current parameter is derived from
+                    higher_group = parent_parameters_groups[findall(
+                        x -> all(x .∈ [group]),
+                        parent_parameters_groups,
+                    )][1]
+
+                    #Store the parameter value from that group, which should already be sampled
+                    push!(distribution_parameters, parent_parameters[higher_group])
+                end
+
+                #Give the distribution parameters to the specified distribution, and sample this parameter
+                multilevel_parameters[parameter_info.name][group] ~
+                    parameter_info.distribution(distribution_parameters...)
+            end
+        end
+    end
+
+    #If no errors occur
+    try
+
+        #Go through each group
+        for group in multilevel_groups
+
+            ### Sample parameters ###
+            #Initialize a within-group parameter dictionary
+            agent_parameters[group] = Dict()
+
+            #Sample within-group parameters from the priors
+            for parameter_info in agent_parameters_info
 
                 #If the parameter does not depend on a higher level
                 if !parameter_info.multilevel_dependent
 
-                    #Sample the parameter from the given prior distribution
-                    hierarchical_parameters[parameter_key][group] ~
+                    #Sample the parameter from the given prior
+                    agent_parameters[group][parameter_info.name] ~
                         parameter_info.distribution
 
                     #Otherwise if it depends on a higher-level parameter
@@ -50,60 +97,7 @@ Create a Turing model object used for fitting an ActionModels agent.
 
                         #Get the dictionary of parameter values in the parent
                         parent_parameters =
-                            hierarchical_parameters[distribution_parameter_key]
-
-                        #Get out the different groups that the parent can belong to
-                        parent_parameters_groups = collect(keys(parent_parameters))
-
-                        #Find the group of the parent which the current parameter is derived from
-                        higher_group = parent_parameters_groups[findall(
-                            x -> all(x .∈ [group]),
-                            parent_parameters_groups,
-                        )][1]
-
-                        #Store the parameter value from that group, which should already be sampled
-                        push!(distribution_parameters, parent_parameters[higher_group])
-                    end
-
-                    #Give the distribution parameters to the specified distribution, and sample this parameter
-                    hierarchical_parameters[parameter_key][group] ~
-                        parameter_info.distribution(distribution_parameters...)
-                end
-            end
-        end
-    end
-
-    #If no errors occur
-    try
-
-        #Go through each group
-        for group in groups
-
-            ### Sample parameters ###
-            #Initialize a within-group parameter dictionary
-            agent_parameters[group] = Dict()
-
-            #Sample within-group parameters from the priors
-            for (param_key, parameter_info) in agent_parameters_information
-
-                #If the parameter does not depend on a higher level
-                if !parameter_info.multilevel_dependent
-
-                    #Sample the parameter from the given prior
-                    agent_parameters[group][param_key] ~ parameter_info.distribution
-
-                    #Otherwise if it depends on a higher-level parameter
-                else
-
-                    #Create empty vector for storing distribution parameter values
-                    distribution_parameters = []
-
-                    #Go through each parameter in the higher-level distribution
-                    for distribution_parameter_key in parameter_info.parameters
-
-                        #Get the dictionary of parameter values in the parent
-                        parent_parameters =
-                            hierarchical_parameters[distribution_parameter_key]
+                            multilevel_parameters[distribution_parameter_key]
 
                         #Get out the different groups that the parent can belong to
                         parent_parameters_groups = collect(keys(parent_parameters))
@@ -119,7 +113,7 @@ Create a Turing model object used for fitting an ActionModels agent.
                     end
 
                     #And sample the agents' parameters from the distribution
-                    agent_parameters[group][param_key] ~
+                    agent_parameters[group][parameter_info.name] ~
                         parameter_info.distribution(distribution_parameters...)
                 end
             end
