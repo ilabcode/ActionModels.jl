@@ -200,7 +200,7 @@ function fit_model(
             remove_workers_at_end = false
         end
 
-        #Load packages on worker processes
+        #Load ActionModels, Turing and sister packages on worker processes
         @everywhere @eval using ActionModels, Turing
         #Broadcast necessary information to workers
         @everywhere agent = $agent

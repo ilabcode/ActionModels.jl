@@ -10,11 +10,16 @@ using Test
     end
 
     @testset "utility tests" begin
-        include("utility_tests.jl")
+        include("testsuite/utility_tests.jl")
     end
 
     @testset "plot and fitting tests" begin
-        include("fitting_tests.jl")
+        include("testsuite/fitting_tests.jl")
+
+    end
+
+    @testset "HGF tests" begin
+        include("testsuite/HGF_tests.jl")
 
     end
 
