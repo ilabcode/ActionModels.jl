@@ -2,7 +2,11 @@ using ActionModels
 using HierarchicalGaussianFiltering
 using Distributions
 
-agent = premade_agent("hgf_gaussian_action")
+agent = premade_agent(
+    "hgf_gaussian_action",
+    premade_hgf("continuous_2level", verbose = false),
+    verbose = false,
+)
 
 priors = Dict(("x1", "evolution_rate") => Normal(-5, 1))
 
@@ -10,4 +14,4 @@ inputs = [1, 1.2, 1.4]
 
 actions = [1, 1.1, 1.5]
 
-@test fit_model(agent, priors, inputs, actions, n_iterations = 100, n_chains = 1)
+fit_model(agent, priors, inputs, actions, n_iterations = 100, n_chains = 1)
