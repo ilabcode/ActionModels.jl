@@ -1,9 +1,10 @@
 
 using ActionModels
 using Distributions
+using DataFrames
 using Plots
 using StatsPlots
-using DataFrames
+
 
 
 @testset "simulate actions and fit" begin
@@ -17,7 +18,7 @@ using DataFrames
     actions = give_inputs!(agent, inputs)
 
     chains =
-        fit_model(agent, param_priors, inputs, actions, n_chains = 1, n_iterations = 10)
+        fit_model(agent, param_priors, inputs, actions, n_chains = 1, n_iterations = 10, verbose = false)
 
     plot(chains)
 
@@ -143,6 +144,7 @@ end
         n_iterations = 10,
         n_chains = 2,
         progress = false,
+        verbose = false,
     )
 
 end
