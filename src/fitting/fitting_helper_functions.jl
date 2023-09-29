@@ -228,8 +228,18 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
         #Go through each group with that parameter
         for group in parameter_info.group_levels
 
-            #As default, group indicators are separated form parameter names with a space
+            #As default, group indicators are separated from parameter names with a space
             separator = " "
+
+            #If the parameter name is a string
+            if parameter_info.name isa String
+                #Include the quotation marks
+                parameter_string = "\"$(parameter_info.name)\""
+            #Otherwise
+            else 
+                #Keep it as it is
+                parameter_string = parameter_info.name
+            end
 
             #If there are no group dependencies
             if isempty(group)
@@ -250,7 +260,7 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             end
 
             #Set a replacement name
-            replacement_names["multilevel_parameters[\"$(parameter_info.name)\"][$group]"] = "$group_string$separator$(parameter_info.name)"
+            replacement_names["multilevel_parameters[$parameter_string][$group]"] = "$group_string$separator$(parameter_info.name)"
         end
     end
 
@@ -264,6 +274,17 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             #As default, group indicators are separated form parameter names with a space
             separator = " "
 
+            #If the parameter name is a string
+            if parameter_info.name isa String
+                #Include the quotation marks
+                parameter_string = "\"$(parameter_info.name)\""
+            #Otherwise
+            else 
+                #Keep it as it is
+                parameter_string = parameter_info.name
+            end
+            
+
             #If there are no group dependencies
             if isempty(group)
                 #Don't print anything
@@ -284,7 +305,7 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             end
 
             #Set a replacement name
-            replacement_names["agent_parameters[$group][\"$(parameter_info.name)\"]"] = "$group_string$separator$(parameter_info.name)"
+            replacement_names["agent_parameters[$group][$parameter_string]"] = "$group_string$separator$(parameter_info.name)"
 
         end
     end
