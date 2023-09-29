@@ -1,7 +1,7 @@
 name = "ActionModels"
 uuid = "320cf53b-cc3b-4b34-9a10-0ecb113566a3"
 authors = ["Peter Thestrup Waade <peter@waade.net>"]
-version = "0.4.0"
+version = "0.4.1"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -15,5 +15,5 @@ Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 DataFrames = "1"
 Distributions = "0.25"
 RecipesBase = "1"
-Turing = "0.21, 0.22, 0.23, 0.24, 0.25"
-julia = "1.8"
+Turing = "0.29"
+julia = "1.9"
