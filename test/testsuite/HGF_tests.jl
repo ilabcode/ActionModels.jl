@@ -1,6 +1,8 @@
 using ActionModels
 using HierarchicalGaussianFiltering
 using Distributions
+using Plots
+using StatsPlots
 
 agent = premade_agent(
     "hgf_gaussian_action",
@@ -14,4 +16,6 @@ inputs = [1, 1.2, 1.4]
 
 actions = [1, 1.1, 1.5]
 
-fit_model(agent, priors, inputs, actions, n_iterations = 100, n_chains = 1)
+results = fit_model(agent, priors, inputs, actions, n_iterations = 100, n_chains = 1)
+
+plot_parameter_distribution(results, priors)
