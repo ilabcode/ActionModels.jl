@@ -250,7 +250,7 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             end
 
             #Set a replacement name
-            replacement_names["multilevel_parameters[$(parameter_info.name)][$group]"] = "$group_string$separator$(parameter_info.name)"
+            replacement_names["multilevel_parameters[\"$(parameter_info.name)\"][$group]"] = "$group_string$separator$(parameter_info.name)"
         end
     end
 
@@ -284,7 +284,7 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             end
 
             #Set a replacement name
-            replacement_names["agent_parameters[$group][$(parameter_info.name)]"] = "$group_string$separator$(parameter_info.name)"
+            replacement_names["agent_parameters[$group][\"$(parameter_info.name)\"]"] = "$group_string$separator$(parameter_info.name)"
 
         end
     end
