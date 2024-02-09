@@ -14,6 +14,7 @@ export get_posteriors
 
 function __init__()
     premade_agents["binary_rw_softmax"] = premade_binary_rw_softmax
+    premade_agents["continuous_rescorla_wagner"] = premade_continuous_rescorla_wagner
 end
 
 #Types for agents and errors
