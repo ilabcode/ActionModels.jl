@@ -1,7 +1,7 @@
 module ActionModels
 
 #Load packages
-using Turing, Distributions, DataFrames, RecipesBase, Logging, Distributed
+using Turing, TuringGLM, Distributions, DataFrames, RecipesBase, Logging, Distributed, LinearAlgebra
 
 #Export functions
 export Agent, RejectParameters, SharedParameter, Multilevel
@@ -30,6 +30,7 @@ include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
 include("fitting/fit_model.jl")
 include("fitting/prefit_checks.jl")
+include("fitting/create_statistical_model.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")

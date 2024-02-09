@@ -354,3 +354,95 @@ function fit_model(
 
     return chains
 end
+
+
+#########################################
+### FITTING A DATAFRAME AND TuringGLM ###
+#########################################
+
+function fit_model(
+    agent_model::Agent,
+    statistical_model::Union{TuringGLM.FormulaTerm, Vector{TuringGLM.FormulaTerm}},
+    data,
+    priors::TuringGLM.Prior = TuringGLM.DefaultPrior();
+    input_cols::Union{Vector,String,Symbol} = [:input],
+    action_cols::Union{Vector,String,Symbol} = [:action],
+    sampler = NUTS(),
+    n_cores::Integer = 1,
+    n_iterations::Integer = 1000,
+    n_chains::Integer = 2,
+    verbose::Bool = true,
+    show_sample_rejections::Bool = false,
+    impute_missing_actions::Bool = false,
+    sampler_kwargs...,
+)
+
+    input_cols = Symbol.(input_cols)
+    action_cols = Symbol.(action_cols)
+
+
+    # TODO
+    # prefit_checks(
+    #     agent_model = agent_model,
+    #     statistical_model = statistical_model,
+    #     data = data,
+    #     priors = priors,
+    #     input_cols = input_cols,
+    #     action_cols = action_cols,
+    #     n_cores = n_cores,
+    #     verbose = verbose,
+    # )
+
+    ## Set logger ##
+    #If sample rejection warnings are to be shown
+    if show_sample_rejections
+        #Use a standard logger
+        sampling_logger = Logging.SimpleLogger()
+    else
+        #Use a logger which ignores messages below error level
+        sampling_logger = Logging.SimpleLogger(Logging.Error)
+    end
+
+
+
+    inputs = []
+    actions = []
+    for (run_key, run_df) in pairs(groupby(data, :id))
+        push!(inputs, Array(run_df[:, input_cols]))
+        push!(actions, Array(run_df[:, action_cols]))
+    end
+
+    @show inputs
+    @show actions
+
+
+
+
+    statistical_data = unique(data, :id)
+
+    (statmodel, X) = ActionModels.statistical_model_turingglm(statistical_model, statistical_data)
+
+    @model function do_full_model(
+        agent_model, statmodel, statistical_data, inputs, actions, X
+        )
+        #learning_rate ~ filldist(Uniform(0,1), 3)
+        @submodel learning_rate = statmodel(X)
+        for agent_idx in 1:length(inputs)
+            # i = input_series
+            # a = actions[agent_idx]
+            set_parameters!(agent_model, Dict("learning_rate" => learning_rate[agent_idx]) )
+            reset!(agent_model)
+
+            for (timestep, input) in enumerate(inputs[agent_idx])
+                action_distribution = agent_model.action_model(agent_model, input)
+                actions[agent_idx][timestep] ~ action_distribution
+            end
+
+        end
+
+    end
+
+    full_model = do_full_model(agent_model, statmodel, statistical_data, inputs, actions, X)
+    return sample(full_model, sampler, n_iterations)
+
+end
