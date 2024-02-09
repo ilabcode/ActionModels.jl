@@ -65,7 +65,7 @@ using DataFrames
 
         agent = premade_agent("continuous_rescorla_wagner")
         samples = fit_model(agent,
-                            @formula(learning_rate ~ id,
+                            @formula(learning_rate ~ id),
                             example_data;
                             action_cols = [:actions],
                             input_cols = [:input])
