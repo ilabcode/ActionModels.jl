@@ -10,7 +10,7 @@ agent = premade_agent(
     verbose = false,
 )
 
-priors = Dict(("x1", "evolution_rate") => Normal(-5, 1))
+priors = Dict(("x1", "volatility") => Normal(-5, 1))
 
 inputs = [1, 1.2, 1.4]
 
