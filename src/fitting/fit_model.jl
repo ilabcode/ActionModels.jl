@@ -12,13 +12,14 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  - 'inputs:Array': array of inputs. Each row is a timestep, and each column is a single input value.
  - 'actions::Array': array of actions. Each row is a timestep, and each column is a single action.
  - 'fixed_parameters::Dict = Dict()': dictionary containing parameter values for parameters that are not fitted. Keys are parameter names, values are priors. For parameters not specified here and without priors, the parameter values of the agent are used instead.
- - 'sampler = NUTS()': specify the type of Turing sampler.
+ - 'sampler::Union{Missing, DynamicPPL.Sampler} = missing': specify the type of Turing sampler. Defaults to `NUTS(-1, 0.65; adtype=AutoReverseDiff(true))`
  - 'n_cores = 1': set number of cores to use for parallelization. If set to 1, no parallelization is used.
  - 'n_iterations = 1000': set number of iterations per chain.
  - 'n_chains = 2': set number of amount of chains.
  - 'verbose = true': set to false to hide warnings.
  - 'show_sample_rejections = false': set whether to show warnings whenever samples are rejected.
  - 'impute_missing_actions = false': set whether the values of missing actions should also be estimated by Turing.
+ - 'sampler_kwargs...': additional keyword arguments to be passed to the `sampler`` call.
 
  # Examples
 ```julia
@@ -45,7 +46,7 @@ function fit_model(
     input_cols::Vector = [:input],
     action_cols::Vector = [:action],
     fixed_parameters::Dict = Dict(),
-    sampler = NUTS(),
+    sampler::Union{Missing, DynamicPPL.Sampler} = missing,
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains::Integer = 2,
@@ -55,7 +56,10 @@ function fit_model(
     sampler_kwargs...,
 )
     ### SETUP ###
-
+    # If no sampler has been specified, use NUTS
+    if ismissing(sampler)
+        sampler = NUTS(-1, 0.65; adtype=AutoReverseDiff(true))
+    end
     #Convert column names to symbols
     independent_group_cols = Symbol.(independent_group_cols)
     multilevel_group_cols = Symbol.(multilevel_group_cols)
@@ -293,13 +297,14 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  - 'inputs:Array': array of inputs. Each row is a timestep, and each column is a single input value.
  - 'actions::Array': array of actions. Each row is a timestep, and each column is a single action.
  - 'fixed_parameters::Dict = Dict()': dictionary containing parameter values for parameters that are not fitted. Keys are parameter names, values are priors. For parameters not specified here and without priors, the parameter values of the agent are used instead.
- - 'sampler = NUTS()': specify the type of Turing sampler.
+ - 'sampler::Union{Missing, DynamicPPL.Sampler} = missing': specify the type of Turing sampler, defaults to `NUTS(-1, 0.65; adtype=AutoReverseDiff(true))`
  - 'n_cores = 1': set number of cores to use for parallelization. If set to 1, no parallelization is used.
  - 'n_iterations = 1000': set number of iterations per chain.
  - 'n_chains = 2': set number of amount of chains.
  - 'verbose = true': set to false to hide warnings.
  - 'show_sample_rejections = false': set whether to show warnings whenever samples are rejected.
  - 'impute_missing_actions = false': set whether the values of missing actions should also be estimated by Turing.
+ - 'sampler_kwargs...': additional keyword arguments to be passed to the `sampler`` call.
  # Examples
 ```julia
 #Create a premade agent: binary Rescorla-Wagner
@@ -319,13 +324,14 @@ function fit_model(
     inputs::Array,
     actions::Array;
     fixed_parameters::Dict = Dict(),
-    sampler = NUTS(),
+    sampler::Union{Missing, DynamicPPL.Sampler} = missing,
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains = 2,
     verbose = true,
     show_sample_rejections = false,
     impute_missing_actions::Bool = false,
+    sampler_kwargs...,
 )
 
     #Create column names
@@ -350,6 +356,7 @@ function fit_model(
         verbose = verbose,
         show_sample_rejections = show_sample_rejections,
         impute_missing_actions = impute_missing_actions,
+        sampler_kwargs...,
     )
 
     return chains
