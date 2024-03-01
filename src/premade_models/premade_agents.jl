@@ -45,3 +45,40 @@ function premade_binary_rw_softmax(config::Dict)
         settings = settings,
     )
 end
+
+
+function premade_continuous_rescorla_wagner(config::Dict)
+
+    #Default parameters and settings
+    default_config = Dict(
+        "learning_rate" => 0.1,
+        "action_noise" => 1,
+        ("initial", "value") => 0,
+    )
+
+    #Warn the user about used defaults and misspecified keys
+    warn_premade_defaults(default_config, config)
+
+    #Merge to overwrite defaults
+    config = merge(default_config, config)
+
+    ## Create agent
+    action_model = continuous_rescorla_wagner
+    parameters = Dict(
+        "learning_rate" => config["learning_rate"],
+        "action_noise" => config["action_noise"],
+        ("initial", "value") => config[("initial", "value")],
+    )
+    states = Dict(
+        "input" => missing,
+        "value" => missing
+    )
+    settings = Dict()
+
+    return init_agent(
+        action_model,
+        parameters = parameters,
+        states = states,
+        settings = settings,
+    )
+end
