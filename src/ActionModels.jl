@@ -1,8 +1,8 @@
 module ActionModels
 
 #Load packages
-using Turing, Distributions, DataFrames, RecipesBase, Logging, Distributed
-
+using ReverseDiff, Turing, Distributions, DataFrames, RecipesBase, Logging, Distributed
+using Turing: DynamicPPL, AutoReverseDiff
 #Export functions
 export Agent, RejectParameters, SharedParameter, Multilevel
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
@@ -14,6 +14,7 @@ export get_posteriors
 
 function __init__()
     premade_agents["binary_rw_softmax"] = premade_binary_rw_softmax
+    premade_agents["continuous_rescorla_wagner"] = premade_continuous_rescorla_wagner
 end
 
 #Types for agents and errors
