@@ -39,71 +39,59 @@
 # First, let us define the function name and which input it takes:
 using ActionModels
 using Distributions
-using Plots, StatsPlots
 
 # In the next section you will be introduced to premade agents and models.
 
 # Rescorla Wagner continuous
 
-function continuous_rescorla_wagner_gaussian(agent, input)
-    #-- Read in parameters and states --#
+function continuous_rescorla_wagner_softmax(agent, input)
+
+    ## Read in parameters from the agent
     learning_rate = agent.parameters["learning_rate"]
-    action_noise = agent.parameters["action_noise"]
+
+    ## Read in states with an initial value
     old_value = agent.states["value"]
 
-    #-- Update the Rescolar Wagner's expected value --# 
+    ##We dont have any settings in this model. If we had, we would read them in as well. 
+    ##-----This is where the update step starts ------- 
+
+    ##Get new value state
     new_value = old_value + learning_rate * (input - old_value)
 
-    #-- Sample an action with Gaussian noise --#
-    action_distribution = Distributions.Normal(new_value, action_noise)
 
-    #-- Update states for next round --# 
+    ##-----This is where the update step ends ------- 
+    ##Create Bernoulli normal distribution our action probability which we calculated in the update step
+    action_distribution = Distributions.Normal(new_value, 0.3)
+
+    ##Update the states and save them to agent's history 
+
     agent.states["value"] = new_value
+    agent.states["input"] = input
 
-    #-- Save states in the history --#
     push!(agent.history["value"], new_value)
+    push!(agent.history["input"], input)
 
-    #-- return the distribution to sample actions from
+    ## return the action distribution to sample actions from
     return action_distribution
 end
 
-#-- define parameters and states --#
-parameters = Dict(
-    "learning_rate" => 0.8,
-    "action_noise" => 1,
-    ("initial", "value") => 0)
+#Define agent
 
-states = Dict("value" => missing)
+parameters = Dict("learning_rate" => 1, ("initial", "value") => 0)
 
-#-- create agent --#
-agent = init_agent(
-    continuous_rescorla_wagner_gaussian,
-    parameters = parameters,
-    states = states
-    )
+# We set the initial state parameter for "value" state because we need a starting value in the update step. 
+
+# Let us define the states in the agent:
+states = Dict("value" => missing, "input" => missing)
 
 
-#-- define observations --#
+agent =
+    init_agent(continuous_rescorla_wagner_softmax, parameters = parameters, states = states)
+
+
 inputs = [1, 2, 3, 4, 6, 4, 10, 2, 1]
 
-#-- give them to the agent --#
-actions = give_inputs!(agent, inputs)
-
-#Minor detail for plotting reasons
-inputs = append!(Float64.([0]), inputs)
-actions = append!(Float64.([0]), actions)
-
-#Plot
-plot(inputs, linetype = :scatter, label = "input")
-plot_trajectory!(agent, "value", linetype = :line)
-plot!(actions, linetype = :scatter, label = "action")
-
-
-
-
-
-
-
+give_inputs!(agent, inputs)
 
 plot_trajectory(agent, "action")
 plot_trajectory!(agent, "input")
@@ -115,7 +103,7 @@ inputs = [0, 1, 0, 0, 1, 1, 1, 0, 0, 1]
 give_inputs!(agent, inputs)
 #-
 plot_trajectory(agent, "action")
-plot(inputs)
+plot_trajectory!(agent, "input")
 
 # ## A Binary Rescorla-Wagner
 

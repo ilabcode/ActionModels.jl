@@ -1,44 +1,39 @@
 using ActionModels
 using Test
+using Glob
+
+#Get the root path
+ActionModels_path = dirname(dirname(pathof(ActionModels)))
 
 @testset "all tests" begin
 
-    @testset "quick tests" begin
+    test_path = ActionModels_path * "/test/"
 
+    @testset "quick tests" begin
         # Test the quick tests that are used as pre-commit tests
         include("quicktests.jl")
     end
 
-    @testset "utility tests" begin
-        include("testsuite/utility_tests.jl")
+    # List the julia filenames in the testsuite
+    filenames = glob("*.jl", test_path * "testsuite")
+
+    # For each file
+    for filename in filenames
+        #Run it
+        include(filename)
     end
-
-    @testset "plot and fitting tests" begin
-        include("testsuite/fitting_tests.jl")
-
-    end
-
-    @testset "HGF tests" begin
-        include("testsuite/HGF_tests.jl")
-
-    end
-
 end
 
 
-@testset "documentation tests" begin
-    AM_path = dirname(dirname(pathof(ActionModels)))
-    documentation_path = AM_path * "/docs/src/julia_src_files/"
+@testset "Documentation" begin
+    documentation_path = ActionModels_path * "/docs/src/"
+    @testset "sourcefiles" begin
 
-    # Test the quick tests that are used as pre-commit tests
-    include(documentation_path * "agent_and_actionmodel.jl")
-    include(documentation_path * "complicated_custom_agents.jl")
-    include(documentation_path * "creating_own_action_model.jl")
-    include(documentation_path * "fitting_an_agent_model_to_data.jl")
-    include(documentation_path * "fitting_vs_simulating.jl")
-    include(documentation_path * "index.jl")
-    include(documentation_path * "premade_agents_and_models.jl")
-    include(documentation_path * "prior_predictive_sim.jl")
-    include(documentation_path * "simulation_with_an_agent.jl")
-    include(documentation_path * "variations_of_util.jl")
+        # List the julia filenames in the documentation source files folder
+        filenames = glob("*.jl", documentation_path * "/Julia_src_files")
+
+        for filename in filenames
+            include(filename)
+        end
+    end
 end

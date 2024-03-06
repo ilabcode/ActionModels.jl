@@ -1,6 +1,9 @@
 name = "ActionModels"
 uuid = "320cf53b-cc3b-4b34-9a10-0ecb113566a3"
-authors = ["Peter Thestrup Waade <peter@waade.net>"]
+authors = ["Peter Thestrup Waade ptw@cas.au.dk",
+            "Anna Hedvig Møller hedvig.2808@gmail.com",
+            "Jacopo Comoglio jacopo.comoglio@gmail.com",
+            "Christoph Mathys chmathys@cas.au.dk"]
 version = "0.4.2"
 
 [deps]
