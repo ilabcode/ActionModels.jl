@@ -16,7 +16,8 @@ using DataFrames
                                         0, 0.2, 0.3, 0.4, 0.5, 0.6,
                                         0, 2, 0.5, 4, 5, 3],
                              age = vcat([repeat([20],6), repeat([22], 6), repeat([28],6)]...),
-                             id = vcat([repeat(["1"],6), repeat(["2"], 6), repeat(["3"],6)]...))
+                             category = vcat([repeat(["1"],6), repeat(["2"], 6), repeat(["2"],6)]...),
+                             id = vcat([repeat(["Hans"],6), repeat(["georg"], 6), repeat(["Jørgen"],6)]...))
 
     @testset "dummy turingglm non-hierarchical model" begin
         prior = CustomPrior(Normal(0,10), Normal(0,10), nothing)
@@ -65,10 +66,11 @@ using DataFrames
 
         agent = premade_agent("continuous_rescorla_wagner")
         samples = fit_model(agent,
-                            @formula(learning_rate ~ id),
+                            @formula(learning_rate ~ age),
                             example_data;
                             action_cols = [:actions],
-                            input_cols = [:input])
+                            input_cols = [:input],
+                            grouping_cols = [:id])
 
         @show summary(samples)
 

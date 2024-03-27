@@ -365,8 +365,9 @@ function fit_model(
     statistical_model::Union{TuringGLM.FormulaTerm, Vector{TuringGLM.FormulaTerm}},
     data,
     priors::TuringGLM.Prior = TuringGLM.DefaultPrior();
-    input_cols::Union{Vector,String,Symbol} = [:input],
-    action_cols::Union{Vector,String,Symbol} = [:action],
+    input_cols::Union{Vector,String,Symbol},
+    action_cols::Union{Vector,String,Symbol},
+    grouping_cols::Union{Vector,String,Symbol},
     sampler = NUTS(),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
@@ -417,8 +418,8 @@ function fit_model(
 
 
 
-
-    statistical_data = unique(data, :id)
+    # TODO: check if statistical models differ within time series (we assume they don't)
+    statistical_data = unique(data, grouping_cols)
 
     (statmodel, X) = ActionModels.statistical_model_turingglm(statistical_model, statistical_data)
 
@@ -443,6 +444,10 @@ function fit_model(
     end
 
     full_model = do_full_model(agent_model, statmodel, statistical_data, inputs, actions, X)
-    return sample(full_model, sampler, n_iterations)
+    chains = sample(full_model, sampler, n_iterations)
+    # rename parameters
+    #replacement_names = Dict("agent_param[$id]" => "learning_rate[$id]") #
+    replacement_names = Dict("agent_param[$idx]" => "learning_rate[$(Tuple(id))]" for (idx, id) in enumerate(eachrow(statistical_data[!,grouping_cols])))
+    return replacenames(chains, replacement_names)
 
 end

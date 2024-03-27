@@ -73,8 +73,8 @@ function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{Normal})
             μ = α .+ τ .* getindex.((zⱼ,), idxs) .+ X * β
         end
         #TODO: implement random-effects slope
-        y ~ MvNormal(μ, σ^2 * I)
-        return y
+        agent_param ~ MvNormal(μ, σ^2 * I)
+        return agent_param
     end
 end
 
@@ -85,8 +85,8 @@ function _model(μ_X, σ_X, prior, ::Type{Normal})
         α ~ prior.intercept
         β ~ filldist(prior.predictors, predictors)
         σ ~ Exponential(10)
-        y ~ MvNormal(α .+ X * β, σ^2 * I)
-        return y
+        agent_param ~ MvNormal(α .+ X * β, σ^2 * I)
+        return agent_param
     end
 end
 
