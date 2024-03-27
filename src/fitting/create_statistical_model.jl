@@ -22,8 +22,12 @@ function _statistical_model_turingglm(
 
     # extract y, X and Z
     # y = data_response(formula, data)
+    #
     X = TuringGLM.data_fixed_effects(formula, data)
-    # Z = TuringGLM.data_random_effects(formula, data)
+    if TuringGLM.has_ranef(formula)
+        Z = TuringGLM.data_random_effects(formula, data)
+    end
+
 
     # μ and σ identities
     μ_X = 0

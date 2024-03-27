@@ -3,10 +3,12 @@ using Pkg
 Pkg.activate("../../docs")
 
 using Test
-using ActionModels
 using Distributions
 using TuringGLM
 using DataFrames
+
+using Revise
+using ActionModels
 
 
 @testset "GLM tests" begin
@@ -54,7 +56,7 @@ using DataFrames
     #                         independent_group_cols = [:id], action_cols = [:actions], input_cols = [:input])
     # end
 
-    @testset "new interface for statistical model" begin
+    @testset "new interface for statistical model - fixed effects" begin
         #prior = Dict("learning_rate" => Uniform(0, 1))
 
         # non hierarchical
@@ -66,10 +68,10 @@ using DataFrames
 
         agent = premade_agent("continuous_rescorla_wagner")
         samples = fit_model(agent,
-                            @formula(learning_rate ~ age),
+                            @formula(learning_rate ~ id),
                             example_data;
-                            action_cols = [:actions],
-                            input_cols = [:input],
+                            action_cols   = [:actions],
+                            input_cols    = [:input],
                             grouping_cols = [:id])
 
         @show summary(samples)
@@ -80,6 +82,20 @@ using DataFrames
         #                     statistical_model = @formula(learning_rate ~ 1 + (1|id)))
 
         # [@formula(), @formula(), @formula()] # dont assume defaults -- dont estimate non-specified params
+    end
+
+    @testset "new interface for statistical model - random effects" begin
+
+        agent = premade_agent("continuous_rescorla_wagner")
+        samples = fit_model(agent,
+                            @formula(learning_rate ~ 1 + (1|id)),
+                            example_data;
+                            action_cols   = [:actions],
+                            input_cols    = [:input],
+                            grouping_cols = [:id])
+
+        @show summary(samples)
+
     end
 
 

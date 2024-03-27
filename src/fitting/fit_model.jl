@@ -420,6 +420,7 @@ function fit_model(
 
     # TODO: check if statistical models differ within time series (we assume they don't)
     statistical_data = unique(data, grouping_cols)
+    insertcols!(statistical_data, Symbol(statistical_model.lhs) => 1)
 
     (statmodel, X) = ActionModels.statistical_model_turingglm(statistical_model, statistical_data)
 
@@ -445,8 +446,7 @@ function fit_model(
 
     full_model = do_full_model(agent_model, statmodel, statistical_data, inputs, actions, X)
     chains = sample(full_model, sampler, n_iterations)
-    # rename parameters
-    #replacement_names = Dict("agent_param[$id]" => "learning_rate[$id]") #
+    # TODO: prettier replacement names "learning_rate[Hans, 2]""
     replacement_names = Dict("agent_param[$idx]" => "learning_rate[$(Tuple(id))]" for (idx, id) in enumerate(eachrow(statistical_data[!,grouping_cols])))
     return replacenames(chains, replacement_names)
 
