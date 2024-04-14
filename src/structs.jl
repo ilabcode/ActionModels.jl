@@ -53,6 +53,7 @@ Type for specifying a group of parameters
 Base.@kwdef mutable struct ParameterGroup
     name::String
     parameters::Vector
+    value::Real
 end
 
 """

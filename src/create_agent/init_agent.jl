@@ -83,7 +83,7 @@ function init_agent(
     action_model::Function;
     substruct::Any = nothing,
     parameters::Dict = Dict(),
-    parameter_groups::Dict = Dict(),
+    parameter_groups::Union{ParameterGroup, Vector{ParameterGroup}} = Vector{ParameterGroup}(),
     states::Union{Dict,Vector} = Dict(),
     settings::Dict = Dict(),
     save_history::Bool = true,
@@ -137,9 +137,13 @@ function init_agent(
     end
 
 
+    #If ther is only one parameter group, wrap it in a vector
+    if parameter_groups isa ParameterGroup
+        parameter_groups = [parameter_groups]
+    end
 
     #Go through each specified shared parameter
-    for (parameter_group, parameter_value) in parameter_groups
+    for parameter_group in parameter_groups
 
         #check if the name of the shared parameter is part of its own derived parameters
         if parameter_group.name in parameter_group.parameters
@@ -152,16 +156,17 @@ function init_agent(
 
         #Set the parameter group in the agent
         agent.shared_parameters[parameter_group.name] = GroupedParameters(
-            value = parameter_value,
+            value = parameter_group.value,
             grouped_parameters = parameter_group.parameters,
         )
     
         #Set the parameters 
-        set_parameters!(agent, parameter_group, parameter_value)
-        reset!(substruct)
+        set_parameters!(agent, parameter_group, parameter_group.value)
 
     end
 
+    #Reset the substruct to make sure initial states are correct, after setting the grouped parameters
+    reset!(substruct)
 
 
     #Initialize states
