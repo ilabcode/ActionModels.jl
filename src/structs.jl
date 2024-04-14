@@ -47,3 +47,11 @@ Base.@kwdef mutable struct ParameterInfo
     distribution::Any
     parameters::Vector
 end
+
+
+"""
+Type to use for specifying a paramter that sets a state's initial value
+"""
+Base.@kwdef mutable struct InitialStateParameter
+    state
+end

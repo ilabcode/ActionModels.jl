@@ -104,10 +104,10 @@ function init_agent(
     ##Add parameters to either initial state parameters or parameters
     for (param_key, param_value) in parameters
         #If the param is an initial state parameter
-        if param_key isa Tuple && param_key[1] == "initial"
+        if param_key isa InitialStateParameter
 
             #Add the parameter to the initial state parameters
-            agent.initial_state_parameters[param_key[2]] = param_value
+            agent.initial_state_parameters[param_key.state] = param_value
 
         else
             #For other parameters, add to parameters
