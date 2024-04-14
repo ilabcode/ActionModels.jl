@@ -1,7 +1,7 @@
 
 """
     init_agent(action_model::Function; substruct::Any = nothing, parameters::Dict = Dict(), states::Union{Dict, Vector} = Dict(),
-    settings::Dict = Dict(), shared_parameters::Dict = Dict())
+    settings::Dict = Dict(), parameter_groups::Dict = Dict())
     
 Initialize an agent. 
 
@@ -14,17 +14,17 @@ In this case the action models will be stored in the agent's settings. In that c
  - 'parameters::Dict = Dict()': dictionary containing parameters of the agent. Keys are parameter names (strings, or tuples of strings), values are parameter values.
  - 'states::Union{Dict, Vector} = Dict()': dictionary containing states of the agent. Keys are state names (strings, or tuples of strings), values are initial state values. Can also be a vector of state name strings.
  - 'settings::Dict = Dict()': dictionary containing additional settings for the agent. Keys are setting names, values are setting values.
- - 'shared_parameters::Dict = Dict()': dictionary containing shared parameters. Keys are the the name of the shared parameter, values are the value of the shared parameter followed by a vector of the parameters sharing that value.
+ - 'parameter_groups::Dict = Dict()': dictionary containing shared parameters. Keys are the the name of the shared parameter, values are the value of the shared parameter followed by a vector of the parameters sharing that value.
 # Examples
 ```julia
 ## Create agent with a binary Rescorla-Wagner action model ##
 
 ## Create action model function
-function binary_rw_softmax(agent::Agent, input::Union{Bool,Integer})
+function binary_rescorla_wagner_softmax(agent::Agent, input::Union{Bool,Integer})
 
     #Read in parameters
     learning_rate = agent.parameters["learning_rate"]
-    action_precision = agent.parameters["softmax_action_precision"]
+    action_precision = agent.parameters["action_precision"]
 
     #Read in states
     old_value = agent.states["value"]
@@ -56,7 +56,7 @@ end
 #Define requried parameters
 parameters = Dict(
     "learning_rate" => 1,
-    "softmax_action_precision" => 1,
+    "action_precision" => 1,
     ("initial", "value") => 0,
 )
 
@@ -69,7 +69,7 @@ states = Dict(
 
 #Create agent
 agent = init_agent(
-    binary_rw_softmax,
+    binary_rescorla_wagner_softmax,
     parameters = parameters,
     states = states,
     settings = settings,
@@ -83,9 +83,10 @@ function init_agent(
     action_model::Function;
     substruct::Any = nothing,
     parameters::Dict = Dict(),
+    parameter_groups::Union{ParameterGroup, Vector{ParameterGroup}} = Vector{ParameterGroup}(),
     states::Union{Dict,Vector} = Dict(),
     settings::Dict = Dict(),
-    shared_parameters::Dict = Dict(),
+    save_history::Bool = true,
 )
 
     ##Create action model struct
@@ -96,16 +97,17 @@ function init_agent(
         initial_state_parameters = Dict(),
         states = Dict(),
         settings = settings,
+        save_history = save_history,
     )
 
 
     ##Add parameters to either initial state parameters or parameters
     for (param_key, param_value) in parameters
         #If the param is an initial state parameter
-        if param_key isa Tuple && param_key[1] == "initial"
+        if param_key isa InitialStateParameter
 
             #Add the parameter to the initial state parameters
-            agent.initial_state_parameters[param_key[2]] = param_value
+            agent.initial_state_parameters[param_key.state] = param_value
 
         else
             #For other parameters, add to parameters
@@ -135,31 +137,36 @@ function init_agent(
     end
 
 
+    #If ther is only one parameter group, wrap it in a vector
+    if parameter_groups isa ParameterGroup
+        parameter_groups = [parameter_groups]
+    end
 
     #Go through each specified shared parameter
-    for (shared_parameter_key, dict_value) in shared_parameters
-        #Unpack the shared parameter value and the derived parameters
-        (shared_parameter_value, derived_parameters) = dict_value
+    for parameter_group in parameter_groups
 
-        #Set the shared parameter in the agent
-        agent.shared_parameters[shared_parameter_key] = SharedParameter(
-            value = shared_parameter_value,
-            derived_parameters = derived_parameters,
-        )
         #check if the name of the shared parameter is part of its own derived parameters
-        if shared_parameter_key in derived_parameters
+        if parameter_group.name in parameter_group.parameters
             throw(
                 ArgumentError(
-                    "The shared parameter $shared_parameter_key is among the parameters it is defined to set",
+                    "The shared parameter $parameter_group is among the parameters it is defined to set",
                 ),
             )
         end
+
+        #Set the parameter group in the agent
+        agent.shared_parameters[parameter_group.name] = GroupedParameters(
+            value = parameter_group.value,
+            grouped_parameters = parameter_group.parameters,
+        )
+    
         #Set the parameters 
-        set_parameters!(agent, shared_parameter_key, shared_parameter_value)
-        reset!(substruct)
+        set_parameters!(agent, parameter_group, parameter_group.value)
 
     end
 
+    #Reset the substruct to make sure initial states are correct, after setting the grouped parameters
+    reset!(substruct)
 
 
     #Initialize states
@@ -199,6 +206,7 @@ function init_agent(
     parameters::Dict = Dict(),
     states::Dict = Dict(),
     settings::Dict = Dict(),
+    save_history::Bool = true,
 )
 
     #If a setting called action_models has been specified manually
@@ -221,6 +229,7 @@ function init_agent(
         parameters = parameters,
         states = states,
         settings = settings,
+        save_history = save_history,
     )
 
     return agent

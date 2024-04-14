@@ -1,8 +1,8 @@
 ```@meta
-EditURL = "<unknown>/docs/src/julia_src_files/index.jl"
+EditURL = "<unknown>/src/Using_the_package/Introduction.jl"
 ```
 
-# Welcome to the ActionModels.jl package!
+## Welcome to the ActionModels.jl package!
 
 ActionModels.jl is a powerfull and novel package for computational modelling of behavior and cognition. The package is developed with a intention to make computaitonal modelling intuitive, fast and easily adaptive to your experimental and simulation needs.
 
@@ -16,13 +16,13 @@ After this introduction, you will be presented with a detailed step-by-step guid
 
 Defning a premade agent
 
-````@example index
+````@example Introduction
 using ActionModels
 ````
 
 Find premade agent, and define agent with default parameters
 
-````@example index
+````@example Introduction
 premade_agent("help")
 
 agent = premade_agent("premade_binary_rescorla_wagner_softmax")
@@ -30,9 +30,9 @@ agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 
 Set inputs and give inputs to agent
 
-````@example index
-inputs = [1, 0, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 1, 1]
-actions = give_inputs!(agent, inputs)
+````@example Introduction
+inputs = [1,0,0,0,1,1,1,1,0,1,0,1,0,1,1]
+actions = give_inputs!(agent,inputs)
 
 using StatsPlots
 plot_trajectory(agent, "action_probability")
@@ -40,26 +40,26 @@ plot_trajectory(agent, "action_probability")
 
 Fit learning rate. Start by setting prior
 
-````@example index
+````@example Introduction
 using Distributions
 priors = Dict("learning_rate" => Normal(0.5, 0.5))
 ````
 
 Run model
 
-````@example index
+````@example Introduction
 chains = fit_model(agent, priors, inputs, actions, n_chains = 1, n_iterations = 10)
 ````
 
 Plot prior and posterior
 
-````@example index
-plot_parameter_distribution(chains, priors)
+````@example Introduction
+plot_parameter_distribution(chains,priors)
 ````
 
 Get posteriors from chains
 
-````@example index
+````@example Introduction
 get_posteriors(chains)
 ````
 

@@ -56,7 +56,7 @@ using ActionModels
 using Distributions
 using StatsPlots
 
-agent = premade_agent("binary_rescorla_wagner_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 
 # Let's give the agent some input and simulate a set of actions:
 

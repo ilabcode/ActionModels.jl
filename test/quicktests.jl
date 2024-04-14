@@ -1,13 +1,15 @@
 using ActionModels
 using Distributions
 
-agent = premade_agent("binary_rw_softmax")
-
-param_priors = Dict("learning_rate" => Uniform(0, 1))
+agent = premade_agent("binary_rescorla_wagner_softmax")
 
 inputs = [1, 0, 1]
 
 actions = give_inputs!(agent, inputs)
+
+
+
+param_priors = Dict("learning_rate" => Uniform(0, 1))
 
 chains = fit_model(
     agent,

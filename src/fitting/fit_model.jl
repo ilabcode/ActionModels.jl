@@ -24,7 +24,7 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  # Examples
 ```julia
 #Create a premade agent: binary Rescorla-Wagner
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 
 #Set priors for the learning rate
 priors = Dict("learning_rate" => Uniform(0, 1))
@@ -38,7 +38,7 @@ fit_model(agent, priors, inputs, actions, n_chains = 1, n_iterations = 10)
 ```
 """
 function fit_model(
-    agent::Agent,
+    original_agent::Agent,
     priors::Dict,
     data::DataFrame;
     independent_group_cols::Vector = [],
@@ -66,11 +66,8 @@ function fit_model(
     input_cols = Symbol.(input_cols)
     action_cols = Symbol.(action_cols)
 
-    ## Store old parameters for resetting the agent later ##
-    old_parameters = get_parameters(agent)
-
-    ## Set fixed parameters to agent ##
-    set_parameters!(agent, fixed_parameters)
+    ## Copy the agent to avoid changing the original ##
+    agent = deepcopy(original_agent)
 
     ## Run checks ##
     prefit_checks(
@@ -82,10 +79,15 @@ function fit_model(
         input_cols = input_cols,
         action_cols = action_cols,
         fixed_parameters = fixed_parameters,
-        old_parameters = old_parameters,
         n_cores = n_cores,
         verbose = verbose,
     )
+
+    ## Set save_history to false ##
+    set_save_history!(agent, false)
+
+    ## Set fixed parameters to agent ##
+    set_parameters!(agent, fixed_parameters)
 
     ## Set logger ##
     #If sample rejection warnings are to be shown
@@ -308,7 +310,7 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  # Examples
 ```julia
 #Create a premade agent: binary Rescorla-Wagner
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 #Set priors for the learning rate
 param_priors = Dict("learning_rate" => Uniform(0, 1))
 #Set inputs and actions

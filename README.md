@@ -29,7 +29,7 @@ Find premade agent, and define agent with default parameters
 ````@example Introduction
 premade_agent("help")
 
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 ````
 
 Set inputs and give inputs to agent

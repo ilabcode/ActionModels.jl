@@ -39,110 +39,110 @@
 # First, let us define the function name and which input it takes:
 using ActionModels
 using Distributions
-using Plots, StatsPlots
 
 # In the next section you will be introduced to premade agents and models.
 
 # Rescorla Wagner continuous
 
-
-function continuous_rescorla_wagner_gaussian(agent::Agent, input::Real)
+function continuous_rescorla_wagner_softmax(agent, input)
 
     ## Read in parameters from the agent
     learning_rate = agent.parameters["learning_rate"]
-    action_noise  = agent.parameters["action_noise"]
 
     ## Read in states with an initial value
     old_value = agent.states["value"]
 
-    ##We dont have any settings in this model. If we had, we would read them in as well.
-    ##-----This is where the update step starts -------
+    ##We dont have any settings in this model. If we had, we would read them in as well. 
+    ##-----This is where the update step starts ------- 
 
     ##Get new value state
     new_value = old_value + learning_rate * (input - old_value)
 
 
-    ##-----This is where the update step ends -------
+    ##-----This is where the update step ends ------- 
     ##Create Bernoulli normal distribution our action probability which we calculated in the update step
-    action_distribution = Distributions.Normal(new_value, action_noise)
+    action_distribution = Distributions.Normal(new_value, 0.3)
 
-    ##Update the states and save them to agent's history
-    update_states!(agent, Dict(
-        "value" => new_value,
-        "input" => input,
-    ))
+    ##Update the states and save them to agent's history 
+
+    agent.states["value"] = new_value
+    agent.states["input"] = input
+
+    push!(agent.history["value"], new_value)
+    push!(agent.history["input"], input)
 
     ## return the action distribution to sample actions from
     return action_distribution
 end
 
+#Define agent
 
-#-- define parameters and states --#
-parameters = Dict(
-    "learning_rate" => 0.8,
-    "action_noise" => 1,
-    InitialStateParameter("value") => 0)
+parameters = Dict("learning_rate" => 1, ("initial", "value") => 0)
 
-states = Dict(
-    "value" => missing,
-    "input" => missing)
+# We set the initial state parameter for "value" state because we need a starting value in the update step. 
 
-#-- create agent --#
-agent = init_agent(
-    continuous_rescorla_wagner_gaussian,
-    parameters = parameters,
-    states = states
-    )
+# Let us define the states in the agent:
+states = Dict("value" => missing, "input" => missing)
 
 
-#-- define observations --#
+agent =
+    init_agent(continuous_rescorla_wagner_softmax, parameters = parameters, states = states)
+
+
 inputs = [1, 2, 3, 4, 6, 4, 10, 2, 1]
 
-#-- give them to the agent --#
-actions = give_inputs!(agent, inputs)
+give_inputs!(agent, inputs)
 
-#Minor detail for plotting reasons
-inputs = append!(Float64.([0]), inputs)
-actions = append!(Float64.([0]), actions)
+plot_trajectory(agent, "action")
+plot_trajectory!(agent, "input")
 
-#Plot
-plot(inputs, linetype = :scatter, label = "input")
-plot_trajectory!(agent, "value", linetype = :line)
-plot!(actions, linetype = :scatter, label = "action")
+reset!(agent)
 
-
-
+# With binary inputs
+inputs = [0, 1, 0, 0, 1, 1, 1, 0, 0, 1]
+give_inputs!(agent, inputs)
+#-
+plot_trajectory(agent, "action")
+plot_trajectory!(agent, "input")
 
 # ## A Binary Rescorla-Wagner
-function binary_rescorla_wagner_softmax(agent::Agent, input::Union{Bool,Integer})
 
-    #Read in parameters
+function custom_rescorla_wagner_softmax(agent, input)
+
+    ## Read in parameters from the agent
     learning_rate = agent.parameters["learning_rate"]
     action_precision = agent.parameters["action_precision"]
 
-    #Read in states
+    ## Read in states with an initial value
     old_value = agent.states["value"]
 
-    #Sigmoid transform the value
+    ##We dont have any settings in this model. If we had, we would read them in as well. 
+    ##-----This is where the update step starts ------- 
+
+    ## Sigmoid transform the value
     old_value_probability = 1 / (1 + exp(-old_value))
 
-    #Get new value state
+    ##Get new value state
     new_value = old_value + learning_rate * (input - old_value_probability)
 
-    #Pass through softmax to get action probability
+    ##Pass through softmax to get action probability
     action_probability = 1 / (1 + exp(-action_precision * new_value))
 
-    #Create Bernoulli normal distribution with mean of the target value and a standard deviation from parameters
+    ##-----This is where the update step ends ------- 
+    ##Create Bernoulli normal distribution our action probability which we calculated in the update step
     action_distribution = Distributions.Bernoulli(action_probability)
 
-    #Update states
-    update_states!(agent, Dict(
-        "value" => new_value,
-        "value_probability" => 1 / (1 + exp(-new_value)),
-        "action_probability" => action_probability,
-        "input" => input,
-    ))
+    ##Update the states and save them to agent's history 
 
+    agent.states["value"] = new_value
+    agent.states["transformed_value"] = 1 / (1 + exp(-new_value))
+    agent.states["action_probability"] = action_probability
+
+    push!(agent.history["value"], new_value)
+    push!(agent.history["transformed_value"], 1 / (1 + exp(-new_value)))
+    push!(agent.history["action_probability"], action_probability)
+
+    ## return the action distribution to sample actions from
     return action_distribution
 end
 
@@ -156,22 +156,19 @@ end
 #Set the parameters:
 
 parameters =
-    Dict("learning_rate" => 1,
-     "action_precision" => 1, 
-     InitialStateParameter("value") => 0)
+    Dict("learning_rate" => 1, "action_precision" => 1, ("initial", "value") => 0)
 
 # We set the initial state parameter for "value" state because we need a starting value in the update step. 
 
 # Let us define the states in the agent:
 states = Dict(
     "value" => missing,
-    "value_probability" => missing,
+    "transformed_value" => missing,
     "action_probability" => missing,
-    "input" => missing
 )
 
 # And lastly the action model:
-action_model = binary_rescorla_wagner_softmax
+action_model = custom_rescorla_wagner_softmax
 
 # We can now initialize our agent with the action model, parameters and states.
 agent = init_agent(action_model, parameters = parameters, states = states)
