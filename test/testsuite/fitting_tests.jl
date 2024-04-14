@@ -1,5 +1,6 @@
 
 using ActionModels
+using Test
 using Distributions
 using DataFrames
 using Plots
@@ -9,7 +10,7 @@ using StatsPlots
 
 @testset "simulate actions and fit" begin
 
-    agent = premade_agent("binary_rw_softmax", verbose = false)
+    agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
 
     param_priors = Dict("learning_rate" => Uniform(0, 1))
 
@@ -35,7 +36,7 @@ end
 
 @testset "fit full dataframe" begin
 
-    agent = premade_agent("binary_rw_softmax", verbose = false)
+    agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
 
     data = vcat(
         DataFrame(

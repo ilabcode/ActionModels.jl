@@ -18,7 +18,7 @@ We will define an agent to use during demonstrations of the utility functions:
 ````@example variations_of_util
 using ActionModels #hide
 
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 ````
 
 ### Getting States

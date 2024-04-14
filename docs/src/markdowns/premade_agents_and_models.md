@@ -31,7 +31,7 @@ premade_agent("help")
 Lets create an agent. We will use the "premade\_binary\_rw\_softmax" agent with the "binary\_rw\_softmax" action model. You define a default premade agent with the syntax below:
 
 ````@example premade_agents_and_models
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 ````
 
 In the Actionmodels.jl package, an agent struct consists of the action model name (which can be premade or custom), parameters and states.
@@ -88,7 +88,7 @@ set_parameters!(agent, Dict("learning_rate" => 0.79,
 If you know which parameter values you wish to use when defining your agent, you can specify them in the beginning as a dict() with parameter name as a string followed by the value.
 
 ````@example premade_agents_and_models
-agent_custom_parameters = premade_agent("premade_binary_rw_softmax", Dict("learning_rate" => 0.7,
+agent_custom_parameters = premade_agent("premade_binary_rescorla_wagner_softmax", Dict("learning_rate" => 0.7,
                                         "softmax_action_precision" => 0.8,
                                         ("initial", "value") => 1)
 )

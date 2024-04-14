@@ -20,7 +20,7 @@ In this case the action models will be stored in the agent's settings. In that c
 ## Create agent with a binary Rescorla-Wagner action model ##
 
 ## Create action model function
-function binary_rw_softmax(agent::Agent, input::Union{Bool,Integer})
+function binary_rescorla_wagner_softmax(agent::Agent, input::Union{Bool,Integer})
 
     #Read in parameters
     learning_rate = agent.parameters["learning_rate"]
@@ -69,7 +69,7 @@ states = Dict(
 
 #Create agent
 agent = init_agent(
-    binary_rw_softmax,
+    binary_rescorla_wagner_softmax,
     parameters = parameters,
     states = states,
     settings = settings,

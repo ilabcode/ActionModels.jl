@@ -34,7 +34,7 @@ Let us define our agent and use the dedault parameter configurations
 ````@example simulation_with_an_agent
 using ActionModels
 
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 ````
 
 ### Give a single input

@@ -41,7 +41,7 @@
 using ActionModels
 
 #Define an agent
-agent = premade_agent("binary_rw_softmax")
+agent = premade_agent("binary_rescorla_wagner_softmax")
 #Define input
 inputs = [1, 0, 0, 1, 1, 1, 1, 0, 1, 0, 1, 0, 0, 1, 1, 0, 1, 0, 0]
 

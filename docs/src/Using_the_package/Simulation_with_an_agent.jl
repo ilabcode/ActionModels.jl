@@ -26,7 +26,7 @@
 # Let us define our agent and use the dedault parameter configurations
 using ActionModels
 
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 
 # ## Give a single input
 # we can now give the agent a single input with the give_inputs!() function. The inputs for the Rescorla-Wagner agent are binary, so we input the value 1. 

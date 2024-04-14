@@ -2,7 +2,7 @@ using ActionModels
 using Distributions
 
 #Agent
-agent = premade_agent("binary_rw_softmax", verbose = false)
+agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
 
 #Variations of get_states
 get_states(agent)

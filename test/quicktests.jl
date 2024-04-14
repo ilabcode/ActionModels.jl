@@ -1,7 +1,7 @@
 using ActionModels
 using Distributions
 
-agent = premade_agent("binary_rw_softmax")
+agent = premade_agent("binary_rescorla_wagner_softmax")
 
 inputs = [1, 0, 1]
 

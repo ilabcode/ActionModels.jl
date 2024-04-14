@@ -5,7 +5,7 @@ using Plots
 using StatsPlots
 
 agent = premade_agent(
-    "hgf_gaussian_action",
+    "hgf_gaussian",
     premade_hgf("continuous_2level", verbose = false),
     verbose = false,
 )

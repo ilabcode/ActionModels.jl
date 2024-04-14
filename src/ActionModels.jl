@@ -12,9 +12,10 @@ export plot_parameter_distribution,
 export get_history, get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
 export get_posteriors
 
+#Load premade agents
 function __init__()
-    premade_agents["binary_rw_softmax"] = premade_binary_rw_softmax
-    premade_agents["continuous_rescorla_wagner"] = premade_continuous_rescorla_wagner
+    premade_agents["binary_rescorla_wagner_softmax"] = premade_binary_rescorla_wagner_softmax
+    premade_agents["continuous_rescorla_wagner_gaussian"] = premade_continuous_rescorla_wagner_gaussian
 end
 
 #Types for agents and errors
@@ -36,10 +37,6 @@ include("plots/plot_predictive_simulation.jl")
 include("plots/plot_parameter_distribution.jl")
 include("plots/plot_trajectory.jl")
 
-#Functions for making premade agent
-include("premade_models/premade_agents.jl")
-include("premade_models/premade_action_models.jl")
-
 #Utility functions for agents
 include("utils/get_history.jl")
 include("utils/get_parameters.jl")
@@ -50,4 +47,8 @@ include("utils/set_parameters.jl")
 include("utils/warn_premade_defaults.jl")
 include("utils/get_posteriors.jl")
 include("utils/pretty_printing.jl")
+
+#Premade agents
+include("premade_models/binary_rescorla_wagner_softmax.jl")
+include("premade_models/continuous_rescorla_wagner_gaussian.jl")
 end

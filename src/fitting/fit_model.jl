@@ -24,7 +24,7 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  # Examples
 ```julia
 #Create a premade agent: binary Rescorla-Wagner
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 
 #Set priors for the learning rate
 priors = Dict("learning_rate" => Uniform(0, 1))
@@ -308,7 +308,7 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  # Examples
 ```julia
 #Create a premade agent: binary Rescorla-Wagner
-agent = premade_agent("premade_binary_rw_softmax")
+agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 #Set priors for the learning rate
 param_priors = Dict("learning_rate" => Uniform(0, 1))
 #Set inputs and actions
