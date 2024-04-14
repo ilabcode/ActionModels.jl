@@ -30,9 +30,9 @@ function get_parameters(agent::Agent, target_param::Union{String,Tuple})
         param = agent.initial_state_parameters[target_param[2]]
 
         #If the target parameter is in the agents's shared parameters
-    elseif target_param in keys(agent.shared_parameters)
+    elseif target_param in keys(agent.parameter_groups)
         #Extract it, take only the value
-        param = agent.shared_parameters[target_param].value
+        param = agent.parameter_groups[target_param].value
 
     else
         #Otherwise look in the substruct
@@ -80,21 +80,21 @@ function get_parameters(agent::Agent)
         map(x -> ("initial", x), collect(keys(agent.initial_state_parameters)))
 
     #Collect keys for shared parameters
-    shared_parameter_keys = collect(keys(agent.shared_parameters))
+    parameter_group_keys = collect(keys(agent.parameter_groups))
 
     #Combine all parameter keys into one
     target_parameters =
-        vcat(parameter_keys, initial_state_parameter_keys, shared_parameter_keys)
+        vcat(parameter_keys, initial_state_parameter_keys, parameter_group_keys)
 
     #If there are shared parameters
-    if length(shared_parameter_keys) > 0
+    if length(parameter_group_keys) > 0
         #Go through each shared parameter
-        for shared_parameter in values(agent.shared_parameters)
+        for parameter_group in values(agent.parameter_groups)
             #Remove derived parameters from the list
-            filter!(x -> x ∉ shared_parameter.derived_parameters, target_parameters)
+            filter!(x -> x ∉ parameter_group.grouped_parameters, target_parameters)
 
             #Filter the substruct parameter dictionary to remove parameters with keys that are derived parameters
-            filter!(x -> x[1] ∉ shared_parameter.derived_parameters, substruct_parameters)
+            filter!(x -> x[1] ∉ parameter_group.grouped_parameters, substruct_parameters)
         end
     end
 

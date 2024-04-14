@@ -118,7 +118,7 @@ function binary_rescorla_wagner_softmax(agent::Agent, input::Union{Bool,Integer}
 
     #Read in parameters
     learning_rate = agent.parameters["learning_rate"]
-    action_precision = agent.parameters["softmax_action_precision"]
+    action_precision = agent.parameters["action_precision"]
 
     #Read in states
     old_value = agent.states["value"]
@@ -157,7 +157,7 @@ end
 
 parameters =
     Dict("learning_rate" => 1,
-     "softmax_action_precision" => 1, 
+     "action_precision" => 1, 
      InitialStateParameter("value") => 0)
 
 # We set the initial state parameter for "value" state because we need a starting value in the update step. 

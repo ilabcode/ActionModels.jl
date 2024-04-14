@@ -4,19 +4,19 @@ Function for checking the structure of the agent
 """
 function check_agent(agent::Agent)
 
-    if length(agent.shared_parameters) > 0
+    if length(agent.parameter_groups) > 0
 
         ## Check for the same derived parameter in multiple shared parameters 
         #Get out the derived parameters of all shared parameters 
-        derived_parameters = [
-            parameter for list_of_derived_parameters in [
-                agent.shared_parameters[parameter_key].derived_parameters for
-                parameter_key in keys(agent.shared_parameters)
-            ] for parameter in list_of_derived_parameters
+        grouped_parameters = [
+            parameter for list_of_grouped_parameters in [
+                agent.parameter_groups[parameter_key].grouped_parameters for
+                parameter_key in keys(agent.parameter_groups)
+            ] for parameter in list_of_grouped_parameters
         ]
 
         #check for duplicate names
-        if length(derived_parameters) > length(unique(derived_parameters))
+        if length(grouped_parameters) > length(unique(grouped_parameters))
             #Throw an error
             throw(
                 ArgumentError(

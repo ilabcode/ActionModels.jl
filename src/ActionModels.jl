@@ -4,14 +4,14 @@ module ActionModels
 using ReverseDiff, Turing, Distributions, DataFrames, RecipesBase, Logging, Distributed
 using Turing: DynamicPPL, AutoReverseDiff
 #Export functions
-export Agent, RejectParameters, SharedParameter, Multilevel
+export Agent, RejectParameters, GroupedParameters, Multilevel
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
 export create_agent_model, fit_model
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history, get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
 export get_posteriors, update_states!, set_save_history!
-export InitialStateParameter
+export InitialStateParameter, ParameterGroup
 
 #Load premade agents
 function __init__()

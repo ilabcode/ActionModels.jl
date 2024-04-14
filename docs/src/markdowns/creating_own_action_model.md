@@ -45,7 +45,7 @@ function custom_rescorla_wagner_softmax(agent::Agent, input)
 
     # Read in parameters from the agent
     learning_rate = agent.parameters["learning_rate"]
-    action_precision = agent.parameters["softmax_action_precision"]
+    action_precision = agent.parameters["action_precision"]
 
     # Read in states with an initial value
     old_value = agent.states["value"]
@@ -90,7 +90,7 @@ We can define the agent now. Let us do it with the init_agent() function. We nee
 
 parameters = Dict(
     "learning_rate" => 1,
-    "softmax_action_precision" => 1,
+    "action_precision" => 1,
     ("initial", "value") => 0,)
 ````
 

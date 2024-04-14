@@ -130,7 +130,7 @@ end
         "learning_rate_ID_sd" => LogNormal(0, 1),
         "learning_rate_group_sd" => LogNormal(0, 1),
         "learning_rate_group_mean" => Normal(0, 1),
-        "softmax_action_precision" => LogNormal(0, 1),
+        "action_precision" => LogNormal(0, 1),
     )
 
     results = fit_model(

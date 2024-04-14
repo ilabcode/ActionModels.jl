@@ -21,7 +21,7 @@ get_parameters(agent, [("initial", "value"), "learning_rate"])
 #Variations of set_parameters
 set_parameters!(agent, ("initial", "value"), 1)
 
-set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision" => 0.5))
+set_parameters!(agent, Dict("learning_rate" => 3, "action_precision" => 0.5))
 
 #Variations of get_history
 get_history(agent, "value")

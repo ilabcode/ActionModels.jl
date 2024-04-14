@@ -104,7 +104,7 @@ get_posteriors(fitted_model)
 
 # Add an extra prior in the Dict
 multiple_priors =
-    Dict("learning_rate" => Normal(1, 0.5), "softmax_action_precision" => Normal(0.8, 0.2))
+    Dict("learning_rate" => Normal(1, 0.5), "action_precision" => Normal(0.8, 0.2))
 
 multiple_fit = fit_model(agent, multiple_priors, inputs, actions)
 
