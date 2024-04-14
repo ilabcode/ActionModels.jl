@@ -5,7 +5,7 @@ Base.@kwdef mutable struct Agent
     substruct::Any
     parameters::Dict = Dict()
     initial_state_parameters::Dict{String,Any} = Dict()
-    shared_parameters::Dict = Dict()
+    parameter_groups::Dict = Dict()
     states::Dict{String,Any} = Dict("action" => missing)
     history::Dict{String,Vector{Any}} = Dict("action" => [missing])
     settings::Dict{String,Any} = Dict()
@@ -19,15 +19,6 @@ Custom error type which will result in rejection of a sample
 struct RejectParameters <: Exception
     errortext::Any
 end
-
-"""
-Type for shared parameters containing both the parameter value and a vector of parameter names that will share that value
-"""
-Base.@kwdef mutable struct SharedParameter
-    value::Real
-    derived_parameters::Vector
-end
-
 
 """
 """
@@ -46,4 +37,28 @@ Base.@kwdef mutable struct ParameterInfo
     multilevel_dependent::Bool
     distribution::Any
     parameters::Vector
+end
+
+
+"""
+Type to use for specifying a paramter that sets a state's initial value
+"""
+Base.@kwdef mutable struct InitialStateParameter
+    state
+end
+
+"""
+Type for specifying a group of parameters
+"""
+Base.@kwdef mutable struct ParameterGroup
+    name::String
+    parameters::Vector
+end
+
+"""
+Type for shared parameters containing both the parameter value and a vector of parameter names that will share that value
+"""
+Base.@kwdef mutable struct GroupedParameters
+    value::Real
+    grouped_parameters::Vector
 end

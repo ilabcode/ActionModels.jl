@@ -50,7 +50,7 @@ function premade_continuous_rescorla_wagner_gaussian(config::Dict)
     parameters = Dict(
         "learning_rate" => config["learning_rate"],
         "action_noise" => config["action_noise"],
-        ("initial", "value") => config[("initial", "value")],
+        InitialStateParameter("value") => config[("initial", "value")],
     )
     states = Dict(
         "input" => missing,

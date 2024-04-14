@@ -79,7 +79,7 @@ If you wish to change multiple parameters in the agent, you can define a dict of
 
 ````@example premade_agents_and_models
 set_parameters!(agent, Dict("learning_rate" => 0.79,
-                        "softmax_action_precision" => 0.60,
+                        "action_precision" => 0.60,
                         ("initial", "value") => 1))
 ````
 
@@ -89,7 +89,7 @@ If you know which parameter values you wish to use when defining your agent, you
 
 ````@example premade_agents_and_models
 agent_custom_parameters = premade_agent("premade_binary_rescorla_wagner_softmax", Dict("learning_rate" => 0.7,
-                                        "softmax_action_precision" => 0.8,
+                                        "action_precision" => 0.8,
                                         ("initial", "value") => 1)
 )
 

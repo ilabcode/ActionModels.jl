@@ -48,7 +48,7 @@ get_parameters(agent, [("initial", "value"), "learning_rate"])
 set_parameters!(agent, ("initial", "value"), 1)
 
 # Setting multiple parameters in an agent
-set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision" => 0.5))
+set_parameters!(agent, Dict("learning_rate" => 3, "action_precision" => 0.5))
 
 # See the parameters we have set uising get_parameters function
 get_parameters(agent)
@@ -89,7 +89,7 @@ actions = give_inputs!(agent, inputs)
 # Set a prior for the parameter we wish to fit
 using Distributions
 priors =
-    Dict("softmax_action_precision" => Normal(1, 0.5), "learning_rate" => Normal(1, 0.1))
+    Dict("action_precision" => Normal(1, 0.5), "learning_rate" => Normal(1, 0.1))
 
 # Fit the model
 fitted_model = fit_model(agent, priors, inputs, actions)

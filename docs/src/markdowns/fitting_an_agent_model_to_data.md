@@ -118,7 +118,7 @@ By adding multiple parameter priors you can autimatically fit them with fit\_mod
 Add an extra prior in the Dict
 
 ````@example fitting_an_agent_model_to_data
-multiple_priors = Dict("learning_rate" => Normal(1, 0.5),"softmax_action_precision"=> Normal(0.8,0.2))
+multiple_priors = Dict("learning_rate" => Normal(1, 0.5),"action_precision"=> Normal(0.8,0.2))
 
 multiple_fit = fit_model(agent, multiple_priors, inputs, actions)
 ````

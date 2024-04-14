@@ -75,7 +75,7 @@ set_parameters!(agent,("initial", "value"), 1 )
 Setting multiple parameters in an agent
 
 ````@example variations_of_util
-set_parameters!(agent, Dict("learning_rate" => 3, "softmax_action_precision"=>0.5))
+set_parameters!(agent, Dict("learning_rate" => 3, "action_precision"=>0.5))
 ````
 
 See the parameters we have set uising get_parameters function
@@ -136,7 +136,7 @@ Set a prior for the parameter we wish to fit
 
 ````@example variations_of_util
 using Distributions
-priors = Dict("softmax_action_precision" => Normal(1, 0.5), "learning_rate"=> Normal(1, 0.1))
+priors = Dict("action_precision" => Normal(1, 0.5), "learning_rate"=> Normal(1, 0.1))
 ````
 
 Fit the model
