@@ -83,9 +83,10 @@ function init_agent(
     action_model::Function;
     substruct::Any = nothing,
     parameters::Dict = Dict(),
+    shared_parameters::Dict = Dict(),
     states::Union{Dict,Vector} = Dict(),
     settings::Dict = Dict(),
-    shared_parameters::Dict = Dict(),
+    save_history::Bool = true,
 )
 
     ##Create action model struct
@@ -96,6 +97,7 @@ function init_agent(
         initial_state_parameters = Dict(),
         states = Dict(),
         settings = settings,
+        save_history = save_history,
     )
 
 
@@ -199,6 +201,7 @@ function init_agent(
     parameters::Dict = Dict(),
     states::Dict = Dict(),
     settings::Dict = Dict(),
+    save_history::Bool = true,
 )
 
     #If a setting called action_models has been specified manually
@@ -221,6 +224,7 @@ function init_agent(
         parameters = parameters,
         states = states,
         settings = settings,
+        save_history = save_history,
     )
 
     return agent

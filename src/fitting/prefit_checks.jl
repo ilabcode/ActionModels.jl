@@ -10,7 +10,6 @@ function prefit_checks(;
     input_cols,
     action_cols,
     fixed_parameters,
-    old_parameters,
     n_cores,
     verbose = true,
 )
@@ -20,7 +19,7 @@ function prefit_checks(;
         #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
         if any(
             key -> !(key in keys(priors)) && !(key in keys(fixed_parameters)),
-            keys(old_parameters),
+            keys(agent.parameters),
         )
             @warn "the agent has parameters which are not specified in the fixed or sampled parameters. The agent's current parameter values are used as fixed parameters"
         end

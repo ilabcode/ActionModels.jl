@@ -10,7 +10,7 @@ export create_agent_model, fit_model
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history, get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
-export get_posteriors
+export get_posteriors, update_states!, set_save_history!
 
 #Load premade agents
 function __init__()
@@ -47,6 +47,8 @@ include("utils/set_parameters.jl")
 include("utils/warn_premade_defaults.jl")
 include("utils/get_posteriors.jl")
 include("utils/pretty_printing.jl")
+include("utils/update_states.jl")
+include("utils/set_save_history.jl")
 
 #Premade agents
 include("premade_models/binary_rescorla_wagner_softmax.jl")

@@ -19,12 +19,10 @@ function continuous_rescorla_wagner_gaussian(agent::Agent, input::Real)
     action_distribution = Distributions.Normal(new_value, action_noise)
 
     ##Update the states and save them to agent's history
-
-    agent.states["value"] = new_value
-    agent.states["input"] = input
-
-    push!(agent.history["value"], new_value)
-    push!(agent.history["input"], input)
+    update_states!(agent, Dict(
+        "value" => new_value,
+        "input" => input,
+    ))
 
     ## return the action distribution to sample actions from
     return action_distribution
