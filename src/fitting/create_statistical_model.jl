@@ -16,10 +16,12 @@ function _statistical_model_turingglm(
 ) where {T<:UnivariateDistribution}
 
 
-    # TODO: expand to multiple formulas
-    # TODO: random intercepts (hint: construct model matrix somehow instead of modelmatrix(MixedEffects(@formula)), which expects y
-    # TODO: more functionality than turingGLM: random slopes / intercept-only model / better priors
-    # TODO: better default priors / able to specify priors for all params
+# DONE: random intercepts (hint: construct model matrix somehow instead of modelmatrix(MixedEffects(@formula)), which expects y
+    # TODO: expand to multiple formulas / flexible names
+    # TODO: more functionality than turingGLM:
+    # - random slopes
+    # - intercept-only model
+    # - better / custom priors
 
     # extract y, X and Z
     # y = data_response(formula, data)
