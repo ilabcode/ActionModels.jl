@@ -18,11 +18,15 @@ function _statistical_model_turingglm(
 
 # DONE: random intercepts (hint: construct model matrix somehow instead of modelmatrix(MixedEffects(@formula)), which expects y
     # TODO: expand to multiple formulas / flexible names
+    # - TODO: parameters inside different statistical models gets overridden by each other!
+    # TODO: make LogitNormal save the param on the right scale
+    # TODO: think about tuple parameter names (ie initial values or HGF params)
     # TODO: more functionality than turingGLM:
     # - random slopes
     # - intercept-only model
     # - better / custom priors
     # TODO: check integration of the new functionality
+    # TODO: check if we can go back to turingglm._statistical_model_turingglm() with a few changes
 
     # extract y, X and Z
     # y = data_response(formula, data)
