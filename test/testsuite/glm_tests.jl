@@ -88,11 +88,12 @@ using ActionModels
 
         agent = premade_agent("continuous_rescorla_wagner")
         samples = fit_model(agent,
-                            @formula(learning_rate ~ 1 + (1|id)),
+                            @formula(learning_rate ~ age + (1|id)),
                             example_data;
                             action_cols   = [:actions],
                             input_cols    = [:input],
-                            grouping_cols = [:id])
+                            grouping_cols = [:id],
+                            n_iterations = 10000)
 
         @show summary(samples)
 

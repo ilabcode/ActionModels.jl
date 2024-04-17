@@ -44,7 +44,7 @@ function _statistical_model_turingglm(
     else
         intercept_ranef = TuringGLM.intercept_per_ranef(ranef)
         group_var = first(ranef).rhs
-        idx = TuringGLM.get_idx(term(group_var), data)
+        idx = TuringGLM.get_idx(TuringGLM.term(group_var), data)
         # print for the user the idx
         println("The idx are $(last(idx))\n")
         _model(μ_X, σ_X, prior, intercept_ranef, idx, T)
@@ -68,7 +68,7 @@ function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{Normal})
         prior=prior,
     )
         α ~ prior.intercept
-        β ~ filldist(prior.predictors, predictors)
+        β ~ TuringGLM.filldist(prior.predictors, predictors)
         σ ~ Exponential(10)
         if isempty(intercept_ranef)
             μ = α .+ X * β
