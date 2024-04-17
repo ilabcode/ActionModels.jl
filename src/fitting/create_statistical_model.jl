@@ -22,6 +22,7 @@ function _statistical_model_turingglm(
     # - random slopes
     # - intercept-only model
     # - better / custom priors
+    # TODO: check integration of the new functionality
 
     # extract y, X and Z
     # y = data_response(formula, data)
