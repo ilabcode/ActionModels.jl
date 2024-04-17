@@ -381,6 +381,9 @@ function fit_model(
     input_cols = Symbol.(input_cols)
     action_cols = Symbol.(action_cols)
 
+    if statistical_model isa TuringGLM.FormulaTerm
+        statistical_model = [statistical_model]
+    end
 
     # TODO
     # prefit_checks(
@@ -420,31 +423,40 @@ function fit_model(
 
     # TODO: check if statistical models differ within time series (we assume they don't)
     statistical_data = unique(data, grouping_cols)
-    insertcols!(statistical_data, Symbol(statistical_model.lhs) => 1)
+    statistical_submodels = []
+    for sm in statistical_model
+        @show insertcols!(statistical_data, Symbol(sm.lhs) => 1)
+        push!(statistical_submodels, (string(sm.lhs), ActionModels.statistical_model_turingglm(sm, statistical_data)...))
+    end
+    @show statistical_submodels
 
-    (statmodel, X) = ActionModels.statistical_model_turingglm(statistical_model, statistical_data)
+    agent_params = repeat([Dict()], nrow(statistical_data))
+
 
     @model function do_full_model(
-        agent_model, statmodel, statistical_data, inputs, actions, X
+        agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params
         )
-        #learning_rate ~ filldist(Uniform(0,1), 3)
-        @submodel learning_rate = statmodel(X)
-        for agent_idx in 1:length(inputs)
-            # i = input_series
-            # a = actions[agent_idx]
-            set_parameters!(agent_model, Dict("learning_rate" => learning_rate[agent_idx]) )
-            reset!(agent_model)
+        for (param_name, statistical_submodel, X) in statistical_submodels
 
-            for (timestep, input) in enumerate(inputs[agent_idx])
-                action_distribution = agent_model.action_model(agent_model, input)
-                actions[agent_idx][timestep] ~ action_distribution
+            @submodel param_values = statistical_submodel(X)
+
+            for (i, param_value) in enumerate(param_values)
+                agent_params[i][param_name] = param_value
             end
-
         end
 
+        for (i, agent_param) in enumerate(agent_params)
+            set_parameters!(agent_model, agent_params[i])
+            reset!(agent_model)
+
+            for (timestep, input) in enumerate(inputs[i])
+                action_distribution = agent_model.action_model(agent_model, input)
+                actions[i][timestep] ~ action_distribution
+            end
+        end
     end
 
-    full_model = do_full_model(agent_model, statmodel, statistical_data, inputs, actions, X)
+    full_model = do_full_model(agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params)
     chains = sample(full_model, sampler, n_iterations)
     # TODO: prettier replacement names "learning_rate[Hans, 2]""
     replacement_names = Dict("agent_param[$idx]" => "learning_rate[$(Tuple(id))]" for (idx, id) in enumerate(eachrow(statistical_data[!,grouping_cols])))
