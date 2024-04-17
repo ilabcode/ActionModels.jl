@@ -86,6 +86,7 @@ function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{Normal})
     end
 end
 
+# fixed-effects model with Normal likelihood
 function _model(μ_X, σ_X, prior, ::Type{Normal})
     @model function normal_model(
         X; predictors=size(X, 2), μ_X=μ_X, σ_X=σ_X, prior=prior
@@ -98,6 +99,102 @@ function _model(μ_X, σ_X, prior, ::Type{Normal})
     end
 end
 
+# fixed-effects model with LogNormal likelihood (log link)
+function _model(μ_X, σ_X, prior, ::Type{LogNormal})
+    @model function normal_model(
+        X; predictors=size(X, 2), μ_X=μ_X, σ_X=σ_X, prior=prior
+    )
+        α ~ prior.intercept
+        β ~ filldist(prior.predictors, predictors)
+        σ ~ Exponential(10)
+        agent_param ~ MvLogNormal(α .+ X * β, σ^2 * I)
+        return agent_param
+    end
+end
+
+# random-intercept model with LogNormal likelihood
+function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{LogNormal})
+    idxs = first(idx)
+    n_gr = length(unique(first(idx)))
+    @model function normal_model_ranef(
+        X;
+        predictors=size(X, 2),
+        idxs=idxs,
+        n_gr=n_gr,
+        intercept_ranef=intercept_ranef,
+        μ_X=μ_X,
+        σ_X=σ_X,
+        prior=prior,
+    )
+        α ~ prior.intercept
+        β ~ TuringGLM.filldist(prior.predictors, predictors)
+        σ ~ Exponential(10)
+        if isempty(intercept_ranef)
+            μ = α .+ X * β
+        else
+            τ ~ truncated(TDist(3); lower=0)
+            zⱼ ~ filldist(Normal(), n_gr)
+            μ = α .+ τ .* getindex.((zⱼ,), idxs) .+ X * β
+        end
+        #TODO: implement random-effects slope
+        agent_param ~ MvLogNormal(μ, σ^2 * I)
+        return agent_param
+    end
+end
+
+# fixed-effects model with LogitNormal likelihood (log link)
+function _model(μ_X, σ_X, prior, ::Type{LogitNormal})
+    @model function normal_model(
+        X; predictors=size(X, 2), μ_X=μ_X, σ_X=σ_X, prior=prior
+    )
+        α ~ prior.intercept
+        β ~ filldist(prior.predictors, predictors)
+        σ ~ Exponential(10)
+        agent_param ~ MvNormal(α .+ X * β, σ^2 * I)
+        return logistic.(agent_param)
+    end
+end
+
+# random-intercept model with LogitNormal likelihood
+function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{LogitNormal})
+    idxs = first(idx)
+    n_gr = length(unique(first(idx)))
+    @model function normal_model_ranef(
+        X;
+        predictors=size(X, 2),
+        idxs=idxs,
+        n_gr=n_gr,
+        intercept_ranef=intercept_ranef,
+        μ_X=μ_X,
+        σ_X=σ_X,
+        prior=prior,
+    )
+        α ~ prior.intercept
+        β ~ TuringGLM.filldist(prior.predictors, predictors)
+        σ ~ Exponential(10)
+        if isempty(intercept_ranef)
+            μ = α .+ X * β
+        else
+            τ ~ truncated(TDist(3); lower=0)
+            zⱼ ~ filldist(Normal(), n_gr)
+            μ = α .+ τ .* getindex.((zⱼ,), idxs) .+ X * β
+        end
+        #TODO: implement random-effects slope
+        agent_param ~ MvNormal(μ, σ^2 * I)
+        return logistic.(agent_param)
+    end
+end
+
+
+
 function _prior(::DefaultPrior, ::Type{Normal})
+    return CustomPrior(TDist(3), TDist(3), nothing)
+end
+
+function _prior(::DefaultPrior, ::Type{LogNormal})
+    return CustomPrior(TDist(3), TDist(3), nothing)
+end
+
+function _prior(::DefaultPrior, ::Type{LogitNormal})
     return CustomPrior(TDist(3), TDist(3), nothing)
 end

@@ -1,7 +1,7 @@
 module ActionModels
 
 #Load packages
-using Turing, TuringGLM, Distributions, DataFrames, RecipesBase, Logging, Distributed, LinearAlgebra
+using Turing, TuringGLM, Distributions, DataFrames, RecipesBase, Logging, Distributed, LinearAlgebra, LogExpFunctions
 
 #Export functions
 export Agent, RejectParameters, SharedParameter, Multilevel

@@ -362,7 +362,7 @@ end
 
 function fit_model(
     agent_model::Agent,
-    statistical_model::Union{TuringGLM.FormulaTerm, Vector{TuringGLM.FormulaTerm}},
+    statistical_model::Union{TuringGLM.FormulaTerm, Tuple, Vector{<:Union{TuringGLM.FormulaTerm, Tuple}}},
     data,
     priors::TuringGLM.Prior = TuringGLM.DefaultPrior();
     input_cols::Union{Vector,String,Symbol},
@@ -381,9 +381,24 @@ function fit_model(
     input_cols = Symbol.(input_cols)
     action_cols = Symbol.(action_cols)
 
-    if statistical_model isa TuringGLM.FormulaTerm
+    _statistical_model = []
+
+
+    @show statistical_model
+
+    if !(statistical_model isa Vector)
         statistical_model = [statistical_model]
     end
+
+    @show statistical_model
+    for (i, sm) in enumerate(statistical_model)
+        if sm isa TuringGLM.FormulaTerm
+            push!(_statistical_model, (sm, Distributions.Normal))
+        else
+            push!(_statistical_model, sm)
+        end
+    end
+
 
     # TODO
     # prefit_checks(
@@ -424,9 +439,10 @@ function fit_model(
     # TODO: check if statistical models differ within time series (we assume they don't)
     statistical_data = unique(data, grouping_cols)
     statistical_submodels = []
-    for sm in statistical_model
+    param_values = Vector(undef, length(_statistical_model))
+    for (sm, likelihood) in _statistical_model
         @show insertcols!(statistical_data, Symbol(sm.lhs) => 1)
-        push!(statistical_submodels, (string(sm.lhs), ActionModels.statistical_model_turingglm(sm, statistical_data)...))
+        push!(statistical_submodels, (string(sm.lhs), ActionModels.statistical_model_turingglm(sm, statistical_data, model=likelihood)...))
     end
     @show statistical_submodels
 
@@ -434,14 +450,17 @@ function fit_model(
 
 
     @model function do_full_model(
-        agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params
+        agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params, param_values
         )
-        for (param_name, statistical_submodel, X) in statistical_submodels
 
-            @submodel param_values = statistical_submodel(X)
+        for (param_idx, (param_name, statistical_submodel, X)) in enumerate(statistical_submodels)
 
-            for (i, param_value) in enumerate(param_values)
-                agent_params[i][param_name] = param_value
+            @submodel param_values[param_idx] = statistical_submodel(X)
+            # @submodel param_values = statistical_submodel(X)
+
+            #for (agent_idx, param_value) in enumerate(@submodel statistical_submodel(X))
+            for (agent_idx, param_value) in enumerate(param_values[param_idx])
+                agent_params[agent_idx][param_name] = param_value
             end
         end
 
@@ -456,10 +475,11 @@ function fit_model(
         end
     end
 
-    full_model = do_full_model(agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params)
+    full_model = do_full_model(agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params, param_values)
     chains = sample(full_model, sampler, n_iterations)
     # TODO: prettier replacement names "learning_rate[Hans, 2]""
-    replacement_names = Dict("agent_param[$idx]" => "learning_rate[$(Tuple(id))]" for (idx, id) in enumerate(eachrow(statistical_data[!,grouping_cols])))
-    return replacenames(chains, replacement_names)
+    # replacement_names = Dict("agent_param[$idx]" => "learning_rate[$(Tuple(id))]" for (idx, id) in enumerate(eachrow(statistical_data[!,grouping_cols])))
+    # return replacenames(chains, replacement_names)
+    return chains
 
 end

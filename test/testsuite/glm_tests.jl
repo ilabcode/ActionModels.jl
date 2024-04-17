@@ -6,6 +6,7 @@ using Test
 using Distributions
 using TuringGLM
 using DataFrames
+using LogExpFunctions
 
 using Revise
 using ActionModels
@@ -84,11 +85,10 @@ using ActionModels
         # [@formula(), @formula(), @formula()] # dont assume defaults -- dont estimate non-specified params
     end
 
-    @testset "new interface for statistical model - random effects" begin
-
+    @testset "new interface for statistical model - random intercept" begin
         agent = premade_agent("continuous_rescorla_wagner")
         samples = fit_model(agent,
-                            @formula(learning_rate ~ age + (1|id)),
+                            (@formula(learning_rate ~ age + (1|id)), LogitNormal),
                             example_data;
                             action_cols   = [:actions],
                             input_cols    = [:input],
@@ -96,7 +96,22 @@ using ActionModels
                             n_iterations = 10000)
 
         @show summary(samples)
+    end
 
+
+    @testset "new interface for statistical model - multiple formulas" begin
+        agent = premade_agent("continuous_rescorla_wagner")
+
+        samples = fit_model(agent,
+                            [(@formula(learning_rate ~ age + (1|id)), LogitNormal),
+                             (@formula(action_noise  ~ age + (1|id)), LogNormal)],
+                            example_data;
+                            action_cols   = [:actions],
+                            input_cols    = [:input],
+                            grouping_cols = [:id],
+                            n_iterations = 100)
+
+        @show summary(samples)
     end
 
 
