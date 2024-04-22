@@ -149,3 +149,23 @@ end
     )
 
 end
+
+
+@testset "ensure parameters are reset after fitting" begin
+
+    agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
+
+    initial_parameters = get_parameters(agent)
+
+    param_priors = Dict("learning_rate" => Uniform(0, 1))
+
+    inputs = [1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+
+    actions = give_inputs!(agent, inputs)
+
+    chains =
+        fit_model(agent, param_priors, inputs, actions, n_chains = 1, n_iterations = 10, verbose = false)
+
+    @test get_parameters(agent) == initial_parameters
+
+end
