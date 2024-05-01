@@ -323,7 +323,7 @@ function fit_model(
     inputs::Array,
     actions::Array;
     fixed_parameters::Dict = Dict(),
-    sampler::Union{Missing, DynamicPPL.Sampler} = missing,
+    sampler::Turing.Inference.InferenceAlgorithm = NUTS(-1, 0.65; adtype=AutoReverseDiff(true)),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains = 2,
