@@ -46,7 +46,7 @@ function fit_model(
     input_cols::Vector = [:input],
     action_cols::Vector = [:action],
     fixed_parameters::Dict = Dict(),
-    sampler::Union{Missing, DynamicPPL.Sampler} = missing,
+    sampler::Turing.Inference.InferenceAlgorithm = NUTS(-1, 0.65; adtype=AutoReverseDiff(true)),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains::Integer = 2,
@@ -56,10 +56,7 @@ function fit_model(
     sampler_kwargs...,
 )
     ### SETUP ###
-    # If no sampler has been specified, use NUTS
-    if ismissing(sampler)
-        sampler = NUTS(-1, 0.65; adtype=AutoReverseDiff(true))
-    end
+   
     #Convert column names to symbols
     independent_group_cols = Symbol.(independent_group_cols)
     multilevel_group_cols = Symbol.(multilevel_group_cols)
