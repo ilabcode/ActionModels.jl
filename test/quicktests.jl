@@ -22,5 +22,3 @@ chains = fit_model(
 )
 
 get_posteriors(chains)
-
-@error "GG"
