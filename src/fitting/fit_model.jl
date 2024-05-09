@@ -205,6 +205,13 @@ function fit_model(
 
         #Load ActionModels, Turing and sister packages on worker processes
         @everywhere @eval using ActionModels, Turing
+        if @isdefined HierarchicalGaussianFiltering
+            @everywhere @eval using HierarchicalGaussianFiltering
+        end
+        if @isdefined ActiveInference
+            @everywhere @eval using ActiveInference
+        end
+        
         #Broadcast necessary information to workers
         @everywhere agent = $agent
         @everywhere fit_info_all = $fit_info_all
