@@ -60,11 +60,7 @@ get_parameters(agent)
 
 set_parameters!(
     agent,
-    Dict(
-        "learning_rate" => 0.79,
-        "action_precision" => 0.60,
-        ("initial", "value") => 1,
-    ),
+    Dict("learning_rate" => 0.79, "action_precision" => 0.60, ("initial", "value") => 1),
 )
 
 # ## Defining an agent with custom parameter values
@@ -72,11 +68,7 @@ set_parameters!(
 # If you know which parameter values you wish to use when defining your agent, you can specify them in the beginning as a dict() with parameter name as a string followed by the value.
 agent_custom_parameters = premade_agent(
     "binary_rescorla_wagner_softmax",
-    Dict(
-        "learning_rate" => 0.7,
-        "action_precision" => 0.8,
-        ("initial", "value") => 1,
-    ),
+    Dict("learning_rate" => 0.7, "action_precision" => 0.8, ("initial", "value") => 1),
 )
 
 #and we can retrieve the new parameters with the get_parameters() function

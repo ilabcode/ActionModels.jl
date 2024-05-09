@@ -28,12 +28,15 @@ function binary_rescorla_wagner_softmax(agent::Agent, input::Union{Bool,Integer}
     action_distribution = Distributions.Bernoulli(action_probability)
 
     #Update states
-    update_states!(agent, Dict(
-        "value" => new_value,
-        "value_probability" => 1 / (1 + exp(-new_value)),
-        "action_probability" => action_probability,
-        "input" => input,
-    ))
+    update_states!(
+        agent,
+        Dict(
+            "value" => new_value,
+            "value_probability" => 1 / (1 + exp(-new_value)),
+            "action_probability" => action_probability,
+            "input" => input,
+        ),
+    )
 
     return action_distribution
 end
@@ -54,11 +57,8 @@ Create premade agent that uses the binary_rescorla_wagner_softmax action model.
 function premade_binary_rescorla_wagner_softmax(config::Dict)
 
     #Default parameters and settings
-    default_config = Dict(
-        "learning_rate" => 0.1,
-        "action_precision" => 1,
-        ("initial", "value") => 0,
-    )
+    default_config =
+        Dict("learning_rate" => 0.1, "action_precision" => 1, ("initial", "value") => 0)
     #Warn the user about used defaults and misspecified keys
     warn_premade_defaults(default_config, config)
 

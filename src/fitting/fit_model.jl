@@ -46,7 +46,11 @@ function fit_model(
     input_cols::Vector = [:input],
     action_cols::Vector = [:action],
     fixed_parameters::Dict = Dict(),
-    sampler::Turing.Inference.InferenceAlgorithm = NUTS(-1, 0.65; adtype=AutoReverseDiff(true)),
+    sampler::Turing.Inference.InferenceAlgorithm = NUTS(
+        -1,
+        0.65;
+        adtype = AutoReverseDiff(true),
+    ),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains::Integer = 2,
@@ -56,7 +60,7 @@ function fit_model(
     sampler_kwargs...,
 )
     ### SETUP ###
-   
+
     #Convert column names to symbols
     independent_group_cols = Symbol.(independent_group_cols)
     multilevel_group_cols = Symbol.(multilevel_group_cols)
@@ -205,6 +209,13 @@ function fit_model(
 
         #Load ActionModels, Turing and sister packages on worker processes
         @everywhere @eval using ActionModels, Turing
+        if @isdefined HierarchicalGaussianFiltering
+            @everywhere @eval using HierarchicalGaussianFiltering
+        end
+        if @isdefined ActiveInference
+            @everywhere @eval using ActiveInference
+        end
+
         #Broadcast necessary information to workers
         @everywhere agent = $agent
         @everywhere fit_info_all = $fit_info_all
@@ -323,7 +334,11 @@ function fit_model(
     inputs::Array,
     actions::Array;
     fixed_parameters::Dict = Dict(),
-    sampler::Turing.Inference.InferenceAlgorithm = NUTS(-1, 0.65; adtype=AutoReverseDiff(true)),
+    sampler::Turing.Inference.InferenceAlgorithm = NUTS(
+        -1,
+        0.65;
+        adtype = AutoReverseDiff(true),
+    ),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains = 2,
@@ -334,8 +349,16 @@ function fit_model(
 )
 
     #Create column names
-    input_cols = map(x -> "input$x", 1:size(inputs, 2))
-    action_cols = map(x -> "action$x", 1:size(actions, 2))
+    input_cols = map(x -> "input$x", 1:length(first(inputs)))
+    action_cols = map(x -> "action$x", 1:length(first(actions)))
+
+    #Make vectors of vectors into arrays
+    if length(input_cols) > 1
+        inputs = mapreduce(permutedims, vcat, inputs)
+    end
+    if length(action_cols) > 1
+        actions = mapreduce(permutedims, vcat, actions)
+    end
 
     #Create dataframe of the inputs and actions
     data = DataFrame(hcat(inputs, actions), vcat(input_cols, action_cols))

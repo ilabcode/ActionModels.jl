@@ -11,29 +11,31 @@ ActionModels_path = dirname(dirname(pathof(ActionModels)))
 
     @testset "quick tests" begin
         # Test the quick tests that are used as pre-commit tests
-        include("quicktests.jl")
+        include(test_path * "quicktests.jl")
     end
 
-    # List the julia filenames in the testsuite
-    filenames = glob("*.jl", test_path * "testsuite")
+    @testset "testsuite" begin
 
-    # For each file
-    for filename in filenames
-        #Run it
-        include(filename)
-    end
-end
+        # List the julia filenames in the testsuite
+        filenames = glob("*.jl", test_path * "testsuite")
 
-
-@testset "Documentation" begin
-    documentation_path = ActionModels_path * "/docs/src/"
-    @testset "sourcefiles" begin
-
-        # List the julia filenames in the documentation source files folder
-        filenames = glob("*.jl", documentation_path * "/Julia_src_files")
-
+        # For each file
         for filename in filenames
+            #Run it
             include(filename)
+        end
+    end
+
+    @testset "Documentation" begin
+        documentation_path = ActionModels_path * "/docs/src/"
+        @testset "sourcefiles" begin
+
+            # List the julia filenames in the documentation source files folder
+            filenames = glob("*.jl", documentation_path * "/Julia_src_files")
+
+            for filename in filenames
+                include(filename)
+            end
         end
     end
 end

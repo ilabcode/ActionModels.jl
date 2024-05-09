@@ -88,8 +88,7 @@ actions = give_inputs!(agent, inputs)
 
 # Set a prior for the parameter we wish to fit
 using Distributions
-priors =
-    Dict("action_precision" => Normal(1, 0.5), "learning_rate" => Normal(1, 0.1))
+priors = Dict("action_precision" => Normal(1, 0.5), "learning_rate" => Normal(1, 0.1))
 
 # Fit the model
 fitted_model = fit_model(agent, priors, inputs, actions)

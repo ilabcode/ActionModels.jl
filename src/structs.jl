@@ -44,7 +44,7 @@ end
 Type to use for specifying a paramter that sets a state's initial value
 """
 Base.@kwdef mutable struct InitialStateParameter
-    state
+    state::Any
 end
 
 """

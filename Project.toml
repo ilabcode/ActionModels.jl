@@ -4,7 +4,7 @@ authors = ["Peter Thestrup Waade ptw@cas.au.dk",
             "Anna Hedvig Møller hedvig.2808@gmail.com",
             "Jacopo Comoglio jacopo.comoglio@gmail.com",
             "Christoph Mathys chmathys@cas.au.dk"]
-version = "0.5.1"
+version = "0.5.2"
 
 [deps]
 DataFrames = "a93c6f00-e57d-5684-b7b6-d8193f3e46c0"
@@ -16,9 +16,11 @@ Turing = "fce5fe82-541a-59a6-adf8-730c64b5f9a0"
 RecipesBase = "3cdcf5f2-1ef4-517c-9805-6587b60abb01"
 
 [compat]
-DataFrames = "1"
+DataFrames = "1.6"
 Distributions = "0.25"
 RecipesBase = "1"
-Turing = "0.30"
+Turing = "0.31"
 julia = "1.9"
 ReverseDiff = "1"
+Distributed = "1.10"
+Logging = "1.10"

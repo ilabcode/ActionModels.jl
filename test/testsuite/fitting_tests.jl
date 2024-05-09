@@ -18,8 +18,15 @@ using StatsPlots
 
     actions = give_inputs!(agent, inputs)
 
-    chains =
-        fit_model(agent, param_priors, inputs, actions, n_chains = 1, n_iterations = 10, verbose = false)
+    chains = fit_model(
+        agent,
+        param_priors,
+        inputs,
+        actions,
+        n_chains = 1,
+        n_iterations = 10,
+        verbose = false,
+    )
 
     plot(chains)
 
@@ -163,8 +170,15 @@ end
 
     actions = give_inputs!(agent, inputs)
 
-    chains =
-        fit_model(agent, param_priors, inputs, actions, n_chains = 1, n_iterations = 10, verbose = false)
+    chains = fit_model(
+        agent,
+        param_priors,
+        inputs,
+        actions,
+        n_chains = 1,
+        n_iterations = 10,
+        verbose = false,
+    )
 
     @test get_parameters(agent) == initial_parameters
 
