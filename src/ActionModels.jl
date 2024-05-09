@@ -9,14 +9,17 @@ export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check
 export create_agent_model, fit_model
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
-export get_history, get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
+export get_history,
+    get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
 export get_posteriors, update_states!, set_save_history!
 export InitialStateParameter, ParameterGroup
 
 #Load premade agents
 function __init__()
-    premade_agents["binary_rescorla_wagner_softmax"] = premade_binary_rescorla_wagner_softmax
-    premade_agents["continuous_rescorla_wagner_gaussian"] = premade_continuous_rescorla_wagner_gaussian
+    premade_agents["binary_rescorla_wagner_softmax"] =
+        premade_binary_rescorla_wagner_softmax
+    premade_agents["continuous_rescorla_wagner_gaussian"] =
+        premade_continuous_rescorla_wagner_gaussian
 end
 
 #Types for agents and errors

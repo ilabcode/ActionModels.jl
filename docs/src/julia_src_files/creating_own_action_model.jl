@@ -50,7 +50,7 @@ function continuous_rescorla_wagner_gaussian(agent::Agent, input::Real)
 
     ## Read in parameters from the agent
     learning_rate = agent.parameters["learning_rate"]
-    action_noise  = agent.parameters["action_noise"]
+    action_noise = agent.parameters["action_noise"]
 
     ## Read in states with an initial value
     old_value = agent.states["value"]
@@ -67,10 +67,7 @@ function continuous_rescorla_wagner_gaussian(agent::Agent, input::Real)
     action_distribution = Distributions.Normal(new_value, action_noise)
 
     ##Update the states and save them to agent's history
-    update_states!(agent, Dict(
-        "value" => new_value,
-        "input" => input,
-    ))
+    update_states!(agent, Dict("value" => new_value, "input" => input))
 
     ## return the action distribution to sample actions from
     return action_distribution
@@ -78,21 +75,17 @@ end
 
 
 #-- define parameters and states --#
-parameters = Dict(
-    "learning_rate" => 0.8,
-    "action_noise" => 1,
-    InitialStateParameter("value") => 0)
+parameters =
+    Dict("learning_rate" => 0.8, "action_noise" => 1, InitialStateParameter("value") => 0)
 
-states = Dict(
-    "value" => missing,
-    "input" => missing)
+states = Dict("value" => missing, "input" => missing)
 
 #-- create agent --#
 agent = init_agent(
     continuous_rescorla_wagner_gaussian,
     parameters = parameters,
-    states = states
-    )
+    states = states,
+)
 
 
 #-- define observations --#
@@ -136,12 +129,15 @@ function binary_rescorla_wagner_softmax(agent::Agent, input::Union{Bool,Integer}
     action_distribution = Distributions.Bernoulli(action_probability)
 
     #Update states
-    update_states!(agent, Dict(
-        "value" => new_value,
-        "value_probability" => 1 / (1 + exp(-new_value)),
-        "action_probability" => action_probability,
-        "input" => input,
-    ))
+    update_states!(
+        agent,
+        Dict(
+            "value" => new_value,
+            "value_probability" => 1 / (1 + exp(-new_value)),
+            "action_probability" => action_probability,
+            "input" => input,
+        ),
+    )
 
     return action_distribution
 end
@@ -156,9 +152,7 @@ end
 #Set the parameters:
 
 parameters =
-    Dict("learning_rate" => 1,
-     "action_precision" => 1, 
-     InitialStateParameter("value") => 0)
+    Dict("learning_rate" => 1, "action_precision" => 1, InitialStateParameter("value") => 0)
 
 # We set the initial state parameter for "value" state because we need a starting value in the update step. 
 
@@ -167,7 +161,7 @@ states = Dict(
     "value" => missing,
     "value_probability" => missing,
     "action_probability" => missing,
-    "input" => missing
+    "input" => missing,
 )
 
 # And lastly the action model:

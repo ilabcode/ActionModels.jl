@@ -2,7 +2,7 @@ function continuous_rescorla_wagner_gaussian(agent::Agent, input::Real)
 
     ## Read in parameters from the agent
     learning_rate = agent.parameters["learning_rate"]
-    action_noise  = agent.parameters["action_noise"]
+    action_noise = agent.parameters["action_noise"]
 
     ## Read in states with an initial value
     old_value = agent.states["value"]
@@ -19,10 +19,7 @@ function continuous_rescorla_wagner_gaussian(agent::Agent, input::Real)
     action_distribution = Distributions.Normal(new_value, action_noise)
 
     ##Update the states and save them to agent's history
-    update_states!(agent, Dict(
-        "value" => new_value,
-        "input" => input,
-    ))
+    update_states!(agent, Dict("value" => new_value, "input" => input))
 
     ## return the action distribution to sample actions from
     return action_distribution
@@ -33,11 +30,8 @@ end
 function premade_continuous_rescorla_wagner_gaussian(config::Dict)
 
     #Default parameters and settings
-    default_config = Dict(
-        "learning_rate" => 0.1,
-        "action_noise" => 1,
-        ("initial", "value") => 0,
-    )
+    default_config =
+        Dict("learning_rate" => 0.1, "action_noise" => 1, ("initial", "value") => 0)
 
     #Warn the user about used defaults and misspecified keys
     warn_premade_defaults(default_config, config)
@@ -52,10 +46,7 @@ function premade_continuous_rescorla_wagner_gaussian(config::Dict)
         "action_noise" => config["action_noise"],
         InitialStateParameter("value") => config[("initial", "value")],
     )
-    states = Dict(
-        "input" => missing,
-        "value" => missing
-    )
+    states = Dict("input" => missing, "value" => missing)
     settings = Dict()
 
     return init_agent(
@@ -65,5 +56,3 @@ function premade_continuous_rescorla_wagner_gaussian(config::Dict)
         settings = settings,
     )
 end
-
-

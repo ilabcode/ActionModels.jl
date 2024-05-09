@@ -46,7 +46,11 @@ function fit_model(
     input_cols::Vector = [:input],
     action_cols::Vector = [:action],
     fixed_parameters::Dict = Dict(),
-    sampler::Turing.Inference.InferenceAlgorithm = NUTS(-1, 0.65; adtype=AutoReverseDiff(true)),
+    sampler::Turing.Inference.InferenceAlgorithm = NUTS(
+        -1,
+        0.65;
+        adtype = AutoReverseDiff(true),
+    ),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains::Integer = 2,
@@ -56,7 +60,7 @@ function fit_model(
     sampler_kwargs...,
 )
     ### SETUP ###
-   
+
     #Convert column names to symbols
     independent_group_cols = Symbol.(independent_group_cols)
     multilevel_group_cols = Symbol.(multilevel_group_cols)
@@ -211,7 +215,7 @@ function fit_model(
         if @isdefined ActiveInference
             @everywhere @eval using ActiveInference
         end
-        
+
         #Broadcast necessary information to workers
         @everywhere agent = $agent
         @everywhere fit_info_all = $fit_info_all
@@ -330,7 +334,11 @@ function fit_model(
     inputs::Array,
     actions::Array;
     fixed_parameters::Dict = Dict(),
-    sampler::Turing.Inference.InferenceAlgorithm = NUTS(-1, 0.65; adtype=AutoReverseDiff(true)),
+    sampler::Turing.Inference.InferenceAlgorithm = NUTS(
+        -1,
+        0.65;
+        adtype = AutoReverseDiff(true),
+    ),
     n_cores::Integer = 1,
     n_iterations::Integer = 1000,
     n_chains = 2,

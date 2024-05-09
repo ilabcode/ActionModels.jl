@@ -11,7 +11,7 @@ ActionModels_path = dirname(dirname(pathof(ActionModels)))
 
     @testset "quick tests" begin
         # Test the quick tests that are used as pre-commit tests
-        include(test_path*"quicktests.jl")
+        include(test_path * "quicktests.jl")
     end
 
     @testset "testsuite" begin
@@ -39,4 +39,3 @@ ActionModels_path = dirname(dirname(pathof(ActionModels)))
         end
     end
 end
-

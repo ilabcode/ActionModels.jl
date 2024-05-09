@@ -235,8 +235,8 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             if parameter_info.name isa String
                 #Include the quotation marks
                 parameter_string = "\"$(parameter_info.name)\""
-            #Otherwise
-            else 
+                #Otherwise
+            else
                 #Keep it as it is
                 parameter_string = parameter_info.name
             end
@@ -278,12 +278,12 @@ function rename_chains(chains::Chains, independent_group_info::NamedTuple)
             if parameter_info.name isa String
                 #Include the quotation marks
                 parameter_string = "\"$(parameter_info.name)\""
-            #Otherwise
-            else 
+                #Otherwise
+            else
                 #Keep it as it is
                 parameter_string = parameter_info.name
             end
-            
+
 
             #If there are no group dependencies
             if isempty(group)

@@ -155,8 +155,7 @@ end
 
 #Set the parameters:
 
-parameters =
-    Dict("learning_rate" => 1, "action_precision" => 1, ("initial", "value") => 0)
+parameters = Dict("learning_rate" => 1, "action_precision" => 1, ("initial", "value") => 0)
 
 # We set the initial state parameter for "value" state because we need a starting value in the update step. 
 

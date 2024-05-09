@@ -1,6 +1,6 @@
 #Function for changing the save_history setting
 function set_save_history!(agent::Agent, save_history::Bool)
-    
+
     #Change it in the agent
     agent.save_history = save_history
 

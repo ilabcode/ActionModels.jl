@@ -83,7 +83,9 @@ function init_agent(
     action_model::Function;
     substruct::Any = nothing,
     parameters::Dict = Dict(),
-    parameter_groups::Union{ParameterGroup, Vector{ParameterGroup}} = Vector{ParameterGroup}(),
+    parameter_groups::Union{ParameterGroup,Vector{ParameterGroup}} = Vector{
+        ParameterGroup,
+    }(),
     states::Union{Dict,Vector} = Dict(),
     settings::Dict = Dict(),
     save_history::Bool = true,
@@ -159,7 +161,7 @@ function init_agent(
             value = parameter_group.value,
             grouped_parameters = parameter_group.parameters,
         )
-    
+
         #Set the parameters 
         set_parameters!(agent, parameter_group, parameter_group.value)
 
