@@ -334,8 +334,16 @@ function fit_model(
 )
 
     #Create column names
-    input_cols = map(x -> "input$x", 1:size(inputs, 2))
-    action_cols = map(x -> "action$x", 1:size(actions, 2))
+    input_cols = map(x -> "input$x", 1:length(first(inputs)))
+    action_cols = map(x -> "action$x", 1:length(first(actions)))
+
+    #Make vectors of vectors into arrays
+    if length(input_cols) > 1
+        inputs = mapreduce(permutedims, vcat, inputs)
+    end
+    if length(action_cols) > 1
+        actions = mapreduce(permutedims, vcat, actions)
+    end
 
     #Create dataframe of the inputs and actions
     data = DataFrame(hcat(inputs, actions), vcat(input_cols, action_cols))
