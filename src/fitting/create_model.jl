@@ -156,10 +156,17 @@ Create a Turing model object used for fitting an ActionModels agent.
 
                     #Sample the action from the probability distribution
                     actions[group][timestep] ~ action_distribution
+
+                    #Save the action to the agent in case it needs it in the future
+                    agent.states["action"] = actions[group][timestep]
                     
 
                     #If there are multiple actions
                 else
+                    
+                    #Initialize empty vector for storing actions
+                    actions = []
+                    
                     #Go through each separate action
                     for (action_idx, single_distribution) in enumerate(action_distribution)
 
@@ -176,7 +183,12 @@ Create a Turing model object used for fitting an ActionModels agent.
                         #Sample the action from the probability distribution
                         @inbounds actions[group][timestep, action_idx] ~ single_distribution
                         
+                        #Save the action
+                        push!(actions, actions[group][timestep, action_idx])
                     end
+
+                    #Save the action to the agent, for models that need previous action
+                    agent.states["action"] = actions
                 end
             end
         end
