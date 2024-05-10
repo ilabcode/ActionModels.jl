@@ -93,7 +93,7 @@ using ActionModels
                             action_cols   = [:actions],
                             input_cols    = [:input],
                             grouping_cols = [:id],
-                            n_iterations = 10000)
+                            n_iterations = 100)
 
         @show summary(samples)
     end
@@ -109,11 +109,26 @@ using ActionModels
                             action_cols   = [:actions],
                             input_cols    = [:input],
                             grouping_cols = [:id],
-                            n_iterations = 100)
+                            n_iterations = 10)
 
-        @show summary(samples)
+        @show samples
     end
 
+
+
+    @testset "new interface for statistical model - tuple param name in formula" begin
+        agent = premade_agent("continuous_rescorla_wagner")
+
+        samples = fit_model(agent,
+                            (@formula(tuple(initial, value) ~ age), Normal),
+                            example_data;
+                            action_cols   = [:actions],
+                            input_cols    = [:input],
+                            grouping_cols = [:id],
+                            n_iterations = 10)
+
+        @show samples
+    end
 
 
 end
