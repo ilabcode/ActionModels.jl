@@ -206,7 +206,7 @@ end
         n_chains = 1,
         n_iterations = 10,
         verbose = false,
-        sampler = ext_sampler,
+        sampler = rwmh,
     )
     
 end
