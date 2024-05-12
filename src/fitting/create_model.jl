@@ -158,7 +158,7 @@ Create a Turing model object used for fitting an ActionModels agent.
                     actions[group][timestep] ~ action_distribution
 
                     #Save the action to the agent in case it needs it in the future
-                    agent.states["action"] = actions[group][timestep]
+                    agent.states["action"] = ad_val(actions[group][timestep])
 
 
                     #If there are multiple actions
@@ -185,7 +185,7 @@ Create a Turing model object used for fitting an ActionModels agent.
                         @inbounds actions[group][timestep, action_idx] ~ single_distribution
 
                         #Save the action
-                        push!(actions, actions[group][timestep, action_idx])
+                        push!(actions, ad_val(actions[group][timestep, action_idx]))
                     end
 
                     #Save the action to the agent, for models that need previous action
