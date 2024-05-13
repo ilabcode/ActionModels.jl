@@ -12,7 +12,7 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  - 'inputs:Array': array of inputs. Each row is a timestep, and each column is a single input value.
  - 'actions::Array': array of actions. Each row is a timestep, and each column is a single action.
  - 'fixed_parameters::Dict = Dict()': dictionary containing parameter values for parameters that are not fitted. Keys are parameter names, values are priors. For parameters not specified here and without priors, the parameter values of the agent are used instead.
- - 'sampler::Union{Missing, DynamicPPL.Sampler} = missing': specify the type of Turing sampler. Defaults to `NUTS(-1, 0.65; adtype=AutoReverseDiff(true))`
+ - 'sampler::Union{DynamicPPL.AbstractSampler, Turing.Inference.InferenceAlgorithm}': specify the type of Turing sampler. Defaults to `NUTS(-1, 0.65; adtype=AutoReverseDiff(true))`
  - 'n_cores = 1': set number of cores to use for parallelization. If set to 1, no parallelization is used.
  - 'n_iterations = 1000': set number of iterations per chain.
  - 'n_chains = 2': set number of amount of chains.
@@ -46,7 +46,7 @@ function fit_model(
     input_cols::Vector = [:input],
     action_cols::Vector = [:action],
     fixed_parameters::Dict = Dict(),
-    sampler::Turing.Inference.InferenceAlgorithm = NUTS(
+    sampler::Union{DynamicPPL.AbstractSampler, Turing.Inference.InferenceAlgorithm} = NUTS(
         -1,
         0.65;
         adtype = AutoReverseDiff(true),
@@ -103,7 +103,6 @@ function fit_model(
     ## Store whether there are multiple inputs and actions ##
     multiple_inputs = length(input_cols) > 1
     multiple_actions = length(action_cols) > 1
-    multilevel = length(multilevel_group_cols) > 0
 
     ## Structure multilevel parameter information ##
     general_parameters_info = extract_structured_parameter_info(;
@@ -307,7 +306,7 @@ Use Turing to fit the parameters of an agent to a set of inputs and correspondin
  - 'inputs:Array': array of inputs. Each row is a timestep, and each column is a single input value.
  - 'actions::Array': array of actions. Each row is a timestep, and each column is a single action.
  - 'fixed_parameters::Dict = Dict()': dictionary containing parameter values for parameters that are not fitted. Keys are parameter names, values are priors. For parameters not specified here and without priors, the parameter values of the agent are used instead.
- - 'sampler::Union{Missing, DynamicPPL.Sampler} = missing': specify the type of Turing sampler, defaults to `NUTS(-1, 0.65; adtype=AutoReverseDiff(true))`
+ - 'sampler::Union{DynamicPPL.AbstractSampler, Turing.Inference.InferenceAlgorithm}: specify the type of Turing sampler, defaults to `NUTS(-1, 0.65; adtype=AutoReverseDiff(true))`
  - 'n_cores = 1': set number of cores to use for parallelization. If set to 1, no parallelization is used.
  - 'n_iterations = 1000': set number of iterations per chain.
  - 'n_chains = 2': set number of amount of chains.
@@ -334,7 +333,7 @@ function fit_model(
     inputs::Array,
     actions::Array;
     fixed_parameters::Dict = Dict(),
-    sampler::Turing.Inference.InferenceAlgorithm = NUTS(
+    sampler::Union{DynamicPPL.AbstractSampler, Turing.Inference.InferenceAlgorithm} = NUTS(
         -1,
         0.65;
         adtype = AutoReverseDiff(true),
