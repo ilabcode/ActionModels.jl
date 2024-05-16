@@ -131,7 +131,7 @@ Create a Turing model object used for fitting an ActionModels agent.
                 iterator = enumerate(inputs[group])
             else
                 #Iterate over rows of inputs
-                iterator = enumerate(eachrow(inputs[group]))
+                iterator = enumerate(Vector.(eachrow(inputs[group])))
             end
 
             #Go through each timestep
