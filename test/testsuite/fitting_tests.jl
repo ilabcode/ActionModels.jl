@@ -1,11 +1,12 @@
 
+using AdvancedMH
 using ActionModels
 using Test
 using Distributions
 using DataFrames
 using Plots
 using StatsPlots
-
+using Turing: externalsampler
 
 
 @testset "simulate actions and fit" begin
@@ -182,4 +183,30 @@ end
 
     @test get_parameters(agent) == initial_parameters
 
+end
+
+
+@testset "Make sure fitting allows using a custom sampler" begin
+    
+    agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
+
+    param_priors = Dict("learning_rate" => Uniform(0, 1))
+
+    inputs = [1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0]
+
+    actions = give_inputs!(agent, inputs)
+
+    rwmh = externalsampler(AdvancedMH.RWMH(10))
+
+    chains = fit_model(
+        agent,
+        param_priors,
+        inputs,
+        actions,
+        n_chains = 1,
+        n_iterations = 10,
+        verbose = false,
+        sampler = rwmh,
+    )
+    
 end
