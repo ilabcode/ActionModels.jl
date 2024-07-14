@@ -46,7 +46,7 @@ function fit_model(
     input_cols::Vector = [:input],
     action_cols::Vector = [:action],
     fixed_parameters::Dict = Dict(),
-    sampler::Union{DynamicPPL.AbstractSampler, Turing.Inference.InferenceAlgorithm} = NUTS(
+    sampler::Union{DynamicPPL.AbstractSampler,Turing.Inference.InferenceAlgorithm} = NUTS(
         -1,
         0.65;
         adtype = AutoReverseDiff(true),
@@ -333,7 +333,7 @@ function fit_model(
     inputs::Array,
     actions::Array;
     fixed_parameters::Dict = Dict(),
-    sampler::Union{DynamicPPL.AbstractSampler, Turing.Inference.InferenceAlgorithm} = NUTS(
+    sampler::Union{DynamicPPL.AbstractSampler,Turing.Inference.InferenceAlgorithm} = NUTS(
         -1,
         0.65;
         adtype = AutoReverseDiff(true),

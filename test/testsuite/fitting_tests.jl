@@ -187,7 +187,7 @@ end
 
 
 @testset "Make sure fitting allows using a custom sampler" begin
-    
+
     agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
 
     param_priors = Dict("learning_rate" => Uniform(0, 1))
@@ -208,5 +208,36 @@ end
         verbose = false,
         sampler = rwmh,
     )
-    
+
+end
+
+
+@testset "Test with multiple actions" begin
+
+    #Action model with multiple actions    
+    function testactionfunc(agent, input::Vector)
+
+        noise = agent.parameters["noise"]
+
+        input1, input2, input3 = input
+
+        actiondist1 = Normal(input1, noise)
+        actiondist2 = Normal(input2, noise)
+
+        return [actiondist1, actiondist2]
+    end
+    #Create agent
+    agent = init_agent(testactionfunc, parameters = Dict("noise" => 1.0))
+
+    #Create inputs
+    inputs = [[1.0, 2.0, 3.0], [4.0, 5.0, 6.0]]
+
+    #Simulate actions
+    actions = give_inputs!(agent, inputs)
+
+    #Set priors
+    priors = Dict("noise" => LogNormal(0.0, 1.0))
+
+    #Fit
+    results = fit_model(agent, priors, inputs, actions, n_iterations = 40)
 end
