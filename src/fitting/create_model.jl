@@ -165,7 +165,7 @@ Create a Turing model object used for fitting an ActionModels agent.
                 else
 
                     #Initialize empty vector for storing actions
-                    actions = []
+                    sampled_actions = []
 
                     #Go through each separate action
                     for (action_idx, single_distribution) in enumerate(action_distribution)
@@ -185,11 +185,11 @@ Create a Turing model object used for fitting an ActionModels agent.
                         @inbounds actions[group][timestep, action_idx] ~ single_distribution
 
                         #Save the action
-                        push!(actions, ad_val(actions[group][timestep, action_idx]))
+                        push!(sampled_actions, ad_val(actions[group][timestep, action_idx]))
                     end
 
                     #Save the action to the agent, for models that need previous action
-                    agent.states["action"] = actions
+                    agent.states["action"] = sampled_actions
                 end
             end
         end
