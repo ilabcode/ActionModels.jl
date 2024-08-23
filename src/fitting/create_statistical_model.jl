@@ -5,7 +5,7 @@
 # TODO: think about tuple parameter names (ie initial values or HGF params)
 # TODO: more functionality than turingGLM:
 # - random slopes
-# DONE: (1.0) intercept-only model
+# DONE: intercept-only model
 # - (1.0) better / custom priors
 # - MVLogitNormal distribution (make LogitNormal save the param on the right scale)
 # TODO: (1.0) check integration of the new functionality

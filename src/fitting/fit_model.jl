@@ -390,7 +390,7 @@ end
 
 function fit_model(
     agent_model::Agent,
-    statistical_model::Union{T, S, Vector{<:Union{T,S}}, Vector{Any}},
+    statistical_model::Union{T, S, Vector{<:Union{T,S}}, Vector{Any}}, # FormulaTerm or tuple(FormulaTerm, link_function) or vector of either of those
     data,
     priors::TuringGLM.Prior = TuringGLM.DefaultPrior();
     input_cols::Union{Vector,String,Symbol},
@@ -404,10 +404,10 @@ function fit_model(
     show_sample_rejections::Bool = false,
     impute_missing_actions::Bool = false,
     sampler_kwargs...,
-) where {T<:AbstractTerm, S<:Tuple{T, UnionAll}}
+) where {T<:AbstractTerm, S<:Tuple{T, Function}}
 
     if statistical_model isa Vector{Any}
-        statistical_model = convert(Vector{Union{AbstractTerm, Tuple(AbstractTerm, UnionAll)}}, statistical_model)
+        statistical_model = convert(Vector{Union{AbstractTerm, Tuple(AbstractTerm, Function)}}, statistical_model)
     end
 
     input_cols = Symbol.(input_cols)
@@ -479,33 +479,6 @@ function fit_model(
 
     agent_params = [Dict() for _ in 1:nrow(statistical_data)]
     # statistical_params = [Dict() for _ in 1:length(statistical_submodels)]
-
-
-    @model function do_full_model(
-        agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params, param_values
-        )
-
-        for (param_idx, (param_name, statistical_submodel, X)) in enumerate(statistical_submodels)
-
-            @submodel prefix=string(param_name) param_values[param_idx] = statistical_submodel(X)
-            # @submodel param_values = statistical_submodel(X)
-
-            #for (agent_idx, param_value) in enumerate(@submodel statistical_submodel(X))
-            for (agent_idx, param_value) in enumerate(param_values[param_idx])
-                agent_params[agent_idx][param_name] = param_value
-            end
-        end
-
-        for (i, agent_param) in enumerate(agent_params)
-            set_parameters!(agent_model, agent_params[i])
-            reset!(agent_model)
-
-            for (timestep, input) in enumerate(inputs[i])
-                action_distribution = agent_model.action_model(agent_model, input)
-                actions[i][timestep] ~ action_distribution
-            end
-        end
-    end
 
     full_model = do_full_model(agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params, param_values)
     chains = sample(full_model, sampler, n_iterations)
