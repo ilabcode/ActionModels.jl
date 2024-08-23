@@ -1,205 +1,151 @@
 
+# DONE: random intercepts (hint: construct model matrix somehow instead of modelmatrix(MixedEffects(@formula)), which expects y
+# DONE: expand to multiple formulas / flexible names
+# - DONE: parameters inside different statistical models gets overridden by each other!
+# TODO: think about tuple parameter names (ie initial values or HGF params)
+# TODO: more functionality than turingGLM:
+# - random slopes
+# DONE: (1.0) intercept-only model
+# - (1.0) better / custom priors
+# - MVLogitNormal distribution (make LogitNormal save the param on the right scale)
+# TODO: (1.0) check integration of the new functionality
+# - Compare with old implementation of specifying statistical model
+# TODO: (1.0) Example / usecase / tutorials)
+# TODO: check if we can go back to turingglm._statistical_model_turingglm() with a few changes
+
 function statistical_model_turingglm(
     formula::TuringGLM.FormulaTerm,
-    data;
-    model::Type{T} = Distributions.Normal,
-    priors::TuringGLM.Prior = TuringGLM.DefaultPrior()
-) where {T<:UnivariateDistribution}
-    return _statistical_model_turingglm(formula, data, T; priors)
-end
-
-function _statistical_model_turingglm(
-    formula::TuringGLM.FormulaTerm,
     data,
-    ::Type{T};
+    link_function::Function = identity;
     priors::TuringGLM.Prior = TuringGLM.DefaultPrior()
 ) where {T<:UnivariateDistribution}
-
-
-# DONE: random intercepts (hint: construct model matrix somehow instead of modelmatrix(MixedEffects(@formula)), which expects y
-    # DONE: expand to multiple formulas / flexible names
-    # - DONE: parameters inside different statistical models gets overridden by each other!
-    # DONE: think about tuple parameter names (ie initial values or HGF params)
-    # TODO: more functionality than turingGLM:
-    # - random slopes
-    # - (1.0) intercept-only model
-    # - (1.0) better / custom priors
-    # - MVLogitNormal distribution (make LogitNormal save the param on the right scale)
-    # TODO: (1.0) check integration of the new functionality
-    # - Compare with old implementation of specifying statistical model
-    # TODO: (1.0) Example / usecase / tutorials)
-    # TODO: check if we can go back to turingglm._statistical_model_turingglm() with a few changes
-
-    # extract y, X and Z
-    # y = data_response(formula, data)
-    #
-    X = TuringGLM.data_fixed_effects(formula, data)
-    if TuringGLM.has_ranef(formula)
-        Z = TuringGLM.data_random_effects(formula, data)
+    # extract X and Z ( y is the output that goes to the agent model )
+    X = actionmodels_data_fixed_effects(formula, data)
+    if actionmodels_has_ranef(formula)
+        Z = actionmodels_data_random_effects(formula, data)
     end
 
-
-    # μ and σ identities
-    μ_X = 0
-    σ_X = 1
-    μ_y = 0
-    σ_y = 1
-
-    prior = _prior(priors, T)
-    ranef = TuringGLM.ranef(formula)
+    prior = _prior(priors)
+    ranef = actionmodels_ranef(formula)
 
     model = if ranef === nothing
-        _model(μ_X, σ_X, prior, T)
+        _model(prior, [], [], 0)
     else
         intercept_ranef = TuringGLM.intercept_per_ranef(ranef)
         group_var = first(ranef).rhs
         idx = TuringGLM.get_idx(TuringGLM.term(group_var), data)
+        # idx is a tuple with 1. indices and 2. a dict mapping id names to indices
+        idxs = first(idx)
+        n_gr = length(unique(idxs))
         # print for the user the idx
         println("The idx are $(last(idx))\n")
-        _model(μ_X, σ_X, prior, intercept_ranef, idx, T)
+        _model(prior, intercept_ranef, idxs, n_gr)
     end
 
     return (model, X)
 end
 
-# Models with Normal likelihood
-function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{Normal})
-    idxs = first(idx)
-    n_gr = length(unique(first(idx)))
-    @model function normal_model_ranef(
+# Linear model
+function _model(prior, intercept_ranef, idxs, n_gr)
+    @model function linear_model(
         X;
-        predictors=size(X, 2),
+        n_predictors=size(X, 2),
         idxs=idxs,
         n_gr=n_gr,
         intercept_ranef=intercept_ranef,
-        μ_X=μ_X,
-        σ_X=σ_X,
         prior=prior,
     )
         α ~ prior.intercept
-        β ~ TuringGLM.filldist(prior.predictors, predictors)
-        σ ~ Exponential(10)
-        if isempty(intercept_ranef)
-            μ = α .+ X * β
+        if n_predictors != 0
+            β ~ TuringGLM.filldist(prior.predictors, n_predictors)
+            agent_param = α .+ X * β
         else
+            agent_param = α .+ repeat([0], size(X, 1))
+        end
+
+        if !isempty(intercept_ranef)
             τ ~ truncated(TDist(3); lower=0)
             zⱼ ~ filldist(Normal(), n_gr)
-            μ = α .+ τ .* getindex.((zⱼ,), idxs) .+ X * β
+            agent_param = agent_param .+ τ .* getindex.((zⱼ,), idxs)
         end
-        agent_param ~ MvNormal(μ, σ^2 * I)
         return agent_param
     end
 end
 
-# fixed-effects model with Normal likelihood
-function _model(μ_X, σ_X, prior, ::Type{Normal})
-    @model function normal_model(
-        X; predictors=size(X, 2), μ_X=μ_X, σ_X=σ_X, prior=prior
-    )
-        α ~ prior.intercept
-        β ~ filldist(prior.predictors, predictors)
-        σ ~ Exponential(10)
-        agent_param ~ MvNormal(α .+ X * β, σ^2 * I)
-        return agent_param
-    end
-end
-
-# fixed-effects model with LogNormal likelihood (log link)
-function _model(μ_X, σ_X, prior, ::Type{LogNormal})
-    @model function normal_model(
-        X; predictors=size(X, 2), μ_X=μ_X, σ_X=σ_X, prior=prior
-    )
-        α ~ prior.intercept
-        β ~ filldist(prior.predictors, predictors)
-        σ ~ Exponential(10)
-        agent_param ~ MvLogNormal(α .+ X * β, σ^2 * I)
-        return agent_param
-    end
-end
-
-# random-intercept model with LogNormal likelihood
-function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{LogNormal})
-    idxs = first(idx)
-    n_gr = length(unique(first(idx)))
-    @model function normal_model_ranef(
-        X;
-        predictors=size(X, 2),
-        idxs=idxs,
-        n_gr=n_gr,
-        intercept_ranef=intercept_ranef,
-        μ_X=μ_X,
-        σ_X=σ_X,
-        prior=prior,
-    )
-        α ~ prior.intercept
-        β ~ TuringGLM.filldist(prior.predictors, predictors)
-        σ ~ Exponential(10)
-        if isempty(intercept_ranef)
-            μ = α .+ X * β
-        else
-            τ ~ truncated(TDist(3); lower=0)
-            zⱼ ~ filldist(Normal(), n_gr)
-            μ = α .+ τ .* getindex.((zⱼ,), idxs) .+ X * β
-        end
-        #TODO: implement random-effects slope
-        agent_param ~ MvLogNormal(μ, σ^2 * I)
-        return agent_param
-    end
-end
-
-# fixed-effects model with LogitNormal likelihood (log link)
-function _model(μ_X, σ_X, prior, ::Type{LogitNormal})
-    @model function normal_model(
-        X; predictors=size(X, 2), μ_X=μ_X, σ_X=σ_X, prior=prior
-    )
-        α ~ prior.intercept
-        β ~ filldist(prior.predictors, predictors)
-        σ ~ Exponential(10)
-        agent_param ~ MvNormal(α .+ X * β, σ^2 * I)
-        return logistic.(agent_param)
-    end
-end
-
-# random-intercept model with LogitNormal likelihood
-function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{LogitNormal})
-    idxs = first(idx)
-    n_gr = length(unique(first(idx)))
-    @model function normal_model_ranef(
-        X;
-        predictors=size(X, 2),
-        idxs=idxs,
-        n_gr=n_gr,
-        intercept_ranef=intercept_ranef,
-        μ_X=μ_X,
-        σ_X=σ_X,
-        prior=prior,
-    )
-        α ~ prior.intercept
-        β ~ TuringGLM.filldist(prior.predictors, predictors)
-        σ ~ Exponential(10)
-        if isempty(intercept_ranef)
-            μ = α .+ X * β
-        else
-            τ ~ truncated(TDist(3); lower=0)
-            zⱼ ~ filldist(Normal(), n_gr)
-            μ = α .+ τ .* getindex.((zⱼ,), idxs) .+ X * β
-        end
-        #TODO: implement random-effects slope
-        agent_param ~ MvNormal(μ, σ^2 * I)
-        return logistic.(agent_param)
-    end
-end
-
-
-
-function _prior(::DefaultPrior, ::Type{Normal})
+function _prior(::DefaultPrior)
     return CustomPrior(TDist(3), TDist(3), nothing)
 end
 
-function _prior(::DefaultPrior, ::Type{LogNormal})
-    return CustomPrior(TDist(3), TDist(3), nothing)
+
+
+## custom shims for working around TuringGLM
+##
+##
+function actionmodels_has_ranef(formula::FormulaTerm)
+    if formula.rhs isa StatsModels.Term
+        return false
+    elseif formula.rhs isa StatsModels.ConstantTerm
+        return false
+    else
+        return any(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
+    end
 end
 
-function _prior(::DefaultPrior, ::Type{LogitNormal})
-    return CustomPrior(TDist(3), TDist(3), nothing)
+
+function actionmodels_data_fixed_effects(formula::FormulaTerm, data::D) where {D}
+    if actionmodels_has_ranef(formula)
+        X = MixedModels.modelmatrix(MixedModel(formula, data))
+        X = X[:, 2:end]
+    else
+        # @show typeof(formula)
+        # @show typeof(StatsModels.apply_schema(formula, StatsModels.schema(data)))
+        # @show StatsModels.apply_schema(formula, StatsModels.schema(data))
+        X = StatsModels.modelmatrix(StatsModels.apply_schema(formula, StatsModels.schema(data)), data)
+        # @show X
+        if hasintercept(formula)
+            X = X[:, 2:end]
+        end
+    end
+    return X
+end
+
+
+function actionmodels_data_random_effects(formula::FormulaTerm, data::D) where {D}
+    if !actionmodels_has_ranef(formula)
+        return nothing
+    end
+    slopes = TuringGLM.slope_per_ranef(actionmodels_ranef(formula))
+
+    Z = Dict{String,AbstractArray}() # empty Dict
+    if length(slopes) > 0
+        # add the slopes to Z
+        # this would need to create a vector from the column of the X matrix from the
+        # slope term
+        for slope in values(slopes.grouping_vars)
+            if slope isa String
+                Z["slope_" * slope] = get_var(term(slope), data)
+            else
+                for s in slope
+                    Z["slope_" * s] = get_var(term(s), data)
+                end
+            end
+        end
+    else
+        Z = nothing
+    end
+    return Z
+end
+
+
+function actionmodels_ranef(formula::FormulaTerm)
+    if actionmodels_has_ranef(formula)
+        terms = filter(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
+        terms = map(terms) do t
+            lhs, rhs = first(t.args), last(t.args)
+            RandomEffectsTerm(lhs, rhs)
+        end
+        return terms
+    else
+        return nothing
+    end
 end

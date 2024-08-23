@@ -24,7 +24,7 @@ using ActionModels
 
     @testset "dummy turingglm non-hierarchical model" begin
         prior = CustomPrior(Normal(0,10), Normal(0,10), nothing)
-        formula = @formula(actions ~ id + age)
+        formula = @formula(actions ~ 1)
         model = turing_model(formula, example_data; priors = prior)
         samples = sample(model, NUTS(), 10)
     end
@@ -62,7 +62,7 @@ using ActionModels
         agent = premade_agent("continuous_rescorla_wagner_gaussian")
         # non hierarchical
         samples = fit_model(agent,
-                            @formula(learning_rate ~ 1),
+                            @formula(learning_rate ~ age),
                             example_data;
                             action_cols = [:actions],
                             input_cols = [:input],
@@ -74,9 +74,11 @@ using ActionModels
     end
     @testset "new interface for statistical model - intercept + random effect only" begin
         # # hierarchical
-        samples = fit_model(agent, prior, example_data;
-                            action_cols = [:actions], input_cols = [:input],
-                            statistical_model = @formula(learning_rate ~ 1 + (1|id)))
+        samples = fit_model(agent,
+                            @formula(learning_rate ~ 1 + (1|id)),
+                            example_data;
+                            action_cols = [:actions], input_cols = [:input], grouping_cols = [:id],
+                            )
         @show summary(samples)
     end
 
@@ -109,7 +111,7 @@ using ActionModels
     end
 
     @testset "new interface for statistical model - random intercept" begin
-        agent = premade_agent("continuous_rescorla_wagner")
+        agent = premade_agent("continuous_rescorla_wagner_gaussian")
         samples = fit_model(agent,
                             (@formula(learning_rate ~ age + (1|id)), LogitNormal),
                             example_data;
@@ -140,10 +142,11 @@ using ActionModels
 
 
     @testset "new interface for statistical model - tuple param name in formula" begin
-        agent = premade_agent("continuous_rescorla_wagner")
+        agent = premade_agent("continuous_rescorla_wagner_gaussian")
 
+        get_parameters(agent)
         samples = fit_model(agent,
-                            (@formula(tuple(initial, value) ~ age), Normal),
+                            @formula(tuple(string(initial), string(value)) ~ age),
                             example_data;
                             action_cols   = [:actions],
                             input_cols    = [:input],

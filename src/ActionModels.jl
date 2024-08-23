@@ -2,7 +2,7 @@ module ActionModels
 
 #Load packages
 using ReverseDiff,
-    ForwardDiff, Turing, TuringGLM, Distributions, DataFrames, RecipesBase, Logging, Distributed, LinearAlgebra, LogExpFunctions, StatsModels
+    ForwardDiff, Turing, TuringGLM, Distributions, DataFrames, RecipesBase, Logging, Distributed, LinearAlgebra, LogExpFunctions, StatsModels, MixedModels
 using Turing: DynamicPPL, AutoReverseDiff
 #Export functions
 export Agent, RejectParameters, GroupedParameters, Multilevel

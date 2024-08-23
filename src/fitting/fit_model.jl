@@ -425,7 +425,7 @@ function fit_model(
 
     for (i, sm) in enumerate(statistical_model)
         if sm isa TuringGLM.FormulaTerm
-            push!(_statistical_model, (sm, Distributions.Normal))
+            push!(_statistical_model, (sm, identity)) # default link_function
         else
             push!(_statistical_model, sm)
         end
@@ -472,9 +472,9 @@ function fit_model(
     statistical_data = unique(data, grouping_cols)
     statistical_submodels = []
     param_values = Vector(undef, length(_statistical_model))
-    for (sm, likelihood) in _statistical_model
+    for (sm, link_function) in _statistical_model
         @show insertcols!(statistical_data, Symbol(sm.lhs) => 1)
-        push!(statistical_submodels, (string.(sm.lhs), ActionModels.statistical_model_turingglm(sm, statistical_data, model=likelihood)...))
+        push!(statistical_submodels, (string.(sm.lhs), ActionModels.statistical_model_turingglm(sm, statistical_data, link_function)...))
     end
 
     agent_params = [Dict() for _ in 1:nrow(statistical_data)]
