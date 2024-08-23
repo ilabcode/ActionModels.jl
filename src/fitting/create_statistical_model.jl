@@ -3,15 +3,19 @@
 # DONE: expand to multiple formulas / flexible names
 # - DONE: parameters inside different statistical models gets overridden by each other!
 # TODO: think about tuple parameter names (ie initial values or HGF params)
-# TODO: more functionality than turingGLM:
-# - random slopes
+# TODO: random slopes
 # DONE: intercept-only model
-# - (1.0) better / custom priors
-# - MVLogitNormal distribution (make LogitNormal save the param on the right scale)
+# DONE better / custom priors
 # TODO: (1.0) check integration of the new functionality
 # - Compare with old implementation of specifying statistical model
 # TODO: (1.0) Example / usecase / tutorials)
 # TODO: check if we can go back to turingglm._statistical_model_turingglm() with a few changes
+# TODO: support dropping intercepts (fixed and random)
+# TODO: re-prettify out (:id names) (including making it extract? hans/georg/jørgen)
+# - One approach: build a vector for MCMCChains.Chains.
+#   - bug: returns all the same numbers.
+#   - todo: how to combine with existing chains object
+#
 
 function statistical_model_turingglm(
     formula::TuringGLM.FormulaTerm,
