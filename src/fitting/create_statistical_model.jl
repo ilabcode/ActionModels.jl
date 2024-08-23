@@ -26,7 +26,8 @@ function _statistical_model_turingglm(
     # - (1.0) better / custom priors
     # - MVLogitNormal distribution (make LogitNormal save the param on the right scale)
     # TODO: (1.0) check integration of the new functionality
-    # - Example / usecase / tutorials
+    # - Compare with old implementation of specifying statistical model
+    # TODO: (1.0) Example / usecase / tutorials)
     # TODO: check if we can go back to turingglm._statistical_model_turingglm() with a few changes
 
     # extract y, X and Z

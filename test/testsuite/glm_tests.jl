@@ -37,7 +37,7 @@ using ActionModels
     end
 
     @testset "forward sim RW" begin
-        agent = premade_agent("continuous_rescorla_wagner")
+        agent = premade_agent("continuous_rescorla_wagner_gaussian")
         give_inputs!(agent, example_data[:,:input])
         lr_dist = Uniform(0.1, 0.5)
         # @show learning_rate = rand(lr_dist, length(unique(example_data[:, :id])))
@@ -59,13 +59,14 @@ using ActionModels
 
     @testset "new interface for statistical model - intercept only" begin
         #prior = Dict("learning_rate" => Uniform(0, 1))
-        agent = premade_agent("continuous_rescorla_wagner")
+        agent = premade_agent("continuous_rescorla_wagner_gaussian")
         # non hierarchical
         samples = fit_model(agent,
-                            @formula(learning_rate ~ 1)
+                            @formula(learning_rate ~ 1),
                             example_data;
                             action_cols = [:actions],
-                            input_cols = [:input])
+                            input_cols = [:input],
+                            grouping_cols = [:id])
 
 
         @show summary(samples)
@@ -89,7 +90,7 @@ using ActionModels
         #                     action_cols = [:actions],
         #                     input_cols = [:input])
 
-        agent = premade_agent("continuous_rescorla_wagner")
+        agent = premade_agent("continuous_rescorla_wagner_gaussian")
         samples = fit_model(agent,
                             @formula(learning_rate ~ id),
                             example_data;
