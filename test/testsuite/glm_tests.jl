@@ -62,7 +62,7 @@ using ActionModels
         agent = premade_agent("continuous_rescorla_wagner_gaussian")
         # non hierarchical
         samples = fit_model(agent,
-                            @formula(learning_rate ~ age),
+                            @formula(learning_rate ~ 1),
                             example_data;
                             action_cols = [:actions],
                             input_cols = [:input],
@@ -125,7 +125,7 @@ using ActionModels
 
 
     @testset "new interface for statistical model - multiple formulas" begin
-        agent = premade_agent("continuous_rescorla_wagner")
+        agent = premade_agent("continuous_rescorla_wagner_gaussian")
 
         samples = fit_model(agent,
                             [(@formula(learning_rate ~ age + (1|id)), LogitNormal),

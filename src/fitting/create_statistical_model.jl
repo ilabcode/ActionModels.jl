@@ -17,7 +17,7 @@ function statistical_model_turingglm(
     formula::TuringGLM.FormulaTerm,
     data,
     link_function::Function = identity;
-    priors::TuringGLM.Prior = TuringGLM.DefaultPrior()
+    priors::RegressionPrior = RegressionPrior()
 ) where {T<:UnivariateDistribution}
     # extract X and Z ( y is the output that goes to the agent model )
     X = actionmodels_data_fixed_effects(formula, data)
@@ -25,11 +25,10 @@ function statistical_model_turingglm(
         Z = actionmodels_data_random_effects(formula, data)
     end
 
-    prior = _prior(priors)
     ranef = actionmodels_ranef(formula)
 
     model = if ranef === nothing
-        _model(prior, [], [], 0)
+        _model(priors, [], [], 0)
     else
         intercept_ranef = TuringGLM.intercept_per_ranef(ranef)
         group_var = first(ranef).rhs
@@ -39,7 +38,7 @@ function statistical_model_turingglm(
         n_gr = length(unique(idxs))
         # print for the user the idx
         println("The idx are $(last(idx))\n")
-        _model(prior, intercept_ranef, idxs, n_gr)
+        _model(priors, intercept_ranef, idxs, n_gr)
     end
 
     return (model, X)
@@ -49,33 +48,28 @@ end
 function _model(prior, intercept_ranef, idxs, n_gr)
     @model function linear_model(
         X;
-        n_predictors=size(X, 2),
+        n_β=size(X, 2),
         idxs=idxs,
         n_gr=n_gr,
         intercept_ranef=intercept_ranef,
         prior=prior,
     )
-        α ~ prior.intercept
-        if n_predictors != 0
-            β ~ TuringGLM.filldist(prior.predictors, n_predictors)
+        α ~ prior.α
+        if n_β != 0
+            β ~ TuringGLM.filldist(prior.β, n_β)
             agent_param = α .+ X * β
         else
             agent_param = α .+ repeat([0], size(X, 1))
         end
 
         if !isempty(intercept_ranef)
-            τ ~ truncated(TDist(3); lower=0)
+            τ ~ prior.τ
             zⱼ ~ filldist(Normal(), n_gr)
             agent_param = agent_param .+ τ .* getindex.((zⱼ,), idxs)
         end
         return agent_param
     end
 end
-
-function _prior(::DefaultPrior)
-    return CustomPrior(TDist(3), TDist(3), nothing)
-end
-
 
 
 ## custom shims for working around TuringGLM
