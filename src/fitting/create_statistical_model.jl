@@ -19,13 +19,14 @@ function _statistical_model_turingglm(
 # DONE: random intercepts (hint: construct model matrix somehow instead of modelmatrix(MixedEffects(@formula)), which expects y
     # DONE: expand to multiple formulas / flexible names
     # - DONE: parameters inside different statistical models gets overridden by each other!
-    # TODO: make LogitNormal save the param on the right scale
-    # TODO: think about tuple parameter names (ie initial values or HGF params)
+    # DONE: think about tuple parameter names (ie initial values or HGF params)
     # TODO: more functionality than turingGLM:
     # - random slopes
-    # - intercept-only model
-    # - better / custom priors
-    # TODO: check integration of the new functionality
+    # - (1.0) intercept-only model
+    # - (1.0) better / custom priors
+    # - MVLogitNormal distribution (make LogitNormal save the param on the right scale)
+    # TODO: (1.0) check integration of the new functionality
+    # - Example / usecase / tutorials
     # TODO: check if we can go back to turingglm._statistical_model_turingglm() with a few changes
 
     # extract y, X and Z
@@ -84,7 +85,6 @@ function _model(μ_X, σ_X, prior, intercept_ranef, idx, ::Type{Normal})
             zⱼ ~ filldist(Normal(), n_gr)
             μ = α .+ τ .* getindex.((zⱼ,), idxs) .+ X * β
         end
-        #TODO: implement random-effects slope
         agent_param ~ MvNormal(μ, σ^2 * I)
         return agent_param
     end

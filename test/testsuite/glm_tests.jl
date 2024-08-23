@@ -57,6 +57,28 @@ using ActionModels
     #                         independent_group_cols = [:id], action_cols = [:actions], input_cols = [:input])
     # end
 
+    @testset "new interface for statistical model - intercept only" begin
+        #prior = Dict("learning_rate" => Uniform(0, 1))
+        agent = premade_agent("continuous_rescorla_wagner")
+        # non hierarchical
+        samples = fit_model(agent,
+                            @formula(learning_rate ~ 1)
+                            example_data;
+                            action_cols = [:actions],
+                            input_cols = [:input])
+
+
+        @show summary(samples)
+
+    end
+    @testset "new interface for statistical model - intercept + random effect only" begin
+        # # hierarchical
+        samples = fit_model(agent, prior, example_data;
+                            action_cols = [:actions], input_cols = [:input],
+                            statistical_model = @formula(learning_rate ~ 1 + (1|id)))
+        @show summary(samples)
+    end
+
     @testset "new interface for statistical model - fixed effects" begin
         #prior = Dict("learning_rate" => Uniform(0, 1))
 
