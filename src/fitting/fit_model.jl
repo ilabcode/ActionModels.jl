@@ -382,3 +382,145 @@ function fit_model(
 
     return chains
 end
+
+
+#########################################
+### FITTING A DATAFRAME AND TuringGLM ###
+#########################################
+
+function fit_model(
+    agent_model::Agent,
+    statistical_model::Union{T, S, Vector{<:Union{T,S}}, Vector{Any}},
+    data,
+    priors::TuringGLM.Prior = TuringGLM.DefaultPrior();
+    input_cols::Union{Vector,String,Symbol},
+    action_cols::Union{Vector,String,Symbol},
+    grouping_cols::Union{Vector,String,Symbol},
+    sampler = NUTS(),
+    n_cores::Integer = 1,
+    n_iterations::Integer = 1000,
+    n_chains::Integer = 2,
+    verbose::Bool = true,
+    show_sample_rejections::Bool = false,
+    impute_missing_actions::Bool = false,
+    sampler_kwargs...,
+) where {T<:AbstractTerm, S<:Tuple{T, UnionAll}}
+
+    if statistical_model isa Vector{Any}
+        statistical_model = convert(Vector{Union{AbstractTerm, Tuple(AbstractTerm, UnionAll)}}, statistical_model)
+    end
+
+    input_cols = Symbol.(input_cols)
+    action_cols = Symbol.(action_cols)
+
+    _statistical_model = []
+
+
+
+
+    if !(statistical_model isa Vector)
+        statistical_model = [statistical_model]
+    end
+
+
+    for (i, sm) in enumerate(statistical_model)
+        if sm isa TuringGLM.FormulaTerm
+            push!(_statistical_model, (sm, Distributions.Normal))
+        else
+            push!(_statistical_model, sm)
+        end
+    end
+
+
+    # TODO
+    # prefit_checks(
+    #     agent_model = agent_model,
+    #     statistical_model = statistical_model,
+    #     data = data,
+    #     priors = priors,
+    #     input_cols = input_cols,
+    #     action_cols = action_cols,
+    #     n_cores = n_cores,
+    #     verbose = verbose,
+    # )
+
+    ## Set logger ##
+    #If sample rejection warnings are to be shown
+    if show_sample_rejections
+        #Use a standard logger
+        sampling_logger = Logging.SimpleLogger()
+    else
+        #Use a logger which ignores messages below error level
+        sampling_logger = Logging.SimpleLogger(Logging.Error)
+    end
+
+
+
+    inputs = []
+    actions = []
+    for (run_key, run_df) in pairs(groupby(data, :id))
+        push!(inputs, Array(run_df[:, input_cols]))
+        push!(actions, Array(run_df[:, action_cols]))
+    end
+
+    @show inputs
+    @show actions
+
+
+
+    # TODO: check if statistical models differ within time series (we assume they don't)
+    statistical_data = unique(data, grouping_cols)
+    statistical_submodels = []
+    param_values = Vector(undef, length(_statistical_model))
+    for (sm, likelihood) in _statistical_model
+        @show insertcols!(statistical_data, Symbol(sm.lhs) => 1)
+        push!(statistical_submodels, (string.(sm.lhs), ActionModels.statistical_model_turingglm(sm, statistical_data, model=likelihood)...))
+    end
+
+    agent_params = [Dict() for _ in 1:nrow(statistical_data)]
+    # statistical_params = [Dict() for _ in 1:length(statistical_submodels)]
+
+
+    @model function do_full_model(
+        agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params, param_values
+        )
+
+        for (param_idx, (param_name, statistical_submodel, X)) in enumerate(statistical_submodels)
+
+            @submodel prefix=string(param_name) param_values[param_idx] = statistical_submodel(X)
+            # @submodel param_values = statistical_submodel(X)
+
+            #for (agent_idx, param_value) in enumerate(@submodel statistical_submodel(X))
+            for (agent_idx, param_value) in enumerate(param_values[param_idx])
+                agent_params[agent_idx][param_name] = param_value
+            end
+        end
+
+        for (i, agent_param) in enumerate(agent_params)
+            set_parameters!(agent_model, agent_params[i])
+            reset!(agent_model)
+
+            for (timestep, input) in enumerate(inputs[i])
+                action_distribution = agent_model.action_model(agent_model, input)
+                actions[i][timestep] ~ action_distribution
+            end
+        end
+    end
+
+    full_model = do_full_model(agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params, param_values)
+    chains = sample(full_model, sampler, n_iterations)
+    replacement_names = Dict()
+    for (param_name, _, __) in statistical_submodels
+        for (idx, id) in enumerate(eachrow(statistical_data[!,grouping_cols]))
+            if length(grouping_cols) > 1
+                name_string = string(param_name) * "[$(Tuple(id))]"
+            else
+                name_string = string(param_name) * "[$(String(id[first(grouping_cols)]))]"
+            end
+            replacement_names[string(param_name) * ".agent_param[$idx]"] = name_string
+        end
+    end
+    return replacenames(chains, replacement_names)
+    # return chains
+
+end
