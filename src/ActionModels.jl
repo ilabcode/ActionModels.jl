@@ -36,6 +36,7 @@ include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
 include("fitting/fit_model.jl")
 include("fitting/prefit_checks.jl")
+include("fitting/parameter_recovery.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")
