@@ -9,7 +9,7 @@ permissions:
   pull-requests: write
 
 jobs:
-  dependabot-automerge:
+  CompatHelper-automerge:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'CompatHelper Julia'}}    
     
