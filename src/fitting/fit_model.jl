@@ -217,7 +217,7 @@ function fit_model(
             #Fit model to inputs and actions, as many separate chains as specified
             @showprogress map_function(
                 fit_info -> sample(
-                    create_agent_model(
+                    full_model(
                         agent,
                         fit_info.multilevel_parameters_info,
                         fit_info.agent_parameters_info,
@@ -242,7 +242,7 @@ function fit_model(
             #Fit model to inputs and actions, as many separate chains as specified
             map_function(
                 fit_info -> sample(
-                    create_agent_model(
+                    full_model(
                         agent,
                         fit_info.multilevel_parameters_info,
                         fit_info.agent_parameters_info,
