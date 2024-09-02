@@ -14,7 +14,7 @@ using Turing: DynamicPPL, AutoReverseDiff
 #Export functions
 export Agent, RejectParameters, GroupedParameters, Multilevel
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
-export create_agent_model, fit_model, parameter_recovery, single_recovery
+export full_model, simple_statistical_model, create_model, fit_model, parameter_recovery, single_recovery
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history,
@@ -44,6 +44,7 @@ include("fitting/create_model.jl")
 include("fitting/fit_model.jl")
 include("fitting/prefit_checks.jl")
 include("fitting/parameter_recovery.jl")
+include("fitting/turing_model.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")
