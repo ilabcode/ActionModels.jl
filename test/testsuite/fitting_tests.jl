@@ -27,6 +27,7 @@ using Turing: externalsampler
         n_chains = 1,
         n_iterations = 10,
         verbose = false,
+        show_progress = false,
     )
 
     plot(chains)
@@ -37,10 +38,6 @@ using Turing: externalsampler
 
 
 end
-
-
-
-
 
 @testset "fit full dataframe" begin
 
@@ -152,12 +149,11 @@ end
         n_cores = 2,
         n_iterations = 10,
         n_chains = 2,
-        progress = false,
         verbose = false,
+        show_progress = false,
     )
 
 end
-
 
 @testset "ensure parameters are reset after fitting" begin
 
@@ -179,6 +175,7 @@ end
         n_chains = 1,
         n_iterations = 10,
         verbose = false,
+        show_progress = false,
     )
 
     @test get_parameters(agent) == initial_parameters
@@ -205,8 +202,9 @@ end
         actions,
         n_chains = 1,
         n_iterations = 10,
-        verbose = false,
         sampler = rwmh,
+        verbose = false,
+        show_progress = false,
     )
 
 end
@@ -239,5 +237,13 @@ end
     priors = Dict("noise" => LogNormal(0.0, 1.0))
 
     #Fit
-    results = fit_model(agent, priors, inputs, actions, n_iterations = 40)
+    results = fit_model(
+        agent,
+        priors,
+        inputs,
+        actions,
+        n_iterations = 10,
+        verbose = false,
+        show_progress = false,
+    )
 end

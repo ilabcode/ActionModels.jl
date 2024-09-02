@@ -57,6 +57,7 @@ function fit_model(
     verbose::Bool = true,
     show_sample_rejections::Bool = false,
     impute_missing_actions::Bool = false,
+    show_progress::Bool = true,
     sampler_kwargs...,
 )
     ### SETUP ###
@@ -158,30 +159,11 @@ function fit_model(
     #If only one core has been specified, use sequential sampling
     if n_cores == 1
 
-        #Use the logger specified earlier
-        chains = Logging.with_logger(sampling_logger) do
+        #Set the map function to map
+        map_function = map
 
-            #Fit model to data, as many sets of fititng info as specified
-            map(
-                fit_info -> sample(
-                    create_agent_model(
-                        agent,
-                        fit_info.multilevel_parameters_info,
-                        fit_info.agent_parameters_info,
-                        fit_info.inputs,
-                        fit_info.actions,
-                        fit_info.multilevel_groups,
-                        multiple_inputs,
-                        multiple_actions,
-                        impute_missing_actions,
-                    ),
-                    sampler,
-                    n_iterations;
-                    sampler_kwargs...,
-                ),
-                fit_info_all,
-            )
-        end
+        #Set flag to not remove the workers later
+        remove_workers_at_end = false
 
         #Otherwise, use parallel sampling
     elseif n_cores > 1
@@ -223,11 +205,17 @@ function fit_model(
         @everywhere impute_missing_actions = $impute_missing_actions
         @everywhere sampler = $sampler
 
+        #Set the map function to pmap
+        map_function = pmap
+
+    end
+
+    #If progress is to be shown
+    if show_progress
         #Use the specified logger
         chains = Logging.with_logger(sampling_logger) do
-
             #Fit model to inputs and actions, as many separate chains as specified
-            pmap(
+            @showprogress map_function(
                 fit_info -> sample(
                     create_agent_model(
                         agent,
@@ -242,18 +230,43 @@ function fit_model(
                     ),
                     sampler,
                     n_iterations;
-                    save_state = false,
+                    progress = false,
                     sampler_kwargs...,
                 ),
                 fit_info_all,
             )
         end
-
-        #If workers are to be removed
-        if remove_workers_at_end
-            #Remove workers
-            rmprocs(workers())
+    else
+        #Use the specified logger
+        chains = Logging.with_logger(sampling_logger) do
+            #Fit model to inputs and actions, as many separate chains as specified
+            map_function(
+                fit_info -> sample(
+                    create_agent_model(
+                        agent,
+                        fit_info.multilevel_parameters_info,
+                        fit_info.agent_parameters_info,
+                        fit_info.inputs,
+                        fit_info.actions,
+                        fit_info.multilevel_groups,
+                        multiple_inputs,
+                        multiple_actions,
+                        impute_missing_actions,
+                    ),
+                    sampler,
+                    n_iterations;
+                    progress = false,
+                    sampler_kwargs...,
+                ),
+                fit_info_all,
+            )
         end
+    end
+
+    #If workers are to be removed
+    if remove_workers_at_end
+        #Remove workers
+        rmprocs(workers())
     end
 
     ### CLEANUP ###
@@ -344,6 +357,7 @@ function fit_model(
     verbose = true,
     show_sample_rejections = false,
     impute_missing_actions::Bool = false,
+    show_progress::Bool = true,
     sampler_kwargs...,
 )
 
@@ -377,6 +391,7 @@ function fit_model(
         verbose = verbose,
         show_sample_rejections = show_sample_rejections,
         impute_missing_actions = impute_missing_actions,
+        show_progress = show_progress,
         sampler_kwargs...,
     )
 
