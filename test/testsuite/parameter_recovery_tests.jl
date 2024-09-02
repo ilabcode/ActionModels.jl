@@ -46,6 +46,7 @@ using ActionModels, Distributions, Distributed
             priors,
             n_simulations,
             sampler_settings = sampler_settings,
+            show_progress = false,
         )
 
         @test results_df isa DataFrame
