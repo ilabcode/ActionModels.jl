@@ -11,7 +11,7 @@ If you wish to alter the fit_model() function to you own specific use case we ha
 we start by specifying function name and the inputs
 
 ````@example custom_fit_model
-@model function create_agent_model(
+@model function full_model(
     agent,
     param_priors,
     inputs,
@@ -218,7 +218,7 @@ function fit_model(
 
         ##Initialize Turing model
         model =
-            create_agent_model(agent, param_priors, actions, inputs, impute_missing_actions)
+            full_model(agent, param_priors, actions, inputs, impute_missing_actions)
 
         ##If sample rejection warnings are to be shown
         if show_sample_rejections
@@ -278,7 +278,7 @@ function fit_model(
             ##Fit model to inputs and actions, as many separate chains as specified
             chains = pmap(
                 i -> sample(
-                    create_agent_model(
+                    full_model(
                         agent,
                         param_priors,
                         inputs,
@@ -303,7 +303,7 @@ function fit_model(
                 ##Fit model to inputs and actions, as many separate chains as specified
                 pmap(
                     i -> sample(
-                        create_agent_model(
+                        full_model(
                             agent,
                             param_priors,
                             inputs,
