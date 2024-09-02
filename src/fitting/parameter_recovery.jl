@@ -3,13 +3,16 @@
 Function for performing a single parameter recovery (simulation and fitting)
 """
 function single_recovery(
-    agent::Agent,
+    original_agent::Agent,
     sampler_settings::NamedTuple,
     parameters::Dict,
     prior_and_idx::Tuple,
     input_sequence_and_idx::Tuple,
     simulation_idx::Int,
 )
+    #Make a copy of the original agent to avoid changing it
+    agent = deepcopy(original_agent)
+
     #Extract the prior and input sequence
     prior_idx, prior = prior_and_idx
     input_sequence_idx, input_sequence = input_sequence_and_idx
