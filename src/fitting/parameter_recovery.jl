@@ -93,6 +93,7 @@ function parameter_recovery(
     n_simulations::Int;
     sampler_settings::NamedTuple = (),
     parallel::Bool = false,
+    show_progress::Bool = true,
 ) where {K<:Any,D<:Distribution,P<:Dict{K,D},V<:Any}
 
     ## - Format input - ##
@@ -149,11 +150,20 @@ function parameter_recovery(
         map_function = map
     end
 
-    #Run simulations and parameter fits in parallel
-    outcome = @showprogress map_function(
-        recovery_info -> single_recovery(agent, sampler_settings, recovery_info...),
-        recovery_infos,
-    )
+    #Toggle whether to show progress bar
+    if show_progress
+        #Run simulations and parameter fits in parallel
+        outcome = @showprogress map_function(
+            recovery_info -> single_recovery(agent, sampler_settings, recovery_info...),
+            recovery_infos,
+        )
+    else
+        #Run simulations and parameter fits in parallel
+        outcome = map_function(
+            recovery_info -> single_recovery(agent, sampler_settings, recovery_info...),
+            recovery_infos,
+        )
+    end
 
     # Concatenate the outcomes into a single dataframe
     outcome = vcat(outcome...)

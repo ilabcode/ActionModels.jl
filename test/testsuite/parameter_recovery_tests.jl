@@ -102,6 +102,7 @@ using ActionModels, Distributions, Distributed
             n_simulations,
             sampler_settings = sampler_settings,
             parallel = true,
+            show_progress = false,
         )
 
         rmprocs(workers())
