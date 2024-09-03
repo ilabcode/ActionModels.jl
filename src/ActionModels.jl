@@ -7,7 +7,7 @@ using ForwardDiff,
     ReverseDiff, Distributions, DataFrames, RecipesBase, Logging, Distributed, ProgressMeter
 using Turing: DynamicPPL, AutoReverseDiff
 #Export functions
-export Agent, RejectParameters, GroupedParameters, Multilevel
+export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
 export full_model,
     simple_statistical_model, create_model, fit_model, parameter_recovery, single_recovery
@@ -16,7 +16,6 @@ export plot_parameter_distribution,
 export get_history,
     get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
 export get_posteriors, update_states!, set_save_history!
-export InitialStateParameter, ParameterGroup
 
 #Load premade agents
 function __init__()
@@ -37,10 +36,10 @@ include("create_agent/check_agent.jl")
 #Functions for fitting agents to data
 include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
+include("fitting/simple_statistical_model.jl")
+include("fitting/parameter_recovery.jl")
 include("fitting/fit_model.jl")
 include("fitting/prefit_checks.jl")
-include("fitting/parameter_recovery.jl")
-include("fitting/turing_model.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")
