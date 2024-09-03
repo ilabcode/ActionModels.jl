@@ -14,8 +14,8 @@ export full_model,
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history,
-    get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
-export get_posteriors, update_states!, set_save_history!
+    get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!, set_save_history!
+export get_posteriors, extract_quantities, rename_chains, update_states!
 
 #Load premade agents
 function __init__()
