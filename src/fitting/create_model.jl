@@ -41,70 +41,123 @@ function create_model(
     return full_model(agent_model, statistical_model, inputs, actions, track_states)
 end
 
-############################################################################################################
-### FUNCTION FOR CREATING A CONDITIONED TURING MODEL FROM AN AGENT, A DATAFRAME AND A SINGLE-AGENT PRIOR ###
-############################################################################################################
-function create_model(
+###################################################################
+### FUNCTION FOR DOING FULL AGENT AND STATISTICAL MODEL COMBINE ###
+###################################################################
+@model function full_model(
     agent::Agent,
-    prior::Dict{T,D},
-    data::DataFrame;
-    input_cols::Union{Vector{T1},T1},
-    action_cols::Union{Vector{T2},T3},
-    grouping_cols::Union{Vector{T3},T3},
+    statistical_model::DynamicPPL.Model,
+    inputs::Array{IA},
+    actions::Array{AA},
     track_states::Bool = false,
-) where {
-    T<:Union{String,Tuple,Any},
-    D<:Distribution,
-    T1<:Union{String,Symbol},
-    T2<:Union{String,Symbol},
-    T3<:Union{String,Symbol},
-}
+    multiple_inputs::Bool = size(inputs, 2) > 1,
+    multiple_actions::Bool = size(actions, 2) > 1,
+) where {IAR<:Real,AAR<:Real,IA<:Array{IAR},AA<:Array{AAR}}
 
-    #Get number of agents in the dataframe
-    n_agents = length(groupby(data, grouping_cols))
+    #Check whether errors occur
+    try
 
-    #Create a statistical model where the agents are independent and sampled from the same prior
-    statistical_model = simple_statistical_model(prior, n_agents)
+        #Generate the agent parameters from the statistical model
+        @submodel (agents_parameters, statistical_values) = statistical_model
 
-    #Create a full model combining the agent model and the statistical model
-    return create_model(
-        agent,
-        statistical_model,
-        data;
-        input_cols = input_cols,
-        action_cols = action_cols,
-        grouping_cols = grouping_cols,
-        track_states = track_states,
-    )
-end
+        #If states are tracked
+        if track_states
+            #Initialize a vector for storing the states of the agents
+            agents_states = Vector{Dict}(undef, length(agents_parameters))
+            parameters_per_agent = Vector{Dict}(undef, length(agents_parameters))
+        else
+            agents_states = nothing
+            parameters_per_agent = nothing
+        end
 
-#######################################################################################################################
-### FUNCTION FOR CREATING A CONDITIONED TURING MODEL FROM AN AGENT, A INPUT/OUTPUT SEQUENCE, AND SINGLE-AGENT PRIOR ###
-#######################################################################################################################
-function create_model(
-    agent::Agent,
-    prior::Dict{T,D},
-    inputs::Array{T1},
-    actions::Array{T2},
-    track_states::Bool = false,
-) where {T<:Union{String,Tuple,Any},D<:Distribution,T1<:Real,T2<:Real}
+        ## For each agent ##
+        for (agent_idx, agent_parameters) in enumerate(agents_parameters)
 
-    #Create column names
-    input_cols = map(x -> "input$x", 1:size(inputs, 2))
-    action_cols = map(x -> "action$x", 1:size(actions, 2))
-    grouping_cols = Vector{Nothing}()
+            #Set the agent parameters
+            set_parameters!(agent, agent_parameters)
+            reset!(agent)
 
-    #Create dataframe of the inputs and actions
-    data = DataFrame(hcat(inputs, actions), vcat(input_cols, action_cols))
+            ## Construct input iterator ##
+            #If there is only one input
+            if !multiple_inputs
+                #Iterate over inputs one at a time
+                input_iterator = enumerate(inputs[agent_idx])
+            else
+                #Iterate over rows of inputs
+                input_iterator = enumerate(Vector.(eachrow(inputs[agent_idx])))
+            end
 
-    #Create a full model combining the agent model and the statistical model
-    return create_model(
-        agent,
-        prior,
-        data;
-        input_cols = input_cols,
-        action_cols = action_cols,
-        grouping_cols = grouping_cols,
-        track_states = track_states,
-    )
+            #Go through each timestep 
+            for (timestep, input) in input_iterator
+
+                ## Sample actions ##
+
+                #Get the action probability distributions from the action model
+                action_distribution = agent.action_model(agent, input)
+
+                #If there is only one action
+                if !multiple_actions
+
+                    #Sample the action from the probability distribution
+                    @inbounds actions[agent_idx][timestep] ~ action_distribution
+
+                    #Save the action to the agent in case it needs it in the future
+                    @inbounds update_states!(
+                        agent,
+                        "action",
+                        ad_val.(actions[agent_idx][timestep]),
+                    )
+
+                    #If there are multiple actions
+                else
+                    #Go through each separate action
+                    for (action_idx, single_distribution) in enumerate(action_distribution)
+
+                        #Sample the action from the probability distribution
+                        @inbounds actions[agent_idx][timestep, action_idx] ~
+                            single_distribution
+                    end
+
+                    #Add the actions to the agent in case it needs it in the future
+                    @inbounds update_states!(
+                        agent,
+                        "action",
+                        ad_val.(actions[agent_idx][timestep, :]),
+                    )
+                end
+            end
+
+            #If states are tracked
+            if track_states
+                #Save the parameters of the agent
+                parameters_per_agent[agent_idx] = get_parameters(agent)
+                #Save the history of tracked states for the agent
+                agents_states[agent_idx] = get_history(agent)
+            end
+        end
+
+        #if states are tracked
+        if track_states
+            #Return agents' parameters and tracked states
+            return (
+                agent_parameters = parameters_per_agent,
+                agent_states = agents_states,
+                statistical_values = statistical_values,
+            )
+        else
+            #Otherwise, return nothing
+            return nothing
+        end
+
+        #If an error occurs
+    catch error
+        #If it is of the custom errortype RejectParameters
+        if error isa RejectParameters
+            #Make Turing reject the sample
+            Turing.@addlogprob!(-Inf)
+        else
+            #Otherwise, just throw the error
+            rethrow(error)
+        end
+    end
 end
