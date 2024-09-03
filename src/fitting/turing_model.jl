@@ -4,19 +4,26 @@
     statistical_model::DynamicPPL.Model,
     inputs::Array{IA},
     actions::Array{AA},
-    tracked_states::Union{Vector{PRM},Nothing} = nothing,
+    track_states::Bool = false,
     multiple_inputs::Bool = size(inputs, 2) > 1,
     multiple_actions::Bool = size(actions, 2) > 1,
-) where {IAR<:Real,AAR<:Real,IA<:Array{IAR},AA<:Array{AAR},PRM<:Union{String,Tuple}}
+) where {IAR<:Real,AAR<:Real,IA<:Array{IAR},AA<:Array{AAR}}
 
     #Check whether errors occur
     try
 
         #Generate the agent parameters from the statistical model
-        @submodel agents_parameters = statistical_model
+        @submodel (agents_parameters, statistical_values) = statistical_model
 
-        #Initialize a vector for storing the states of the agents
-        agents_states = Vector{Dict}(undef, length(agents_parameters))
+
+        #If states are tracked
+        if track_states
+            #Initialize a vector for storing the states of the agents
+            agents_states = Vector{Dict}(undef, length(agents_parameters))
+        else
+            agents_states = nothing
+        end
+
 
         ## For each agent ##
         for (agent_idx, agent_parameters) in enumerate(agents_parameters)
@@ -50,7 +57,11 @@
                     @inbounds actions[agent_idx][timestep] ~ action_distribution
 
                     #Save the action to the agent in case it needs it in the future
-                    @inbounds agent.states["action"] = ad_val(actions[agent_idx][timestep])
+                    @inbounds update_states!(
+                        agent,
+                        "action",
+                        ad_val.(actions[agent_idx][timestep]),
+                    )
 
                     #If there are multiple actions
                 else
@@ -63,20 +74,28 @@
                     end
 
                     #Add the actions to the agent in case it needs it in the future
-                    @inbounds agent.states["action"] =
-                        ad_val.(actions[agent_idx][timestep, :])
+                    @inbounds update_states!(
+                        agent,
+                        "action",
+                        ad_val.(actions[agent_idx][timestep, :]),
+                    )
                 end
             end
 
             #If states are tracked
-            if !isnothing(tracked_states)
+            if track_states
                 #Save the history of tracked states for the agent
-                push!(agents_states, get_hisory(agent, tracked_states))
+                #push!(agents_states, get_history(agent))
+                agents_states[agent_idx] = get_history(agent)
             end
         end
 
         #Return agents' parameters and tracked states
-        return [agents_parameters, agents_states]
+        return (
+            agent_parameters = agents_parameters,
+            agent_states = agents_states,
+            statistical_values = statistical_values,
+        )
 
         #If an error occurs
     catch error
@@ -120,5 +139,5 @@ end
         end
     end
 
-    return agent_parameters
+    return agent_parameters, nothing
 end

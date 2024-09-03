@@ -8,16 +8,20 @@ function create_model(
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3},
-    tracked_states::Union{Vector{PRM},Nothing} = nothing,
-) where {
-    T1<:Union{String,Symbol},
-    T2<:Union{String,Symbol},
-    T3<:Union{String,Symbol},
-    PRM<:Union{String,Tuple},
-}
+    track_states::Bool = false,
+) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 
     #Create a copy of the agent to avoid changing the original 
     agent_model = deepcopy(agent)
+
+    #If states are to be tracked
+    if track_states
+        #Make sure the agent saves the history
+        set_save_history!(agent_model, true)
+    else
+        #Otherwise not
+        set_save_history!(agent_model, false)
+    end
 
     # Convert column names to symbols
     input_cols = Symbol.(input_cols)
@@ -34,7 +38,7 @@ function create_model(
     end
 
     #Create a full model combining the agent model and the statistical model
-    return full_model(agent_model, statistical_model, inputs, actions, tracked_states)
+    return full_model(agent_model, statistical_model, inputs, actions, track_states)
 end
 
 ############################################################################################################
@@ -47,14 +51,13 @@ function create_model(
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3},
-    tracked_states::Union{Vector{PRM},Nothing} = nothing,
+    track_states::Bool = false,
 ) where {
     T<:Union{String,Tuple,Any},
     D<:Distribution,
     T1<:Union{String,Symbol},
     T2<:Union{String,Symbol},
     T3<:Union{String,Symbol},
-    PRM<:Union{String,Tuple},
 }
 
     #Get number of agents in the dataframe
@@ -71,7 +74,7 @@ function create_model(
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
-        tracked_states = tracked_states,
+        track_states = track_states,
     )
 end
 
@@ -83,14 +86,8 @@ function create_model(
     prior::Dict{T,D},
     inputs::Array{T1},
     actions::Array{T2},
-    tracked_states::Union{Vector{PRM},Nothing} = nothing,
-) where {
-    T<:Union{String,Tuple,Any},
-    D<:Distribution,
-    T1<:Real,
-    T2<:Real,
-    PRM<:Union{String,Tuple},
-}
+    track_states::Bool = false,
+) where {T<:Union{String,Tuple,Any},D<:Distribution,T1<:Real,T2<:Real}
 
     #Create column names
     input_cols = map(x -> "input$x", 1:size(inputs, 2))
@@ -108,6 +105,6 @@ function create_model(
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
-        tracked_states = tracked_states,
+        track_states = track_states,
     )
 end
