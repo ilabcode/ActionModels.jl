@@ -15,15 +15,15 @@
         #Generate the agent parameters from the statistical model
         @submodel (agents_parameters, statistical_values) = statistical_model
 
-
         #If states are tracked
         if track_states
             #Initialize a vector for storing the states of the agents
             agents_states = Vector{Dict}(undef, length(agents_parameters))
+            parameters_per_agent = Vector{Dict}(undef, length(agents_parameters))
         else
             agents_states = nothing
+            parameters_per_agent = nothing
         end
-
 
         ## For each agent ##
         for (agent_idx, agent_parameters) in enumerate(agents_parameters)
@@ -57,11 +57,7 @@
                     @inbounds actions[agent_idx][timestep] ~ action_distribution
 
                     #Save the action to the agent in case it needs it in the future
-                    @inbounds update_states!(
-                        agent,
-                        "action",
-                        ad_val.(actions[agent_idx][timestep]),
-                    )
+                    @inbounds update_states!(agent, "action", ad_val.(actions[agent_idx][timestep]))
 
                     #If there are multiple actions
                 else
@@ -74,28 +70,27 @@
                     end
 
                     #Add the actions to the agent in case it needs it in the future
-                    @inbounds update_states!(
-                        agent,
-                        "action",
-                        ad_val.(actions[agent_idx][timestep, :]),
-                    )
+                    @inbounds update_states!(agent, "action", ad_val.(actions[agent_idx][timestep, :]))
                 end
             end
 
             #If states are tracked
             if track_states
+                #Save the parameters of the agent
+                parameters_per_agent[agent_idx] = get_parameters(agent)
                 #Save the history of tracked states for the agent
-                #push!(agents_states, get_history(agent))
                 agents_states[agent_idx] = get_history(agent)
             end
         end
 
-        #Return agents' parameters and tracked states
-        return (
-            agent_parameters = agents_parameters,
-            agent_states = agents_states,
-            statistical_values = statistical_values,
-        )
+        #if states are tracked
+        if track_states
+            #Return agents' parameters and tracked states
+            return (agent_parameters = parameters_per_agent, agent_states = agents_states, statistical_values = statistical_values)
+        else
+            #Otherwise, return nothing
+            return nothing
+        end
 
         #If an error occurs
     catch error
