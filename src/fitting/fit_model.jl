@@ -62,248 +62,166 @@ function fit_model(
 )
     ### SETUP ###
 
-    #Convert column names to symbols
-    independent_group_cols = Symbol.(independent_group_cols)
-    multilevel_group_cols = Symbol.(multilevel_group_cols)
-    input_cols = Symbol.(input_cols)
-    action_cols = Symbol.(action_cols)
+    # ## Set logger ##
+    # #If sample rejection warnings are to be shown
+    # if show_sample_rejections
+    #     #Use a standard logger
+    #     sampling_logger = Logging.SimpleLogger()
+    # else
+    #     #Use a logger which ignores messages below error level
+    #     sampling_logger = Logging.SimpleLogger(Logging.Error)
+    # end
 
-    ## Copy the agent to avoid changing the original ##
-    agent = deepcopy(original_agent)
 
-    ## Run checks ##
-    prefit_checks(
-        agent = agent,
-        data = data,
-        priors = priors,
-        independent_group_cols = independent_group_cols,
-        multilevel_group_cols = multilevel_group_cols,
-        input_cols = input_cols,
-        action_cols = action_cols,
-        fixed_parameters = fixed_parameters,
-        n_cores = n_cores,
-        verbose = verbose,
-    )
+    # ### FIT MODEL ###
+    # #If only one core has been specified, use sequential sampling
+    # if n_cores == 1
 
-    ## Set save_history to false ##
-    set_save_history!(agent, false)
+    #     #Set the map function to map
+    #     map_function = map
 
-    ## Set fixed parameters to agent ##
-    set_parameters!(agent, fixed_parameters)
+    #     #Set flag to not remove the workers later
+    #     remove_workers_at_end = false
 
-    ## Set logger ##
-    #If sample rejection warnings are to be shown
-    if show_sample_rejections
-        #Use a standard logger
-        sampling_logger = Logging.SimpleLogger()
-    else
-        #Use a logger which ignores messages below error level
-        sampling_logger = Logging.SimpleLogger(Logging.Error)
-    end
+    #     #Otherwise, use parallel sampling
+    # elseif n_cores > 1
 
-    ## Store whether there are multiple inputs and actions ##
-    multiple_inputs = length(input_cols) > 1
-    multiple_actions = length(action_cols) > 1
+    #     #If the user has not already created processses
+    #     if length(procs()) == 1
+    #         #Add worker processes
+    #         addprocs(n_cores, exeflags = "--project")
 
-    ## Structure multilevel parameter information ##
-    general_parameters_info = extract_structured_parameter_info(;
-        priors = priors,
-        multilevel_group_cols = multilevel_group_cols,
-    )
+    #         #Set flag to remove the workers later
+    #         remove_workers_at_end = true
 
-    ## Structure data ##
-    #Group data into independent groups
-    independence_grouped_dataframe = groupby(data, independent_group_cols)
+    #         #Otherwise
+    #     else
+    #         #Warn them that ActionModels is using the workers already created
+    #         @warn """
+    #         n_cores was set to > 1, but workers have already been created. No new workers were created, and the existing ones are used for parallelization.
+    #         Note that the following variable names are broadcast to the workers:
+    #         agent fit_info_all multiple_inputs multiple_actions impute_missing_actions sampler
+    #         """
+    #         #Set flag to not remove the workers later
+    #         remove_workers_at_end = false
+    #     end
 
-    #Initialize vectors of independent datasets and their keys
-    independent_groups_keys = []
-    independent_groups_info = []
+    #     #Load ActionModels, Turing and sister packages on worker processes
+    #     @everywhere @eval using ActionModels, Turing
+    #     if @isdefined HierarchicalGaussianFiltering
+    #         @everywhere @eval using HierarchicalGaussianFiltering
+    #     end
+    #     if @isdefined ActiveInference
+    #         @everywhere @eval using ActiveInference
+    #     end
 
-    #Go through data for each independent group
-    for (independent_group_key, independent_group_data) in
-        pairs(independence_grouped_dataframe)
+    #     #Broadcast necessary information to workers
+    #     @everywhere agent = $agent
+    #     @everywhere fit_info_all = $fit_info_all
+    #     @everywhere multiple_inputs = $multiple_inputs
+    #     @everywhere multiple_actions = $multiple_actions
+    #     @everywhere impute_missing_actions = $impute_missing_actions
+    #     @everywhere sampler = $sampler
 
-        ## Get the key for the independent group ##
-        #If there is only independent group distinction
-        if length(independent_group_cols) == 1
+    #     #Set the map function to pmap
+    #     map_function = pmap
 
-            #Get out that group level as key
-            independent_group_key = independent_group_data[1, first(independent_group_cols)]
+    # end
 
-            #If there are multiple
-        else
-            #Save the key for the independent group as a tuple
-            independent_group_key = Tuple(independent_group_data[1, independent_group_cols])
-        end
+    # #If progress is to be shown
+    # if show_progress
+    #     #Use the specified logger
+    #     chains = Logging.with_logger(sampling_logger) do
+    #         #Fit model to inputs and actions, as many separate chains as specified
+    #         @showprogress map_function(
+    #             fit_info -> sample(
+    #                 full_model(
+    #                     agent,
+    #                     fit_info.multilevel_parameters_info,
+    #                     fit_info.agent_parameters_info,
+    #                     fit_info.inputs,
+    #                     fit_info.actions,
+    #                     fit_info.multilevel_groups,
+    #                     multiple_inputs,
+    #                     multiple_actions,
+    #                     impute_missing_actions,
+    #                 ),
+    #                 sampler,
+    #                 n_iterations;
+    #                 progress = false,
+    #                 sampler_kwargs...,
+    #             ),
+    #             fit_info_all,
+    #         )
+    #     end
+    # else
+    #     #Use the specified logger
+    #     chains = Logging.with_logger(sampling_logger) do
+    #         #Fit model to inputs and actions, as many separate chains as specified
+    #         map_function(
+    #             fit_info -> sample(
+    #                 full_model(
+    #                     agent,
+    #                     fit_info.multilevel_parameters_info,
+    #                     fit_info.agent_parameters_info,
+    #                     fit_info.inputs,
+    #                     fit_info.actions,
+    #                     fit_info.multilevel_groups,
+    #                     multiple_inputs,
+    #                     multiple_actions,
+    #                     impute_missing_actions,
+    #                 ),
+    #                 sampler,
+    #                 n_iterations;
+    #                 progress = false,
+    #                 sampler_kwargs...,
+    #             ),
+    #             fit_info_all,
+    #         )
+    #     end
+    # end
 
-        #Add it as a key
-        push!(independent_groups_keys, independent_group_key)
+    # #If workers are to be removed
+    # if remove_workers_at_end
+    #     #Remove workers
+    #     rmprocs(workers())
+    # end
 
-        #Extract and save data as dicts of multilevel grouped arrays
-        push!(
-            independent_groups_info,
-            extract_structured_data(
-                data = independent_group_data,
-                multilevel_group_cols = multilevel_group_cols,
-                input_cols = input_cols,
-                action_cols = action_cols,
-                general_parameters_info = general_parameters_info,
-            ),
-        )
-    end
+    # ### CLEANUP ###
 
-    ## Copy the fitting info for each chain that is to be sampled ##
-    fit_info_all = repeat(independent_groups_info, n_chains)
+    # ## Combine chains correctly ##
+    # #If there was only one dataset to be fit
+    # if length(independent_group_cols) == 0
 
-    ### FIT MODEL ###
-    #If only one core has been specified, use sequential sampling
-    if n_cores == 1
+    #     #Concatenate all the chains together
+    #     results = chainscat(chains...)
 
-        #Set the map function to map
-        map_function = map
+    #     #Rename parameter names
+    #     results = rename_chains(results, first(independent_groups_info))
 
-        #Set flag to not remove the workers later
-        remove_workers_at_end = false
+    #     #If there were multiple independent groups
+    # else
 
-        #Otherwise, use parallel sampling
-    elseif n_cores > 1
+    #     #Initialize dictionary for results for each group
+    #     results = Dict()
 
-        #If the user has not already created processses
-        if length(procs()) == 1
-            #Add worker processes
-            addprocs(n_cores, exeflags = "--project")
+    #     #Go through each independent group
+    #     for (group_indx, (independent_group_key, independent_group_info)) in
+    #         enumerate(zip(independent_groups_keys, independent_groups_info))
 
-            #Set flag to remove the workers later
-            remove_workers_at_end = true
+    #         #Get the chains belonging to that group and concatenate them
+    #         group_chains =
+    #             chainscat(chains[group_indx:length(independent_groups_info):end]...)
 
-            #Otherwise
-        else
-            #Warn them that ActionModels is using the workers already created
-            @warn """
-            n_cores was set to > 1, but workers have already been created. No new workers were created, and the existing ones are used for parallelization.
-            Note that the following variable names are broadcast to the workers:
-            agent fit_info_all multiple_inputs multiple_actions impute_missing_actions sampler
-            """
-            #Set flag to not remove the workers later
-            remove_workers_at_end = false
-        end
+    #         #Rename parameter names
+    #         group_chains = rename_chains(group_chains, independent_group_info)
 
-        #Load ActionModels, Turing and sister packages on worker processes
-        @everywhere @eval using ActionModels, Turing
-        if @isdefined HierarchicalGaussianFiltering
-            @everywhere @eval using HierarchicalGaussianFiltering
-        end
-        if @isdefined ActiveInference
-            @everywhere @eval using ActiveInference
-        end
+    #         #Concatenate them, and store them
+    #         results[independent_group_key] = group_chains
+    #     end
+    # end
 
-        #Broadcast necessary information to workers
-        @everywhere agent = $agent
-        @everywhere fit_info_all = $fit_info_all
-        @everywhere multiple_inputs = $multiple_inputs
-        @everywhere multiple_actions = $multiple_actions
-        @everywhere impute_missing_actions = $impute_missing_actions
-        @everywhere sampler = $sampler
-
-        #Set the map function to pmap
-        map_function = pmap
-
-    end
-
-    #If progress is to be shown
-    if show_progress
-        #Use the specified logger
-        chains = Logging.with_logger(sampling_logger) do
-            #Fit model to inputs and actions, as many separate chains as specified
-            @showprogress map_function(
-                fit_info -> sample(
-                    full_model(
-                        agent,
-                        fit_info.multilevel_parameters_info,
-                        fit_info.agent_parameters_info,
-                        fit_info.inputs,
-                        fit_info.actions,
-                        fit_info.multilevel_groups,
-                        multiple_inputs,
-                        multiple_actions,
-                        impute_missing_actions,
-                    ),
-                    sampler,
-                    n_iterations;
-                    progress = false,
-                    sampler_kwargs...,
-                ),
-                fit_info_all,
-            )
-        end
-    else
-        #Use the specified logger
-        chains = Logging.with_logger(sampling_logger) do
-            #Fit model to inputs and actions, as many separate chains as specified
-            map_function(
-                fit_info -> sample(
-                    full_model(
-                        agent,
-                        fit_info.multilevel_parameters_info,
-                        fit_info.agent_parameters_info,
-                        fit_info.inputs,
-                        fit_info.actions,
-                        fit_info.multilevel_groups,
-                        multiple_inputs,
-                        multiple_actions,
-                        impute_missing_actions,
-                    ),
-                    sampler,
-                    n_iterations;
-                    progress = false,
-                    sampler_kwargs...,
-                ),
-                fit_info_all,
-            )
-        end
-    end
-
-    #If workers are to be removed
-    if remove_workers_at_end
-        #Remove workers
-        rmprocs(workers())
-    end
-
-    ### CLEANUP ###
-
-    ## Combine chains correctly ##
-    #If there was only one dataset to be fit
-    if length(independent_group_cols) == 0
-
-        #Concatenate all the chains together
-        results = chainscat(chains...)
-
-        #Rename parameter names
-        results = rename_chains(results, first(independent_groups_info))
-
-        #If there were multiple independent groups
-    else
-
-        #Initialize dictionary for results for each group
-        results = Dict()
-
-        #Go through each independent group
-        for (group_indx, (independent_group_key, independent_group_info)) in
-            enumerate(zip(independent_groups_keys, independent_groups_info))
-
-            #Get the chains belonging to that group and concatenate them
-            group_chains =
-                chainscat(chains[group_indx:length(independent_groups_info):end]...)
-
-            #Rename parameter names
-            group_chains = rename_chains(group_chains, independent_group_info)
-
-            #Concatenate them, and store them
-            results[independent_group_key] = group_chains
-        end
-    end
-
-    return results
+    # return results
 end
 
 
