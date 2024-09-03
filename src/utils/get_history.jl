@@ -56,11 +56,8 @@ end
 ### Function for getting all states ###
 function get_history(agent::Agent)
 
-    #Get all states names in the agent's history
-    target_states = collect(keys(agent.history))
-
     #Get the agent's states' histories
-    state_histories = get_history(agent, target_states)
+    state_histories = agent.history
 
     #Get state histories from the substruct
     substruct_state_histories = get_history(agent.substruct)
