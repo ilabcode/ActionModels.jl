@@ -2,6 +2,8 @@ module ActionModels
 
 #Load packages
 using ReverseDiff,
+    DynamicPPL,
+    AutoReverseDiff,
     Turing,
     ForwardDiff,
     Distributions,
@@ -10,7 +12,6 @@ using ReverseDiff,
     Logging,
     Distributed,
     ProgressMeter
-using Turing: DynamicPPL, AutoReverseDiff
 #Export functions
 export Agent, RejectParameters, GroupedParameters, Multilevel
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
