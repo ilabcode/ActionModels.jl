@@ -57,7 +57,11 @@
                     @inbounds actions[agent_idx][timestep] ~ action_distribution
 
                     #Save the action to the agent in case it needs it in the future
-                    @inbounds update_states!(agent, "action", ad_val.(actions[agent_idx][timestep]))
+                    @inbounds update_states!(
+                        agent,
+                        "action",
+                        ad_val.(actions[agent_idx][timestep]),
+                    )
 
                     #If there are multiple actions
                 else
@@ -70,7 +74,11 @@
                     end
 
                     #Add the actions to the agent in case it needs it in the future
-                    @inbounds update_states!(agent, "action", ad_val.(actions[agent_idx][timestep, :]))
+                    @inbounds update_states!(
+                        agent,
+                        "action",
+                        ad_val.(actions[agent_idx][timestep, :]),
+                    )
                 end
             end
 
@@ -86,7 +94,11 @@
         #if states are tracked
         if track_states
             #Return agents' parameters and tracked states
-            return (agent_parameters = parameters_per_agent, agent_states = agents_states, statistical_values = statistical_values)
+            return (
+                agent_parameters = parameters_per_agent,
+                agent_states = agents_states,
+                statistical_values = statistical_values,
+            )
         else
             #Otherwise, return nothing
             return nothing
