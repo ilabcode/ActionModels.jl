@@ -39,7 +39,7 @@ function create_model(
     prior::Dict{T,D},
     data::DataFrame;
     input_cols::Union{Vector{T1},T1},
-    action_cols::Union{Vector{T2},T3},
+    action_cols::Union{Vector{T2},T2},
     grouping_cols::Union{Vector{T3},T3},
     track_states::Bool = false,
 ) where {
@@ -77,7 +77,7 @@ function create_model(
     inputs::Array{T1},
     actions::Array{T2},
     track_states::Bool = false,
-) where {T<:Union{String,Tuple,Any},D<:Distribution,T1<:Real,T2<:Real}
+) where {T<:Union{String,Tuple,Any},D<:Distribution,T1<:Union{Real, Missing},T2<:Union{Real, Missing}}
 
     #Create column names
     input_cols = map(x -> "input$x", 1:size(inputs, 2))

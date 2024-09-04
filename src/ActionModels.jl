@@ -5,7 +5,7 @@ using Reexport
 @reexport using Turing
 using ForwardDiff,
     ReverseDiff, Distributions, DataFrames, RecipesBase, Logging, Distributed, ProgressMeter
-using Turing: DynamicPPL, AutoReverseDiff
+using Turing: DynamicPPL, AutoReverseDiff, AbstractMCMC
 #Export functions
 export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
@@ -43,9 +43,9 @@ include("create_agent/check_agent.jl")
 include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
 include("fitting/simple_statistical_model.jl")
-include("fitting/parameter_recovery.jl")
-include("fitting/fit_model.jl")
-include("fitting/prefit_checks.jl")
+#include("fitting/parameter_recovery.jl")
+#include("fitting/fit_model.jl")
+#include("fitting/prefit_checks.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")

@@ -30,11 +30,11 @@ function create_model(
 
     ## Extract data ##
     #One matrix per agent, for inputs and actions separately
-    inputs = Vector{Array{Real}}()
-    actions = Vector{Array{Real}}()
+    inputs = Vector{Array{Union{Real,Missing}}}()
+    actions = Vector{Array{Union{Real,Missing}}}()
     for agent_data in groupby(data, grouping_cols)
-        push!(inputs, Array{Real}(agent_data[:, input_cols]))
-        push!(actions, Array{Real}(agent_data[:, action_cols]))
+        push!(inputs, Array{Union{Real,Missing}}(agent_data[:, input_cols]))
+        push!(actions, Array{Union{Real,Missing}}(agent_data[:, action_cols]))
     end
 
     #Create a full model combining the agent model and the statistical model
@@ -52,7 +52,7 @@ end
     track_states::Bool = false,
     multiple_inputs::Bool = size(inputs, 2) > 1,
     multiple_actions::Bool = size(actions, 2) > 1,
-) where {IAR<:Real,AAR<:Real,IA<:Array{IAR},AA<:Array{AAR}}
+) where {IAR<:Union{Real,Missing},AAR<:Union{Real,Missing},IA<:Array{IAR},AA<:Array{AAR}}
 
     #Check whether errors occur
     try
@@ -145,6 +145,7 @@ end
                 statistical_values = statistical_values,
             )
         else
+
             #Otherwise, return nothing
             return nothing
         end

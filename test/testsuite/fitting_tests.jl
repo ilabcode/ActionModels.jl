@@ -9,6 +9,47 @@ using StatsPlots
 using Turing: externalsampler
 
 
+@testset "fitting tests" begin
+    
+    @testset "single agent" begin
+        
+    end
+
+    @testset "simple statistical model" begin
+        
+    end
+
+    @testset "custom statistical model" begin
+        
+    end
+
+    @testset "missing actions" begin
+        
+    end
+
+    @testset "multiple actions" begin
+        
+    end
+
+    @testset "multiple inputs" begin
+        
+    end
+
+    @testset "multiple grouping cols" begin
+        
+    end
+end
+
+
+
+
+
+
+
+
+
+
+
 @testset "simulate actions and fit" begin
 
     agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)

@@ -1,3 +1,61 @@
+#####################################################################
+### CONVENIENCE FUNCTION FOR DOING FULL MODEL FITTING IN ONE LINE ###
+#####################################################################
+
+# function fit_model(
+#     conditioned_model::DynamicPPL.Model,
+#     parallelization_type::Union{Nothing, AbstractMCMC.AbstractMCMCEnsemble} = nothing;
+#     sampler::Union{DynamicPPL.AbstractSampler,Turing.Inference.InferenceAlgorithm} = NUTS(
+#         -1,0.65; adtype = AutoReverseDiff(; compile = true)),
+#     n_iterations::Integer = 1000,
+#     n_chains = 2,
+#     show_sample_rejections::Bool = false,
+#     sample_kwargs...,
+# )
+
+#     ## Set logger ##
+#     #If sample rejection warnings are to be shown
+#     if show_sample_rejections
+#         #Use a standard logger
+#         sampling_logger = Logging.SimpleLogger()
+#     else
+#         #Use a logger which ignores messages below error level
+#         sampling_logger = Logging.SimpleLogger(Logging.Error)
+#     end
+
+#     ## Fit model ##
+#     if parallelization_type
+#         fitted_model = Logging.with_logger(sampling_logger) do
+#             sample(
+#                 conditioned_model,
+#                 sampler,
+#                 parallelization_type,
+#                 n_iterations,
+#                 n_chains;
+#                 sampler_kwargs...,
+#             )
+#         end
+#     else 
+#         fitted_model = Logging.with_logger(sampling_logger) do
+#             sample(
+#                 conditioned_model,
+#                 sampler,
+#                 n_iterations,
+#                 n_chains;
+#                 sampler_kwargs...,
+#             )
+#         end
+#     end
+
+
+# end
+
+
+
+
+
+
+
 ###########################
 ### FITTING A DATAFRAME ###
 ###########################
@@ -58,6 +116,7 @@ function fit_model(
     show_sample_rejections::Bool = false,
     impute_missing_actions::Bool = false,
     show_progress::Bool = true,
+    parallelization_type::Union{Nothing, AbstractMCMC.AbstractMCMCEnsemble} = nothing
     sampler_kwargs...,
 )
     ### SETUP ###
