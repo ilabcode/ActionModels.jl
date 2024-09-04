@@ -32,6 +32,7 @@ link function: link(θ)
 @model function linear_model(
     X::Matrix{R1}, # model matrix for fixed effects
     Z::Vector{MR}, # model matrix for random effects
+    link_function::Function = identity,
     prior::RegressionPrior = RegressionPrior();
     n_β::Int = size(X, 2), # number of fixed effect parameters
     size_r::Vector{Tuple{Int,Int}} = size.(Z), # number of random effect parameters, per group
@@ -53,7 +54,7 @@ link function: link(θ)
             outcome += sum(Zⱼ * transpose(r[IDⱼ]), dims = 2) #FIXME: MAKE SOMEONE CHECK THIS
         end
     end
-    return outcome
+    return link_function(outcome)
 end
 
 
