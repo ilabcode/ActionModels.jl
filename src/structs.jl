@@ -67,8 +67,7 @@ end
 """
 Type for regression priors for use with statistical models
 """
-@Base.kwdef mutable struct RegressionPrior
-    α::Distribution = TDist(3)
+Base.@kwdef mutable struct RegressionPrior
     β::Distribution = TDist(3)
-    τ::Distribution = truncated(TDist(3); lower=0)
+    r::Distribution = TDist(3)
 end
