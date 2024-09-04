@@ -208,7 +208,7 @@ using ActionModels
         formula3 = @formula(learning_rate ~ 0 + age)
         formula4 = @formula(learning_rate ~ (1 | id))
         formula5 = @formula(learning_rate ~ 0 + (1 | id))
-        formula6 = @formula(learning_rate ~ age + (1 | id))
+        formula6 = @formula(learning_rate ~ age + (1 + age | id) + (1 | category))
 
 
         ActionModels.prepare_regression_data(formula0, unique(example_data, :id))
@@ -223,7 +223,10 @@ using ActionModels
 
         ActionModels.prepare_regression_data(formula5, unique(example_data, :id))
 
-        ActionModels.prepare_regression_data(formula6, unique(example_data, :id))
+        X, Z = ActionModels.prepare_regression_data(formula6, unique(example_data, :id))
+        Z[2]
+
+        statistical_data = unique(example_data, :id)
 
     end
 end

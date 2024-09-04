@@ -63,22 +63,53 @@ function prepare_regression_data(
     statistical_data::DataFrame,
 )
 
+    #### COMNTINUE HER #####
+    ### Z is weird, because itmlooksm like it treats age as categorical ###
+    ### find out why this happens in MixedModel, when it does fixed effects just fine (know age is continuous) !!!!!!!!!! ###
+    ### Using apply_schema beforehand breaks MixedModel (because MixedModel applies apply_schema itself)
+
+
     insertcols!(statistical_data, Symbol(formula.lhs) => 1) #TODO: FIND SOMETHING LESS HACKY
 
+    # formula = StatsModels.apply_schema(
+    #     formula,
+    #     StatsModels.schema(statistical_data),
+    #     StatsModels.StatisticalModel,
+    # )
+
     if ActionModels.has_ranef(formula)
-        X = MixedModels.modelmatrix(MixedModel(formula, statistical_data))
+        X = MixedModel(formula, statistical_data).feterm.x
+        Z = MixedModel(formula, statistical_data).reterms
     else
-        X = StatsModels.modelmatrix(
-            StatsModels.apply_schema(
-                formula,
-                StatsModels.schema(statistical_data),
-                StatsModels.StatisticalModel,
-            ),
-            statistical_data,
-        )
+        X = StatsModels.modelmatrix(formula, statistical_data)
+
+        Z = []
     end
+
+    return (X, Z)
 end
 
+
+function has_ranef(formula::FormulaTerm)
+
+    #WORKS IF APPLY SCHEMA USED
+    # return any(t -> t isa FunctionTerm{typeof(|)}, formula.rhs.terms)
+
+    #WORKS OTHERWISE
+    #If there is only one term
+    if formula.rhs isa AbstractTerm
+        #Check if it is a random effect
+        if formula.rhs isa FunctionTerm{typeof(|)}
+            return true
+        else
+            return false
+        end
+        #If there are multiple terms
+    elseif formula.rhs isa Tuple
+        #Check if any are random effects
+        return any(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
+    end
+end
 
 
 
@@ -150,21 +181,7 @@ end
 ## custom shims for working around TuringGLM
 ##
 ##
-function has_ranef(formula::FormulaTerm)
-    #If there is only one term
-    if formula.rhs isa AbstractTerm
-        #Check if it is a random effect
-        if formula.rhs isa FunctionTerm{typeof(|)}
-            return true
-        else
-            return false
-        end
-        #If there are multiple terms
-    elseif formula.rhs isa Tuple
-        #Check if any are random effects
-        return any(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
-    end
-end
+
 
 
 function data_fixed_effects(formula::FormulaTerm, data::D) where {D}
