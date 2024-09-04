@@ -7,6 +7,7 @@ using Distributions
 using TuringGLM
 using DataFrames
 using LogExpFunctions
+using MixedModels
 
 using Revise
 using ActionModels
@@ -197,5 +198,32 @@ using ActionModels
         model = ActionModels.linear_model(X, Z)
 
         fitted_model = sample(model, NUTS(), 1000)
+    end
+
+    @testset "prepare data" begin
+
+        formula0 = @formula(learning_rate ~ 0)
+        formula1 = @formula(learning_rate ~ 1)
+        formula2 = @formula(learning_rate ~ age)
+        formula3 = @formula(learning_rate ~ 0 + age)
+        formula4 = @formula(learning_rate ~ (1 | id))
+        formula5 = @formula(learning_rate ~ 0 + (1 | id))
+        formula6 = @formula(learning_rate ~ age + (1 | id))
+
+
+        ActionModels.prepare_regression_data(formula0, unique(example_data, :id))
+
+        ActionModels.prepare_regression_data(formula1, unique(example_data, :id))
+
+        ActionModels.prepare_regression_data(formula2, unique(example_data, :id))
+
+        ActionModels.prepare_regression_data(formula3, unique(example_data, :id))
+
+        ActionModels.prepare_regression_data(formula4, unique(example_data, :id))
+
+        ActionModels.prepare_regression_data(formula5, unique(example_data, :id))
+
+        ActionModels.prepare_regression_data(formula6, unique(example_data, :id))
+
     end
 end
