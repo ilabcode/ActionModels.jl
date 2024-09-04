@@ -58,6 +58,30 @@ link function: link(θ)
 end
 
 
+function prepare_regression_data(
+    formula::MixedModels.FormulaTerm,
+    statistical_data::DataFrame,
+)
+
+    insertcols!(statistical_data, Symbol(formula.lhs) => 1) #TODO: FIND SOMETHING LESS HACKY
+
+    if ActionModels.has_ranef(formula)
+        X = MixedModels.modelmatrix(MixedModel(formula, statistical_data))
+    else
+        X = StatsModels.modelmatrix(
+            StatsModels.apply_schema(
+                formula,
+                StatsModels.schema(statistical_data),
+                StatsModels.StatisticalModel,
+            ),
+            statistical_data,
+        )
+    end
+end
+
+
+
+
 
 # @model function regression_statistical_model(
 #     linear_models::Vector{T},
@@ -98,7 +122,7 @@ function statistical_model_turingglm(
 ) where {T<:UnivariateDistribution}
     # extract X and Z ( y is the output that goes to the agent model )
     X = actionmodels_data_fixed_effects(formula, data)
-    if actionmodels_has_ranef(formula)
+    if has_ranef(formula)
         Z = actionmodels_data_random_effects(formula, data)
     end
 
@@ -126,40 +150,38 @@ end
 ## custom shims for working around TuringGLM
 ##
 ##
-function actionmodels_has_ranef(formula::FormulaTerm)
-    if formula.rhs isa StatsModels.Term
-        return false
-    elseif formula.rhs isa StatsModels.ConstantTerm
-        return false
-    else
+function has_ranef(formula::FormulaTerm)
+    #If there is only one term
+    if formula.rhs isa AbstractTerm
+        #Check if it is a random effect
+        if formula.rhs isa FunctionTerm{typeof(|)}
+            return true
+        else
+            return false
+        end
+        #If there are multiple terms
+    elseif formula.rhs isa Tuple
+        #Check if any are random effects
         return any(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
     end
 end
 
 
-function actionmodels_data_fixed_effects(formula::FormulaTerm, data::D) where {D}
-    if actionmodels_has_ranef(formula)
+function data_fixed_effects(formula::FormulaTerm, data::D) where {D}
+    if has_ranef(formula)
         X = MixedModels.modelmatrix(MixedModel(formula, data))
-        X = X[:, 2:end]
     else
-        # @show typeof(formula)
-        # @show typeof(StatsModels.apply_schema(formula, StatsModels.schema(data)))
-        # @show StatsModels.apply_schema(formula, StatsModels.schema(data))
         X = StatsModels.modelmatrix(
             StatsModels.apply_schema(formula, StatsModels.schema(data)),
             data,
         )
-        # @show X
-        if hasintercept(formula)
-            X = X[:, 2:end]
-        end
     end
     return X
 end
 
 
 function actionmodels_data_random_effects(formula::FormulaTerm, data::D) where {D}
-    if !actionmodels_has_ranef(formula)
+    if !has_ranef(formula)
         return nothing
     end
     slopes = TuringGLM.slope_per_ranef(actionmodels_ranef(formula))
@@ -186,7 +208,7 @@ end
 
 
 function actionmodels_ranef(formula::FormulaTerm)
-    if actionmodels_has_ranef(formula)
+    if has_ranef(formula)
         terms = filter(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
         terms = map(terms) do t
             lhs, rhs = first(t.args), last(t.args)
