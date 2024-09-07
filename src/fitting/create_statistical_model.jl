@@ -15,9 +15,114 @@
 # TODO: implement rename_chains for linear regressions
 # TODO: prepare to merge
 # TODO: allow for varying priors
-#
+# TODO: Decide whether to have a type including formula, prior and link function that the user uses
 
 using ActionModels, Turing, Distributions
+
+##########################################################################################################
+## User-level function for creating a æinear regression statiscial mdoel and using it with ActionModels ##
+##########################################################################################################
+function create_model(
+    agent::Agent,
+    regression_formulas::Union{F,Vector{F}},
+    data::DataFrame;
+    priors::Union{RegressionPrior,Vector{RegressionPrior}} = RegressionPrior(),
+    link_functions::Union{Function,Vector{Function}} = identity,
+    grouping_cols::Vector{C},
+) where {F<:MixedModels.FormulaTerm,C<:Union{String,Symbol}}
+
+    ## Setup ##
+
+    #If there is only one formula
+    if regression_formulas isa F
+        #Put it in a vector
+        regression_formulas = F[regression_formulas]
+    end
+
+    #If there is only one prior specified
+    if priors isa RegressionPrior
+        #Make a copy of it for each formula
+        priors = RegressionPrior[priors for _ = 1:length(regression_formulas)]
+    end
+
+    #If there is only one link function specified
+    if link_functions isa Function
+        #Put it in a vector
+        link_functions = Function[link_functions for _ = 1:length(regression_formulas)]
+    end
+
+    #Check that lengths are all the same
+    if !(length(regression_formulas) == length(priors) == length(link_functions))
+        throw(
+            ArgumentError(
+                "The number of regression formulas, priors, and link functions must be the same",
+            ),
+        )
+    end
+
+    #Extract just the data needed for the linear regression
+    statistical_data = unique(data, grouping_cols)
+    #Extract number of agents
+    n_agents = nrow(statistical_data)
+
+    ## Condition single regression models ##
+
+    #Initialize vector of sinlge regression models
+    regression_models = Vector{DynamicPPL.Model}(undef, length(regression_formulas))
+    parameter_names = Vector{Union{String,Tuple}}(undef, length(regression_formulas))
+
+    #For each formula in the regression formulas, and its corresponding prior and link function
+    for (model_idx, (formula, prior, link_function)) in
+        enumerate(zip(regression_formulas, priors, link_functions))
+
+        #Prepare the data for the regression model
+        X, Z = prepare_regression_data(formula, statistical_data)
+
+        #Condition the linear model
+        regression_models[model_idx] =
+            linear_model(X, Z, link_function = link_function, prior = prior)
+
+        #Store the parameter name from the formula
+        parameter_names[model_idx] = formula.lhs
+    end
+
+    #Create the combined regression statistical model
+    statistical_model =
+        regression_statistical_model(regression_models, parameter_names, n_agents)
+
+    #Pass to the standard create_model function
+    ##HERE##
+end
+
+
+#############################################################
+## Turing model to do linear regression for each parameter ##
+#############################################################
+@model function regression_statistical_model(
+    linear_submodels::Vector{T},
+    parameter_names::Vector,
+    n_agents::Int,
+) where {T<:DynamicPPL.Model}
+
+    #Initialize vector of dicts with agent parameters
+    agents_params = Dict{Any,Real}[Dict{Any,Real}() for _ = 1:n_agents]
+
+    #For each parameter and its corresponding linear regression model
+    for (parameter_name, linear_submodel) in zip(linear_submodels, parameter_names)
+        #Run the linear regression model to extract parameters for each agent
+        @submodel prefix = string(parameter_name) parameter_values = linear_submodel
+
+        ## Map the output to the agent parameters ##
+        #For each agent and the parameter value for the given parameter
+        for (agent_idx, parameter_value) in enumerate(parameter_values)
+            #Set it in the corresponding dictionary
+            agents_params[agent_idx][parameter_name] = parameter_value
+        end
+    end
+
+    return agents_params
+end
+
 
 #########################################
 ## Linear model for a single parameter ##
@@ -31,9 +136,9 @@ link function: link(θ)
 """
 @model function linear_model(
     X::Matrix{R1}, # model matrix for fixed effects
-    Z::Vector{MR}, # vector of model matrices for each random effect
+    Z::Vector{MR}; # vector of model matrices for each random effect
     link_function::Function = identity,
-    prior::RegressionPrior = RegressionPrior();
+    prior::RegressionPrior = RegressionPrior(),
     n_β::Int = size(X, 2), # number of fixed effect parameters
     size_r::Vector{Tuple{Int,Int}} = size.(Z), # number of random effect parameters, per group
     has_ranef::Bool = length(Z) > 0 && any(length.(Z) .> 0),
@@ -69,6 +174,9 @@ link function: link(θ)
 end
 
 
+#########################################################
+## Function to prepare the data for a regression model ##
+#########################################################
 function prepare_regression_data(
     formula::MixedModels.FormulaTerm,
     statistical_data::DataFrame,
@@ -102,6 +210,9 @@ function prepare_regression_data(
 end
 
 
+####################################################
+## Check if there are random effects in a formula ##
+####################################################
 function has_ranef(formula::FormulaTerm)
 
     #WORKS IF APPLY SCHEMA USED
@@ -126,127 +237,92 @@ end
 
 
 
-@model function regression_statistical_model(
-    linear_models::Vector{T},
-    parameter_names::Vector,
-) where {T<:DynamicPPL.Model}
-
-    for (parameter_name, linear_submodel) in zip(linear_submodels, parameter_names)
-        @submodel prefix = string(parameter_name) parameter_values = linear_submodel
-    end
-
-
-    for (param_idx, (param_name, statistical_submodel, X)) in
-        enumerate(statistical_submodels)
-        # run statistical_submodels
-        @submodel prefix = string(param_name) param_values[param_idx] =
-            statistical_submodel(X)
-        # map output to agent parameters
-        for (agent_idx, param_value) in enumerate(param_values[param_idx])
-            agent_params[agent_idx][param_name] = param_value
-        end
-    end
-
-end
 
 
 
 
+# function statistical_model_turingglm(
+#     formula::TuringGLM.FormulaTerm,
+#     data,
+#     link_function::Function = identity;
+#     priors::RegressionPrior = RegressionPrior(),
+# ) where {T<:UnivariateDistribution}
+#     # extract X and Z ( y is the output that goes to the agent model )
+#     X = actionmodels_data_fixed_effects(formula, data)
+#     if has_ranef(formula)
+#         Z = actionmodels_data_random_effects(formula, data)
+#     end
+
+#     ranef = actionmodels_ranef(formula)
+
+#     model = if ranef === nothing
+#         _model(priors, [], [], 0)
+#     else
+#         intercept_ranef = TuringGLM.intercept_per_ranef(ranef)
+#         group_var = first(ranef).rhs
+#         idx = TuringGLM.get_idx(TuringGLM.term(group_var), data)
+#         # idx is a tuple with 1. indices and 2. a dict mapping id names to indices
+#         idxs = first(idx)
+#         n_gr = length(unique(idxs))
+#         # print for the user the idx
+#         println("The idx are $(last(idx))\n")
+#         _model(priors, intercept_ranef, idxs, n_gr)
+#     end
+
+#     return (model, X)
+# end
 
 
 
+# function data_fixed_effects(formula::FormulaTerm, data::D) where {D}
+#     if has_ranef(formula)
+#         X = MixedModels.modelmatrix(MixedModel(formula, data))
+#     else
+#         X = StatsModels.modelmatrix(
+#             StatsModels.apply_schema(formula, StatsModels.schema(data)),
+#             data,
+#         )
+#     end
+#     return X
+# end
 
 
+# function actionmodels_data_random_effects(formula::FormulaTerm, data::D) where {D}
+#     if !has_ranef(formula)
+#         return nothing
+#     end
+#     slopes = TuringGLM.slope_per_ranef(actionmodels_ranef(formula))
+
+#     Z = Dict{String,AbstractArray}() # empty Dict
+#     if length(slopes) > 0
+#         # add the slopes to Z
+#         # this would need to create a vector from the column of the X matrix from the
+#         # slope term
+#         for slope in values(slopes.grouping_vars)
+#             if slope isa String
+#                 Z["slope_"*slope] = get_var(term(slope), data)
+#             else
+#                 for s in slope
+#                     Z["slope_"*s] = get_var(term(s), data)
+#                 end
+#             end
+#         end
+#     else
+#         Z = nothing
+#     end
+#     return Z
+# end
 
 
-function statistical_model_turingglm(
-    formula::TuringGLM.FormulaTerm,
-    data,
-    link_function::Function = identity;
-    priors::RegressionPrior = RegressionPrior(),
-) where {T<:UnivariateDistribution}
-    # extract X and Z ( y is the output that goes to the agent model )
-    X = actionmodels_data_fixed_effects(formula, data)
-    if has_ranef(formula)
-        Z = actionmodels_data_random_effects(formula, data)
-    end
-
-    ranef = actionmodels_ranef(formula)
-
-    model = if ranef === nothing
-        _model(priors, [], [], 0)
-    else
-        intercept_ranef = TuringGLM.intercept_per_ranef(ranef)
-        group_var = first(ranef).rhs
-        idx = TuringGLM.get_idx(TuringGLM.term(group_var), data)
-        # idx is a tuple with 1. indices and 2. a dict mapping id names to indices
-        idxs = first(idx)
-        n_gr = length(unique(idxs))
-        # print for the user the idx
-        println("The idx are $(last(idx))\n")
-        _model(priors, intercept_ranef, idxs, n_gr)
-    end
-
-    return (model, X)
-end
-
-
-
-## custom shims for working around TuringGLM
-##
-##
-
-
-
-function data_fixed_effects(formula::FormulaTerm, data::D) where {D}
-    if has_ranef(formula)
-        X = MixedModels.modelmatrix(MixedModel(formula, data))
-    else
-        X = StatsModels.modelmatrix(
-            StatsModels.apply_schema(formula, StatsModels.schema(data)),
-            data,
-        )
-    end
-    return X
-end
-
-
-function actionmodels_data_random_effects(formula::FormulaTerm, data::D) where {D}
-    if !has_ranef(formula)
-        return nothing
-    end
-    slopes = TuringGLM.slope_per_ranef(actionmodels_ranef(formula))
-
-    Z = Dict{String,AbstractArray}() # empty Dict
-    if length(slopes) > 0
-        # add the slopes to Z
-        # this would need to create a vector from the column of the X matrix from the
-        # slope term
-        for slope in values(slopes.grouping_vars)
-            if slope isa String
-                Z["slope_"*slope] = get_var(term(slope), data)
-            else
-                for s in slope
-                    Z["slope_"*s] = get_var(term(s), data)
-                end
-            end
-        end
-    else
-        Z = nothing
-    end
-    return Z
-end
-
-
-function actionmodels_ranef(formula::FormulaTerm)
-    if has_ranef(formula)
-        terms = filter(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
-        terms = map(terms) do t
-            lhs, rhs = first(t.args), last(t.args)
-            RandomEffectsTerm(lhs, rhs)
-        end
-        return terms
-    else
-        return nothing
-    end
-end
+# function actionmodels_ranef(formula::FormulaTerm)
+#     if has_ranef(formula)
+#         terms = filter(t -> t isa FunctionTerm{typeof(|)}, formula.rhs)
+#         terms = map(terms) do t
+#             lhs, rhs = first(t.args), last(t.args)
+#             RandomEffectsTerm(lhs, rhs)
+#         end
+#         return terms
+#     else
+#         return nothing
+#     end
+# end
