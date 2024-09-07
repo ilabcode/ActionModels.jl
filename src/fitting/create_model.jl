@@ -206,31 +206,3 @@ Create a Turing model object used for fitting an ActionModels agent.
         end
     end
 end
-
-
-
-# function to do forward pass
-@model function do_full_model(
-    agent_model, statistical_submodels, statistical_data, inputs, actions, agent_params, param_values
-    )
-
-    for (param_idx, (param_name, statistical_submodel, X)) in enumerate(statistical_submodels)
-        # run statistical_submodels
-        @submodel prefix=string(param_name) param_values[param_idx] = statistical_submodel(X)
-        # map output to agent parameters
-        for (agent_idx, param_value) in enumerate(param_values[param_idx])
-            agent_params[agent_idx][param_name] = param_value
-        end
-    end
-
-    # run agent models with parameters from above
-    for (i, agent_param) in enumerate(agent_params)
-        set_parameters!(agent_model, agent_params[i])
-        reset!(agent_model)
-
-        for (timestep, input) in enumerate(inputs[i])
-            action_distribution = agent_model.action_model(agent_model, input)
-            actions[i][timestep] ~ action_distribution
-        end
-    end
-end

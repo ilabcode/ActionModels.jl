@@ -2,20 +2,21 @@
 # DONE: random intercepts (hint: construct model matrix somehow instead of modelmatrix(MixedEffects(@formula)), which expects y
 # DONE: expand to multiple formulas / flexible names
 # - DONE: parameters inside different statistical models gets overridden by each other!
+# TODO: finish the prepare_data function
 # TODO: think about tuple parameter names (ie initial values or HGF params)
-# TODO: random slopes
-# TODO: more than one random intercept
+# DONE: random slopes
+# DONE: more than one random intercept
 # DONE: intercept-only model
 # DONE better / custom priors
 # DONE: (1.0) check integration of the new functionality
-# TODO: Compare with old implementation of specifying statistical model
+# DONE: Compare with old implementation of specifying statistical model
 # TODO: (1.0) Example / usecase / tutorials)
-# TODO: check if we can get rid of TuringGLM
-# TODO: support dropping intercepts (fixed and random)
+# DONE: check if we can get rid of TuringGLM
+# DONE: support dropping intercepts (fixed and random)
 # TODO: implement rename_chains for linear regressions
-# TODO: prepare to merge
+# DONE: prepare to merge
 # TODO: allow for varying priors
-# TODO: Decide whether to have a type including formula, prior and link function that the user uses
+# TODO: Decide whether to have a type including formula, prior and link function that the users use
 
 using ActionModels, Turing, Distributions
 
@@ -235,6 +236,24 @@ function has_ranef(formula::FormulaTerm)
 end
 
 
+
+
+function rename_chains()
+    #TODO
+
+    # replacement_names = Dict()
+    # for (param_name, _, __) in statistical_submodels
+    #     for (idx, id) in enumerate(eachrow(statistical_data[!,grouping_cols]))
+    #         if length(grouping_cols) > 1
+    #             name_string = string(param_name) * "[$(Tuple(id))]"
+    #         else
+    #             name_string = string(param_name) * "[$(String(id[first(grouping_cols)]))]"
+    #         end
+    #         replacement_names[string(param_name) * ".agent_param[$idx]"] = name_string
+    #     end
+    # end
+    # return replacenames(chains, replacement_names)
+end
 
 
 
