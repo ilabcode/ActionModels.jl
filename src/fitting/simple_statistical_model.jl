@@ -26,7 +26,7 @@
         end
     end
 
-    return agent_parameters, nothing
+    return StatisticalModelReturn(agent_parameters)
 end
 
 
@@ -40,7 +40,7 @@ function create_model(
     data::DataFrame;
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T2},
-    grouping_cols::Union{Vector{T3},T3},
+    grouping_cols::Union{Vector{T3},T3} = Vector{String}(),
     track_states::Bool = false,
 ) where {
     T<:Union{String,Tuple,Any},
