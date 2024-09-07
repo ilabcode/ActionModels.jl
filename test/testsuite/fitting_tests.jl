@@ -4,18 +4,11 @@
 # Benchmark the try-catch in full_model
 # Figure out helper function for extracting generated quantities (track_states true/false)
 # Fix typing in create_model and full_model to give concrete types
+# Make rename_chains also deal with missing actions
+# Investigate why missing actions can be crazy samples
 
 using Test
 using ActionModels, DataFrames
-
-# using AdvancedMH
-# using ActionModels
-# using Test
-# using Distributions
-# using DataFrames
-# using Plots
-# using StatsPlots
-# using Turing: externalsampler
 
 @testset "fitting tests" begin
 
@@ -75,7 +68,80 @@ using ActionModels, DataFrames
         #Rename chains
         renamed_model = rename_chains(fitted_model, prior, data, :ID)
 
-        #Model
+        #Create model with tracking states
+        model_tracked = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+            track_states = true,
+        )
+
+        #Extract quantities
+        agent_parameters, agent_states, statistical_values =
+            extract_quantities(fitted_model, model_tracked)
+    end
+
+    @testset "multiple grouping cols" begin
+
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = [:ID, :category],
+        )
+
+        #Fit model
+        fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, prior, data, [:ID, :category])
+
+        #Create model with tracking states
+        model_tracked = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+            track_states = true,
+        )
+
+        #Extract quantities ###WHY DOES THIS FAIL?###
+        agent_parameters, agent_states, statistical_values =
+            extract_quantities(fitted_model, model_tracked)
+
+    end
+
+    @testset "missing actions" begin
+
+        #Create new dataframe where three actions = missing
+        new_data = allowmissing(data, :actions)
+        new_data[[2, 7, 12], :actions] .= missing
+
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            new_data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+        )
+
+        #Fit model
+        fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, prior, data, :ID)
+
+        #Create model with tracking states
         model_tracked = create_model(
             agent,
             prior,
@@ -95,19 +161,11 @@ using ActionModels, DataFrames
 
     end
 
-    @testset "missing actions" begin
-
-    end
-
     @testset "multiple actions" begin
 
     end
 
     @testset "multiple inputs" begin
-
-    end
-
-    @testset "multiple grouping cols" begin
 
     end
 end
