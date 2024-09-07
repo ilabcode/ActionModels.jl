@@ -106,7 +106,9 @@ end
 ) where {T<:DynamicPPL.Model}
 
     #Initialize vector of dicts with agent parameters
-    agents_params = Dict{Any,Real}[Dict{Any,Real}() for _ = 1:n_agents]
+    agents_params = Dict{Union{String,Tuple{String}},Real}[
+        Dict{Union{String,Tuple{String}},Real}() for _ = 1:n_agents
+    ]
 
     #For each parameter and its corresponding linear regression model
     for (parameter_name, linear_submodel) in zip(linear_submodels, parameter_names)
