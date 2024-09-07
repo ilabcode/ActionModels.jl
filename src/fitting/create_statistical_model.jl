@@ -31,7 +31,7 @@ link function: link(θ)
 """
 @model function linear_model(
     X::Matrix{R1}, # model matrix for fixed effects
-    Z::Vector{MR}, # model matrix for random effects
+    Z::Vector{MR}, # vector of model matrices for each random effect
     link_function::Function = identity,
     prior::RegressionPrior = RegressionPrior();
     n_β::Int = size(X, 2), # number of fixed effect parameters
@@ -40,21 +40,32 @@ link function: link(θ)
 ) where {R1<:Real,R2<:Real,MR<:Matrix{R2}}
 
     # FIXME: support different priors here
-    β ~ filldist(prior.β, n_β)
-    outcome = X * β
 
+    #Sample beta / effect size parameters (including intercept)
+    β ~ filldist(prior.β, n_β)
+
+    #Do fixed effect linear regression
+    Θ = X * β
+
+    #If there are random effects
     if has_ranef
 
+        #Initialize vector of random effect parameters
         r = Vector{Matrix{Real}}(undef, length(Z))
 
-        for (IDⱼ, (Zⱼ, size_rⱼ)) in enumerate(zip(Z, size_r))
+        #For each random effect j, and its corresponding model matrix Zⱼ
+        for (ranefⱼ, (Zⱼ, size_rⱼ)) in enumerate(zip(Z, size_r))
 
-            r[IDⱼ] ~ filldist(prior.r, size_rⱼ...)
+            #Sample its parameters (both intercepts and slopes)
+            r[ranefⱼ] ~ filldist(prior.r, size_rⱼ...)
 
-            outcome += sum(Zⱼ * transpose(r[IDⱼ]), dims = 2) #FIXME: MAKE SOMEONE CHECK THIS
+            #Add the random effect to the linear model
+            Θ += sum(Zⱼ * transpose(r[ranefⱼ]), dims = 2) #FIXME: MAKE SOMEONE CHECK THIS
         end
     end
-    return link_function(outcome)
+
+    #Apply the link function, and return the resulting parameter for each participant
+    return link_function.(Θ)
 end
 
 
@@ -69,6 +80,7 @@ function prepare_regression_data(
     ### Using apply_schema beforehand breaks MixedModel (because MixedModel applies apply_schema itself)
 
 
+    #Inset column with the name fo the agetn parameter, to avoid error from MixedModel
     insertcols!(statistical_data, Symbol(formula.lhs) => 1) #TODO: FIND SOMETHING LESS HACKY
 
     # formula = StatsModels.apply_schema(
@@ -114,26 +126,28 @@ end
 
 
 
-# @model function regression_statistical_model(
-#     linear_models::Vector{T},
-#     parameter_names::Vector,
-# ) where {T<:DynamicPPL.Model}
+@model function regression_statistical_model(
+    linear_models::Vector{T},
+    parameter_names::Vector,
+) where {T<:DynamicPPL.Model}
 
-#     for (parameter_name, linear_submodel) in zip(linear_submodels, parameter_names)
-#         @submodel prefix=string(parameter_name) parameter_values = linear_submodel
-#     end
+    for (parameter_name, linear_submodel) in zip(linear_submodels, parameter_names)
+        @submodel prefix = string(parameter_name) parameter_values = linear_submodel
+    end
 
 
-#     for (param_idx, (param_name, statistical_submodel, X)) in enumerate(statistical_submodels)
-#         # run statistical_submodels
-#         @submodel prefix=string(param_name) param_values[param_idx] = statistical_submodel(X)
-#         # map output to agent parameters
-#         for (agent_idx, param_value) in enumerate(param_values[param_idx])
-#             agent_params[agent_idx][param_name] = param_value
-#         end
-#     end
+    for (param_idx, (param_name, statistical_submodel, X)) in
+        enumerate(statistical_submodels)
+        # run statistical_submodels
+        @submodel prefix = string(param_name) param_values[param_idx] =
+            statistical_submodel(X)
+        # map output to agent parameters
+        for (agent_idx, param_value) in enumerate(param_values[param_idx])
+            agent_params[agent_idx][param_name] = param_value
+        end
+    end
 
-# end
+end
 
 
 
