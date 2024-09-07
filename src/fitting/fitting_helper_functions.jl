@@ -24,14 +24,20 @@ end
 
 function extract_quantities(fitted_model::Chains, model::DynamicPPL.Model)
 
+
+    ### MAKE CHECK FOR WHETHER THE MODEL HAS TRACK_CHANGES = TRUE ###
+    model.args.track_states || error(
+        "The passed model does not have track_changes = true. This is required for extracting agent states. Recreate the model with track_changes = true and repeat.",
+    )
+
     #Extract the generated quantities from the fitted model
     quantities = generated_quantities(model, fitted_model)
 
     #Extract information for later
-    _agent_parameters, _agent_states, _ = first(quantities)
-    n_agents = length(_agent_parameters)
-    parameter_keys = keys(first(_agent_parameters))
-    state_keys = keys(first(_agent_states))
+    _quantities = first(quantities)
+    n_agents = length(_quantities.agents_parameters)
+    parameter_keys = keys(first(_quantities.agents_parameters))
+    state_keys = keys(first(_quantities.agents_states))
 
     #Create containers for the restructured values
     agent_parameters = [
@@ -48,7 +54,9 @@ function extract_quantities(fitted_model::Chains, model::DynamicPPL.Model)
     for (sample_idx, sample) in enumerate(quantities)
 
         #Unpack the sample
-        sample_agent_parameters, sample_agent_states, sample_statistical_values = sample
+        sample_agent_parameters = sample.agents_parameters
+        sample_agent_states = sample.agents_states
+        sample_statistical_values = sample.statistical_values
 
         #For each agent
         for agent_idx = 1:n_agents
