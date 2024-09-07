@@ -3,9 +3,9 @@ module ActionModels
 #Load packages
 using Reexport
 @reexport using Turing
-using ForwardDiff,
-    ReverseDiff, Distributions, DataFrames, RecipesBase, Logging, Distributed, ProgressMeter
-using Turing: DynamicPPL, AutoReverseDiff, AbstractMCMC
+#using Distributions, DataFrames, RecipesBase, Logging
+using DataFrames, RecipesBase, ReverseDiff
+using Turing: Distributions, DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
 #Export functions
 export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
@@ -43,6 +43,7 @@ include("create_agent/check_agent.jl")
 include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
 include("fitting/simple_statistical_model.jl")
+include("fitting/single_agent_statistical_model.jl")
 #include("fitting/parameter_recovery.jl")
 #include("fitting/fit_model.jl")
 #include("fitting/prefit_checks.jl")
