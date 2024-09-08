@@ -87,7 +87,7 @@ end
             input_iterator = enumerate(inputs[agent_idx])
         else
             #Iterate over rows of inputs
-            input_iterator = enumerate(Vector.(eachrow(inputs[agent_idx])))
+            input_iterator = enumerate(Tuple.(eachrow(inputs[agent_idx])))
         end
 
         #Go through each timestep 

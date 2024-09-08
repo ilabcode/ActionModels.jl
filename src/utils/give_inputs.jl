@@ -79,7 +79,7 @@ end
 function give_inputs!(agent::Agent, inputs::Array)
 
     #Each row in the array is a single input
-    for input in Vector.(eachrow(inputs))
+    for input in Tuple.(eachrow(inputs))
 
         #Input that row
         single_input!(agent, input)
