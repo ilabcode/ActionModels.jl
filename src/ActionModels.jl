@@ -9,8 +9,8 @@ using Turing: Distributions, DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractM
 #Export functions
 export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
-export full_model,
-    simple_statistical_model, create_model, fit_model, parameter_recovery, single_recovery
+export simple_statistical_model,
+    create_model, fit_model, parameter_recovery, single_recovery
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history,
