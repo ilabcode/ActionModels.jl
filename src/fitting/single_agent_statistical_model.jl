@@ -6,7 +6,7 @@
 ) where {T<:Union{String,Tuple,Any},D<:Distribution}
 
     #Create container for sampled parameters
-    parameters = Dict{Any,Vector{Real}}()
+    parameters = Dict{T,Float64}()
 
     #Go through each of the parameters in the prior
     for (parameter, distribution) in prior

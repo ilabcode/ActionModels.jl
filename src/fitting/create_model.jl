@@ -23,6 +23,17 @@ function create_model(
         set_save_history!(agent_model, false)
     end
 
+    #Make sure columns are vector names
+    if !(input_cols isa Vector)
+        input_cols = [input_cols]
+    end
+    if !(action_cols isa Vector)
+        action_cols = [action_cols]
+    end
+    if !(grouping_cols isa Vector)
+        grouping_cols = [grouping_cols]
+    end
+
     # Convert column names to symbols
     input_cols = Symbol.(input_cols)
     action_cols = Symbol.(action_cols)
@@ -30,12 +41,10 @@ function create_model(
 
     ## Extract data ##
     #One matrix per agent, for inputs and actions separately
-    inputs = Vector{Array{Union{Real,Missing}}}()
-    actions = Vector{Array{Union{Real,Missing}}}()
-    for agent_data in groupby(data, grouping_cols)
-        push!(inputs, Array{Union{Real,Missing}}(agent_data[:, input_cols]))
-        push!(actions, Array{Union{Real,Missing}}(agent_data[:, action_cols]))
-    end
+    inputs =
+        [Array(agent_data[:, input_cols]) for agent_data in groupby(data, grouping_cols)]
+    actions =
+        [Array(agent_data[:, action_cols]) for agent_data in groupby(data, grouping_cols)]
 
     #Create a full model combining the agent model and the statistical model
     return full_model(agent_model, statistical_model, inputs, actions, track_states)
