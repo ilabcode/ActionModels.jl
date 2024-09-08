@@ -1,4 +1,6 @@
 
+using Turing: DataFrames
+
 ### TODO:
 # Make check in full_model that returned agents_parameters is same length as inputs/actions
 # Benchmark the try-catch in full_model
@@ -7,7 +9,7 @@
 # Make rename_chains also deal with missing actions
 # Investigate why missing actions can be crazy samples
 # full workflow: model comparison (PSIS)
-# use arraydist for multiple actions XX
+# use arraydist for multiple actions 
 # consider using a submodel for the agent model
 
 
@@ -29,7 +31,7 @@ using ActionModels, DataFrames
     )
 
     #Create agent
-    agent = premade_agent("binary_rescorla_wagner_softmax")
+    agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
 
     #Set prior
     prior = Dict(
@@ -41,129 +43,134 @@ using ActionModels, DataFrames
     sampler = NUTS(-1, 0.65; adtype = AutoReverseDiff(; compile = true))
     n_iterations = 10
     n_chains = 2
+    sampling_kwargs = (; progress = false)
 
 
-    # @testset "single agent" begin
-    #     #Extract inputs and actions from data
-    #     inputs = data[!, :inputs]
-    #     actions = data[!, :actions]
+    @testset "single agent" begin
+        #Extract inputs and actions from data
+        inputs = data[!, :inputs]
+        actions = data[!, :actions]
 
-    #     #Create model
-    #     model = create_model(agent, prior, inputs, actions)
+        #Create model
+        model = create_model(agent, prior, inputs, actions)
 
-    #     #Fit model
-    #     fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
-    # end
+        #Fit model
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+    end
 
-    # @testset "simple statistical model" begin
+    @testset "simple statistical model" begin
 
-    #     #Create model
-    #     model = create_model(
-    #         agent,
-    #         prior,
-    #         data,
-    #         input_cols = :inputs,
-    #         action_cols = :actions,
-    #         grouping_cols = :ID,
-    #     )
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+        )
 
-    #     #Fit model
-    #     fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+        #Fit model
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
-    #     #Rename chains
-    #     renamed_model = rename_chains(fitted_model, prior, data, :ID)
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, prior, data, :ID)
 
-    #     #Create model with tracking states
-    #     model_tracked = create_model(
-    #         agent,
-    #         prior,
-    #         data,
-    #         input_cols = :inputs,
-    #         action_cols = :actions,
-    #         grouping_cols = :ID,
-    #         track_states = true,
-    #     )
+        #Create model with tracking states
+        model_tracked = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+            track_states = true,
+        )
 
-    #     #Extract quantities
-    #     agent_parameters, agent_states, statistical_values =
-    #         extract_quantities(fitted_model, model_tracked)
-    # end
+        #Extract quantities
+        agent_parameters, agent_states, statistical_values =
+            extract_quantities(fitted_model, model_tracked)
+    end
 
-    # @testset "multiple grouping cols" begin
+    @testset "multiple grouping cols" begin
 
-    #     #Create model
-    #     model = create_model(
-    #         agent,
-    #         prior,
-    #         data,
-    #         input_cols = :inputs,
-    #         action_cols = :actions,
-    #         grouping_cols = [:ID, :category],
-    #     )
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = [:ID, :category],
+        )
 
-    #     #Fit model
-    #     fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+        #Fit model
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
-    #     #Rename chains
-    #     renamed_model = rename_chains(fitted_model, prior, data, [:ID, :category])
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, prior, data, [:ID, :category])
 
-    #     #Create model with tracking states
-    #     model_tracked = create_model(
-    #         agent,
-    #         prior,
-    #         data,
-    #         input_cols = :inputs,
-    #         action_cols = :actions,
-    #         grouping_cols = [:ID, :category],
-    #         track_states = true,
-    #     )
+        #Create model with tracking states
+        model_tracked = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = [:ID, :category],
+            track_states = true,
+        )
 
-    #     #Extract quantities
-    #     agent_parameters, agent_states, statistical_values =
-    #         extract_quantities(fitted_model, model_tracked)
-    # end
+        #Extract quantities
+        agent_parameters, agent_states, statistical_values =
+            extract_quantities(fitted_model, model_tracked)
+    end
 
-    # @testset "missing actions" begin
+    @testset "missing actions" begin
 
-    #     #Create new dataframe where three actions = missing
-    #     new_data = allowmissing(data, :actions)
-    #     new_data[[2, 7, 12], :actions] .= missing
+        #Create new dataframe where three actions = missing
+        new_data = allowmissing(data, :actions)
+        new_data[[2, 7, 12], :actions] .= missing
 
-    #     #Create model
-    #     model = create_model(
-    #         agent,
-    #         prior,
-    #         new_data,
-    #         input_cols = :inputs,
-    #         action_cols = :actions,
-    #         grouping_cols = :ID,
-    #     )
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            new_data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+        )
 
-    #     #Fit model
-    #     fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+        #Fit model
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
-    #     #Rename chains
-    #     renamed_model = rename_chains(fitted_model, prior, data, :ID)
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, prior, data, :ID)
 
-    #     #Create model with tracking states
-    #     model_tracked = create_model(
-    #         agent,
-    #         prior,
-    #         data,
-    #         input_cols = :inputs,
-    #         action_cols = :actions,
-    #         grouping_cols = :ID,
-    #         track_states = true,
-    #     )
+        #Create model with tracking states
+        model_tracked = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+            track_states = true,
+        )
 
-    #     #Extract quantities
-    #     agent_parameters, agent_states, statistical_values =
-    #         extract_quantities(fitted_model, model_tracked)
-    # end
+        #Extract quantities
+        agent_parameters, agent_states, statistical_values =
+            extract_quantities(fitted_model, model_tracked)
+    end
 
-    # @testset "custom statistical model" begin
+    @testset "custom statistical model" begin
 
-    # end
+    end
 
     @testset "multiple actions" begin
 
@@ -193,7 +200,8 @@ using ActionModels, DataFrames
         )
 
         #Fit model
-        fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
     end
 
@@ -226,7 +234,8 @@ using ActionModels, DataFrames
         )
 
         #Fit model
-        fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
     end
 
     @testset "multiple inputs and multiple actions" begin
@@ -259,13 +268,10 @@ using ActionModels, DataFrames
         )
 
         #Fit model
-        fitted_model = sample(model, sampler, n_iterations, n_chains = n_chains)
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
     end
 end
-
-
-
-TArray([1 2; 3 4])
 
 
 
