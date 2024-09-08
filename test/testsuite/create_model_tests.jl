@@ -1,6 +1,3 @@
-
-using Turing: DataFrames
-
 ### TODO:
 # Make check in full_model that returned agents_parameters is same length as inputs/actions
 # Benchmark the try-catch in full_model
