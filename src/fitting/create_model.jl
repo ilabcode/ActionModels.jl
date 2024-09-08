@@ -50,8 +50,8 @@ end
     inputs::Array{IA},
     actions::Array{AA},
     track_states::Bool = false,
-    multiple_inputs::Bool = size(inputs, 2) > 1,
-    multiple_actions::Bool = size(actions, 2) > 1,
+    multiple_inputs::Bool = size(first(inputs), 2) > 1,
+    multiple_actions::Bool = size(first(actions), 2) > 1,
 ) where {IAR<:Union{Real,Missing},AAR<:Union{Real,Missing},IA<:Array{IAR},AA<:Array{AAR}}
 
     #Check whether errors occur
