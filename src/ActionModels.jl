@@ -4,7 +4,7 @@ module ActionModels
 using Reexport
 @reexport using Turing
 #using Distributions, DataFrames, RecipesBase, Logging
-using DataFrames, RecipesBase, ReverseDiff
+using DataFrames, RecipesBase, ReverseDiff, Logging
 using Turing: Distributions, DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
 #Export functions
 export Agent, RejectParameters, InitialStateParameter, ParameterGroup
