@@ -1,8 +1,48 @@
-using ActionModels
-using Documenter
-using Literate
+using ActionModels, Documenter, Literate
+
+## Set paths ##
+actionmodels_path = dirname(pathof(ActionModels))
+
+juliafiles_path = hgf_path * "/docs/julia_files"
+user_guides_path = juliafiles_path * "/user_guide"
+tutorials_path = juliafiles_path * "/tutorials"
+
+markdown_src_path = hgf_path * "/docs/src"
+theory_path = markdown_src_path * "/theory"
+generated_user_guide_path = markdown_src_path * "/generated/user_guide"
+generated_tutorials_path = markdown_src_path * "/generated/tutorials"
+
 
 #Remove old tutorial markdown files 
+for filename in readdir(generated_user_guide_path)
+    if endswith(filename, ".md")
+        rm(generated_user_guide_path * "/" * filename)
+    end
+end
+for filename in readdir(generated_tutorials_path)
+    if endswith(filename, ".md")
+        rm(generated_tutorials_path * "/" * filename)
+    end
+end
+rm(markdown_src_path * "/" * "index.md")
+
+#Generate index markdown file
+Literate.markdown(juliafiles_path * "/" * "index.jl", markdown_src_path, documenter = true)
+
+#Generate markdown files for user guide
+for filename in readdir(user_guides_path)
+    if endswith(filename, ".jl")
+        Literate.markdown(
+            user_guides_path * "/" * filename,
+            generated_user_guide_path,
+            documenter = true,
+        )
+    end
+end
+
+
+
+
 
 for filename in readdir("docs/src/generated_markdown_files")
     rm("docs/src/generated_markdown_files/" * filename)
