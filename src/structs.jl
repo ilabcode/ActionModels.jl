@@ -16,7 +16,6 @@ end
 struct StatisticalModelReturn
     agent_parameters::Vector{Dict}
     statistical_values::Any
-
 end
 #Add default value for statistical values
 StatisticalModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
@@ -30,12 +29,11 @@ struct GeneratedQuantitites
 end
 
 ### FOR THE GREATER FITMODEL FUNCTION
-struct FitModelReturn
-
+mutable struct FitModelResults
+    model::DynamicPPL.Model
+    tracked_model::Union{Nothing,DynamicPPL.Model}
+    chains::Chains
 end
-
-
-
 
 """
 Custom error type which will result in rejection of a sample

@@ -44,8 +44,8 @@ include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
 include("fitting/simple_statistical_model.jl")
 include("fitting/single_agent_statistical_model.jl")
+include("fitting/fit_model.jl")
 #include("fitting/parameter_recovery.jl")
-#include("fitting/fit_model.jl")
 #include("fitting/prefit_checks.jl")
 
 #Plotting functions for agents
