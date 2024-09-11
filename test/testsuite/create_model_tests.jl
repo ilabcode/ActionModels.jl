@@ -90,6 +90,10 @@ using ActionModels, DataFrames
             extract_quantities(fitted_model, model_tracked)
     end
 
+    @testset "no grouping cols" begin
+
+    end
+
     @testset "multiple grouping cols" begin
 
         #Create model
