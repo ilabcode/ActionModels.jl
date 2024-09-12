@@ -6,6 +6,7 @@ using Reexport
 #using Distributions, DataFrames, RecipesBase, Logging
 using DataFrames, RecipesBase, ReverseDiff, Logging
 using Turing: Distributions, DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
+using ProgressMeter, Distributed #TODO: get rid of this (only needed for parameter recovery)
 #Export functions
 export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
@@ -45,7 +46,7 @@ include("fitting/create_model.jl")
 include("fitting/simple_statistical_model.jl")
 include("fitting/single_agent_statistical_model.jl")
 include("fitting/fit_model.jl")
-#include("fitting/parameter_recovery.jl")
+include("fitting/parameter_recovery.jl")
 #include("fitting/prefit_checks.jl")
 
 #Plotting functions for agents

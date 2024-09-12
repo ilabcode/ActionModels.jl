@@ -24,19 +24,16 @@ function single_recovery(
     #Give inputs and get simulated actions
     simulated_actions = give_inputs!(agent, input_sequence)
 
+    #Create model
+    model = create_model(agent, prior, input_sequence, simulated_actions;)
+
     #Fit the model to the simulated data
-    fitted_model = fit_model(
-        agent,
-        prior,
-        input_sequence,
-        simulated_actions;
-        verbose = false,
-        show_progress = false,
-        sampler_settings...,
-    )
+    result = fit_model(model; sampler_settings..., progress = false)
+
+    string(describe(result.chains)[2].nt.parameters[1])
 
     #Extract the posterior medians
-    posterior_medians = get_posteriors(fitted_model)
+    posterior_medians = get_posteriors(result.chains)
 
     ## - Rename dictionaries - ##
     #Make a renamed dictionary with true parameter values
@@ -80,7 +77,6 @@ function single_recovery(
             input_sequence_idx = input_sequence_idx,
             simulation_idx = simulation_idx,
         ),
-        makeunique = true,
     )
 end
 
@@ -147,7 +143,6 @@ function parameter_recovery(
     if parallel
         #Use pmap
         map_function = pmap
-
     else
         #Use map
         map_function = map
