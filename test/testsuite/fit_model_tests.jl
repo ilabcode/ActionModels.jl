@@ -93,9 +93,15 @@ using Distributed
             )
         end
 
+        #Set samplings settings
+        sampler = NUTS(-1, 0.65; adtype = AutoReverseDiff(; compile = true))
+        n_iterations = 10
+        n_chains = 2
+        sampling_kwargs = (; progress = false)
+
         results = fit_model(
-            model,
-            MCMCDistributed();
+            model;
+            parallelization = MCMCDistributed(),
             sampler = sampler,
             n_iterations = n_iterations,
             n_chains = n_chains,
