@@ -7,7 +7,7 @@ function fit_model(
     sampler::Union{DynamicPPL.AbstractSampler,Turing.Inference.InferenceAlgorithm} = NUTS(
         -1,
         0.65;
-        adtype = AutoReverseDiff(; compile = true),
+        adtype = AutoReverseDiff(),
     ),
     n_iterations::Integer = 1000,
     n_chains = 1,
