@@ -8,6 +8,7 @@
 # use arraydist for multiple actions 
 # consider using a submodel for the agent model
 # consider: make parameter recovery that uses a single model, so that pmap is unnecessary
+# append the generated quantities to the chain (can use or reconstruct from https://github.com/farr/MCMCChainsStorage.jl)
 
 
 using ActionModels, DataFrames
