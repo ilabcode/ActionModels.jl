@@ -26,10 +26,13 @@ export get_posteriors, extract_quantities, rename_chains, update_states!
 
 #Load premade agents
 function __init__()
-    premade_agents["binary_rescorla_wagner_softmax"] =
-        premade_binary_rescorla_wagner_softmax
-    premade_agents["continuous_rescorla_wagner_gaussian"] =
-        premade_continuous_rescorla_wagner_gaussian
+    # Only if not precompiling
+    if ccall(:jl_generating_output, Cint, ()) == 0
+        premade_agents["binary_rescorla_wagner_softmax"] =
+            premade_binary_rescorla_wagner_softmax
+        premade_agents["continuous_rescorla_wagner_gaussian"] =
+            premade_continuous_rescorla_wagner_gaussian
+    end
 end
 
 #Types for agents and errors

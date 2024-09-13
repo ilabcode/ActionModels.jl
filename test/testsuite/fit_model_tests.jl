@@ -51,7 +51,7 @@ using Distributed
             sampling_kwargs...,
         )
 
-        @test results isa FitModelResults
+        @test results isa ActionModels.FitModelResults
     end
 
 
@@ -109,6 +109,6 @@ using Distributed
         )
         rmprocs(workers())
 
-        @test results isa FitModelResults
+        @test results isa ActionModels.FitModelResults
     end
 end

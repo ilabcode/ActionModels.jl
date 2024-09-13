@@ -6,4 +6,5 @@ Aqua.test_all(
     ambiguities = false,
     unbound_args = false,
     undefined_exports = false,
+    persistent_tasks = false,
 )
