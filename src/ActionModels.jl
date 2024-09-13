@@ -1,33 +1,38 @@
 module ActionModels
 
 #Load packages
-using ReverseDiff,
-    Turing,
-    ForwardDiff,
-    Distributions,
-    DataFrames,
-    RecipesBase,
-    Logging,
-    Distributed,
-    ProgressMeter
-using Turing: DynamicPPL, AutoReverseDiff
+using Reexport
+@reexport using Turing
+#using Distributions, DataFrames, RecipesBase, Logging
+using DataFrames, RecipesBase, ReverseDiff, Logging
+using Turing: Distributions, DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
+using ProgressMeter, Distributed #TODO: get rid of this (only needed for parameter recovery)
 #Export functions
-export Agent, RejectParameters, GroupedParameters, Multilevel
+export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
-export create_agent_model, fit_model, parameter_recovery, single_recovery
+export simple_statistical_model,
+    create_model, fit_model, parameter_recovery, single_recovery
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history,
-    get_states, get_parameters, set_parameters!, reset!, give_inputs!, single_input!
-export get_posteriors, update_states!, set_save_history!
-export InitialStateParameter, ParameterGroup
+    get_states,
+    get_parameters,
+    set_parameters!,
+    reset!,
+    give_inputs!,
+    single_input!,
+    set_save_history!
+export get_posteriors, extract_quantities, rename_chains, update_states!
 
 #Load premade agents
 function __init__()
-    premade_agents["binary_rescorla_wagner_softmax"] =
-        premade_binary_rescorla_wagner_softmax
-    premade_agents["continuous_rescorla_wagner_gaussian"] =
-        premade_continuous_rescorla_wagner_gaussian
+    # Only if not precompiling
+    if ccall(:jl_generating_output, Cint, ()) == 0
+        premade_agents["binary_rescorla_wagner_softmax"] =
+            premade_binary_rescorla_wagner_softmax
+        premade_agents["continuous_rescorla_wagner_gaussian"] =
+            premade_continuous_rescorla_wagner_gaussian
+    end
 end
 
 #Types for agents and errors
@@ -41,9 +46,11 @@ include("create_agent/check_agent.jl")
 #Functions for fitting agents to data
 include("fitting/fitting_helper_functions.jl")
 include("fitting/create_model.jl")
+include("fitting/simple_statistical_model.jl")
+include("fitting/single_agent_statistical_model.jl")
 include("fitting/fit_model.jl")
-include("fitting/prefit_checks.jl")
 include("fitting/parameter_recovery.jl")
+#include("fitting/prefit_checks.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")

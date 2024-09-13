@@ -44,16 +44,22 @@ Give inputs to an agent. Input can be a single value, a vector of values, or an 
 """
 function give_inputs! end
 
-function give_inputs!(agent::Agent, inputs::Real)
+function give_inputs!(agent::Agent, input::Real)
 
     #Input the single input
-    single_input!(agent, inputs)
+    single_input!(agent, input)
 
-    #Return the action trajectory
-    return agent.history["action"][2:end]
+    #Get the history of actions, without the initial state
+    actions = agent.history["action"][2:end]
+
+    #Make into array, and return it
+    return stack(actions, dims = 1)
 end
 
-function give_inputs!(agent::Agent, inputs::Vector)
+function give_inputs!(
+    agent::Agent,
+    inputs::Union{VR,VVR},
+) where {R<:Real,VR<:Vector{R},VVR<:Vector{VR}}
 
     #Each value in the vector is a single input
     for input in inputs
@@ -63,20 +69,26 @@ function give_inputs!(agent::Agent, inputs::Vector)
 
     end
 
-    #Return the action trajectory, without the initial state
-    return agent.history["action"][2:end]
+    #Get the history of actions, without the initial state
+    actions = agent.history["action"][2:end]
+
+    #Make into array, and return it
+    return stack(actions, dims = 1)
 end
 
 function give_inputs!(agent::Agent, inputs::Array)
 
     #Each row in the array is a single input
-    for input in eachrow(inputs)
+    for input in Tuple.(eachrow(inputs))
 
         #Input that row
         single_input!(agent, input)
 
     end
 
-    #Return the action trajectory
-    return agent.history["action"][2:end]
+    #Get the history of actions, without the initial state
+    actions = agent.history["action"][2:end]
+
+    #Make into array, and return it
+    return stack(actions, dims = 1)
 end

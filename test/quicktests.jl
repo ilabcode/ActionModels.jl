@@ -1,24 +1,24 @@
-using ActionModels
-using Distributions
+# using ActionModels
+# using Distributions
 
-agent = premade_agent("binary_rescorla_wagner_softmax")
+# agent = premade_agent("binary_rescorla_wagner_softmax")
 
-inputs = [1, 0, 1]
+# inputs = [1, 0, 1]
 
-actions = give_inputs!(agent, inputs)
+# actions = give_inputs!(agent, inputs)
 
 
 
-param_priors = Dict("learning_rate" => Uniform(0, 1))
+# param_priors = Dict("learning_rate" => Uniform(0, 1))
 
-chains = fit_model(
-    agent,
-    param_priors,
-    inputs,
-    actions,
-    n_chains = 2,
-    n_iterations = 10,
-    n_cores = 2,
-)
+# chains = fit_model(
+#     agent,
+#     param_priors,
+#     inputs,
+#     actions,
+#     n_chains = 2,
+#     n_iterations = 10,
+#     n_cores = 2,
+# )
 
-get_posteriors(chains)
+# get_posteriors(chains)

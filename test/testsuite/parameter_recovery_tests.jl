@@ -1,5 +1,5 @@
 using Test
-using ActionModels, Distributions, Distributed
+using ActionModels, Distributed
 
 @testset "parameter recovery" begin
 
@@ -10,9 +10,9 @@ using ActionModels, Distributions, Distributed
 
         #Parameters to be recovered
         parameter_ranges = Dict(
-            "learning_rate" => collect(0:0.1:1),
-            ("initial", "value") => collect(-2:1:2),
-            "action_noise" => collect(0:0.5:3),
+            "learning_rate" => collect(0:0.5:1),
+            ("initial", "value") => collect(-2:2:2),
+            "action_noise" => collect(0:1:3),
         )
 
         #Input sequences to use
@@ -55,10 +55,10 @@ using ActionModels, Distributions, Distributed
 
     @testset "parallelised" begin
 
-        addprocs(2, exeflags = "--project")
+        addprocs(4)
 
         @everywhere begin
-            using ActionModels, Distributions
+            using ActionModels
 
             #Agent model to do recovery on
             agent = premade_agent("continuous_rescorla_wagner_gaussian", verbose = false)
