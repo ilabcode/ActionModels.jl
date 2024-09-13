@@ -12,6 +12,28 @@ Base.@kwdef mutable struct Agent
     save_history::Bool = true
 end
 
+#TYPE FOR RETURNING THINGS FROM STATISTICAL MDOEL ###
+struct StatisticalModelReturn
+    agent_parameters::Vector{Dict}
+    statistical_values::Any
+end
+#Add default value for statistical values
+StatisticalModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
+    StatisticalModelReturn(agent_parameters, nothing)
+
+#TYPE FOR RETURNING GENERATED QUANTITIES
+struct GeneratedQuantitites
+    agents_parameters::Vector{Dict}
+    agents_states::Vector{Dict}
+    statistical_values::Union{Some{Any},Nothing}
+end
+
+### FOR THE GREATER FITMODEL FUNCTION
+mutable struct FitModelResults
+    model::DynamicPPL.Model
+    tracked_model::Union{Nothing,DynamicPPL.Model}
+    chains::Chains
+end
 
 """
 Custom error type which will result in rejection of a sample
@@ -20,24 +42,8 @@ struct RejectParameters <: Exception
     errortext::Any
 end
 
-"""
-"""
-Base.@kwdef struct Multilevel
-    group::Union{Symbol,String}
-    distribution = Normal
-    parameters::Vector{String} = []
-end
 
-"""
-"""
-Base.@kwdef mutable struct ParameterInfo
-    name::Union{String,Tuple}
-    group_dependencies::Vector
-    group_levels::Union{Array,Matrix} = []
-    multilevel_dependent::Bool
-    distribution::Any
-    parameters::Vector
-end
+
 
 
 """

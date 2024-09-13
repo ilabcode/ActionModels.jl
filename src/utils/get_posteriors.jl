@@ -16,13 +16,17 @@ function get_posteriors(chain::Chains; type::String = "median")
     #Go through each parameter name
     for param_symbol in param_symbols
 
+        #Change the symbol to a string
+        param_string = String(param_symbol)
+        param_string = chop(split(param_string, "[")[2])
+
         #If there is a comma in the symbol, it is a composite parameter name
         if occursin(",", String(param_symbol))
             #So get the param key by parsing the string containing a tuple
-            param_key = eval(Meta.parse(String(param_symbol)))
+            param_key = eval(Meta.parse(param_string))
         else
             #Just convert it to a string
-            param_key = String(param_symbol)
+            param_key = eval(Meta.parse(param_string))
         end
 
         #Add it to the list

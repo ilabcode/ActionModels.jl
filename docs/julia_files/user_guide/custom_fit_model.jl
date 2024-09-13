@@ -8,7 +8,7 @@
 
 
 # # we start by specifying function name and the inputs
-# @model function create_agent_model(
+# @model function full_model(
 #     agent,
 #     param_priors,
 #     inputs,
@@ -213,7 +213,7 @@
 
 #         ##Initialize Turing model
 #         model =
-#             create_agent_model(agent, param_priors, actions, inputs, impute_missing_actions)
+#             full_model(agent, param_priors, actions, inputs, impute_missing_actions)
 
 #         ##If sample rejection warnings are to be shown
 #         if show_sample_rejections
@@ -273,7 +273,7 @@
 #             ##Fit model to inputs and actions, as many separate chains as specified
 #             chains = pmap(
 #                 i -> sample(
-#                     create_agent_model(
+#                     full_model(
 #                         agent,
 #                         param_priors,
 #                         inputs,
@@ -298,7 +298,7 @@
 #                 ##Fit model to inputs and actions, as many separate chains as specified
 #                 pmap(
 #                     i -> sample(
-#                         create_agent_model(
+#                         full_model(
 #                             agent,
 #                             param_priors,
 #                             inputs,
