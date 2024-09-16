@@ -1,22 +1,3 @@
-#####################################################################################################
-####### FUNCTIONS FOR EXTRACTING A VALUE WHICH WORKS WITH DIFFERENT AUTODIFFERENTIATION BACKENDS ####
-#####################################################################################################
-
-function ad_val(x::ReverseDiff.TrackedReal)
-    return ReverseDiff.value(x)
-end
-function ad_val(x::ReverseDiff.TrackedArray)
-    return ReverseDiff.value(x)
-end
-
-function ad_val(x::ForwardDiff.Dual)
-    return ForwardDiff.value(x)
-end
-
-function ad_val(x::Real)
-    return x
-end
-
 
 #########################################################
 ####### FUNCTION FOR EXTRACTING GENERATED QUANTITIES ####
@@ -24,8 +5,7 @@ end
 
 function extract_quantities(fitted_model::Chains, model::DynamicPPL.Model)
 
-
-    ### MAKE CHECK FOR WHETHER THE MODEL HAS TRACK_CHANGES = TRUE ###
+    #Check whether track_states = true
     model.args.track_states || error(
         "The passed model does not have track_changes = true. This is required for extracting agent states. Recreate the model with track_changes = true and repeat.",
     )

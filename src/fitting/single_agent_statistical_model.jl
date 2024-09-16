@@ -26,6 +26,7 @@ function create_model(
     inputs::Array{T1},
     actions::Array{T2};
     track_states::Bool = false,
+    verbose::Bool = true,
 ) where {
     T<:Union{String,Tuple,Any},
     D<:Distribution,
@@ -53,5 +54,82 @@ function create_model(
         action_cols = action_cols,
         grouping_cols = grouping_cols,
         track_states = track_states,
+        verbose = verbose,
     )
+end
+
+################################################################################
+####### FUNCTION FOR RENAMING CHAINS FOR A SINGLE-AGENT STATISTICAL MODEL ######
+################################################################################
+function rename_chains(
+    chains::Chains,
+    data::DataFrame,
+    grouping_cols::Union{Vector{C},C},
+    #Arguments from statistical model
+    prior::Dict{T,D},
+) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol}}
+
+    #Make sure the groupoing cols are a vector 
+    if !(grouping_cols isa Vector{C})
+        grouping_cols = C[grouping_cols]
+    end
+
+    ## Make dict with index to agent mapping ##
+    idx_to_agent = Dict{Int,Any}()
+
+    ## Make dict with replacement names ##
+    replacement_names = Dict{String,String}()
+
+    #Go through each parameter in the prior
+    for (parameter_key, _) in prior
+
+        #If the parameter name is a string
+        if parameter_key isa String
+            #Include quation marks in the name to be replaced
+            parameter_key_left = "\"$(parameter_key)\""
+        else
+            #Otherwise, keep it as it is
+            parameter_key_left = parameter_key
+        end
+
+        #If the parameter key is a tuple
+        if parameter_key isa Tuple
+            #Join the tuple with double underscores
+            parameter_key_right = join(parameter_key, "__")
+        else
+            #Otherwise, keep it as it is
+            parameter_key_right = parameter_key
+        end
+
+        #Set a replacement name
+        replacement_names["parameters[$parameter_key_left]"] = "$parameter_key_right"
+    end
+
+    #Replace names in the fitted model and return it
+    replacenames(chains, replacement_names)
+end
+
+############################################################
+### CHECKS TO MAKE FOR THE SINGLE-AGENT STAISTICAL MODEL ###
+############################################################
+function check_statistical_model(
+    #Arguments from statistical model
+    prior::Dict{T,D};
+    #Arguments from the agent
+    verbose::Bool,
+    agent::Agent,
+) where {T<:Union{String,Tuple,Any},D<:Distribution}
+    #Unless warnings are hidden
+    if verbose
+        #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
+        if any(key -> !(key in keys(prior)), keys(agent.parameters))
+            @warn "the agent has parameters which are not estimated. The agent's current parameter values are used as fixed parameters"
+        end
+    end
+
+    #If there are no parameters to sample
+    if length(prior) == 0
+        #Throw an error
+        throw(ArgumentError("No parameters where specified in the prior."))
+    end
 end

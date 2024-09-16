@@ -41,6 +41,8 @@ using ActionModels, DataFrames
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+
+        renamed_model = rename_chains(fitted_model, model, data, :ID)
     end
 
     @testset "simple statistical model" begin
@@ -60,7 +62,7 @@ using ActionModels, DataFrames
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
         #Rename chains
-        renamed_model = rename_chains(fitted_model, prior, data, :ID)
+        renamed_model = rename_chains(fitted_model, model, data, :ID)
 
         #Create model with tracking states
         model_tracked = create_model(
