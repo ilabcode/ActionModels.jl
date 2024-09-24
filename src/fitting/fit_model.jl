@@ -1,17 +1,28 @@
+struct ChainSaveResume
+    save_every::Int
+    path::String
+    plot_progress::Bool
+end
+
+ChainSaveResume() = ChainSaveResume(0, tempdir(), false)
+
 #####################################################################
 ### CONVENIENCE FUNCTION FOR DOING FULL MODEL FITTING IN ONE LINE ###
 #####################################################################
 function fit_model(
     model::DynamicPPL.Model;
-    parallelization::Union{Nothing,AbstractMCMC.AbstractMCMCEnsemble} = nothing,
-    sampler::Union{DynamicPPL.AbstractSampler,Turing.Inference.InferenceAlgorithm} = NUTS(
+    parallelization::Union{Nothing,AbstractMCMC.AbstractMCMCEnsemble}=nothing,
+    sampler::Union{DynamicPPL.AbstractSampler,Turing.Inference.InferenceAlgorithm}=NUTS(
         -1,
         0.65;
-        adtype = AutoReverseDiff(),
+        adtype=AutoReverseDiff(),
     ),
-    n_iterations::Integer = 1000,
-    n_chains = 1,
-    show_sample_rejections::Bool = false,
+    n_iterations::Integer=1000,
+    n_chains=1,
+    show_sample_rejections::Bool=false,
+    show_progress::Bool=true,
+    save_chains::Union{Nothing,String}=nothing,
+    save_resume::ChainSaveResume=ChainSaveResume(),
     sampler_kwargs...,
 )
 
@@ -26,14 +37,19 @@ function fit_model(
     end
 
     ## Fit model ##
-    if !isnothing(parallelization)
+    if !isnothing(parallelization) && n_chains > 1
         #With parallelization
         chains = Logging.with_logger(sampling_logger) do
-            sample(model, sampler, parallelization, n_iterations, n_chains; sampler_kwargs...)
+            # see if it's a threads or distributed ensemble
+            if parallelization isa AbstractMCMC.AbstractMCMCThreads
+                sample(model, sampler, n_iterations, n_chains; progress=show_progress, sampler_kwargs...)
+            else
+                sample(model, sampler, n_iterations, n_chains=n_chains; progress=show_progress, sampler_kwargs...)
+            end
         end
-    else
+    elseif save_resume.save_every < 1
         chains = Logging.with_logger(sampling_logger) do
-            sample(model, sampler, n_iterations, n_chains = n_chains; sampler_kwargs...)
+            sample(model, sampler, n_iterations, n_chains=n_chains; progress=show_progress, sampler_kwargs...)
         end
     end
 

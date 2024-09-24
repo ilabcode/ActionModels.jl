@@ -60,6 +60,7 @@ using Distributed
         @everywhere begin
             ### SETUP ###
             using ActionModels, DataFrames
+            #Turing.setprogress!(false)
             #Create dataframe
             data = DataFrame(
                 inputs = rand([0, 1], 20),
@@ -95,9 +96,9 @@ using Distributed
 
         #Set samplings settings
         sampler = NUTS(-1, 0.65; adtype = AutoReverseDiff(; compile = true))
-        n_iterations = 10
-        n_chains = 2
-        sampling_kwargs = (; progress = false)
+        n_iterations = 10000
+        n_chains = 10
+        sampling_kwargs = (; progress = true)
 
         results = fit_model(
             model;
