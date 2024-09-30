@@ -9,8 +9,10 @@ function create_model(
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3} = Vector{String}(),
     track_states::Bool = false,
+    verbose::Bool = true,
 ) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 
+    ## SETUP ##
     #Create a copy of the agent to avoid changing the original 
     agent_model = deepcopy(agent)
 
@@ -23,7 +25,7 @@ function create_model(
         set_save_history!(agent_model, false)
     end
 
-    #Make sure columns are vector names
+    ## Make sure columns are vectors of symbols ##
     if !(input_cols isa Vector)
         input_cols = [input_cols]
     end
@@ -33,11 +35,21 @@ function create_model(
     if !(grouping_cols isa Vector)
         grouping_cols = [grouping_cols]
     end
-
-    # Convert column names to symbols
     input_cols = Symbol.(input_cols)
     action_cols = Symbol.(action_cols)
     grouping_cols = Symbol.(grouping_cols)
+
+    #Run checks for the model specifications
+    check_model(
+        agent,
+        statistical_model,
+        data;
+        input_cols = input_cols,
+        action_cols = action_cols,
+        grouping_cols = grouping_cols,
+        track_states = track_states,
+        verbose = verbose,
+    )
 
     ## Extract data ##
     #One matrix per agent, for inputs and actions separately

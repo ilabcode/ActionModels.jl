@@ -41,6 +41,7 @@ function create_model(
     action_cols::Union{Vector{T2},T2},
     grouping_cols::Union{Vector{T3},T3} = Vector{String}(),
     track_states::Bool = false,
+    verbose::Bool = true,
 ) where {
     T<:Union{String,Tuple,Any},
     D<:Distribution,
@@ -64,6 +65,7 @@ function create_model(
         action_cols = action_cols,
         grouping_cols = grouping_cols,
         track_states = track_states,
+        verbose = verbose,
     )
 end
 
@@ -72,11 +74,14 @@ end
 ####### FUNCTION FOR RENAMING CHAINS FOR A SIMPLE STATISTICAL MODEL ######
 ##########################################################################
 function rename_chains(
-    fitted_model::Chains,
-    prior::Dict{T,D},
+    chains::Chains,
     data::DataFrame,
     grouping_cols::Union{Vector{C},C},
-) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol}}
+    #Arguments from statistical model
+    prior::Dict{T,D},
+    n_agents::I,
+    agent_parameters::Vector{Dict{Any,Real}},
+) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol},I<:Int}
 
     if !(grouping_cols isa Vector{C})
         grouping_cols = C[grouping_cols]
@@ -131,5 +136,33 @@ function rename_chains(
     end
 
     #Replace names in the fitted model and return it
-    fitted_model = replacenames(fitted_model, replacement_names)
+    replacenames(chains, replacement_names)
+end
+
+
+#################################################################
+####### CHECKS TO BE MADE FOR THE SIMPLE STATISTICAL MODEL ######
+#################################################################
+function check_statistical_model(
+    #Arguments from statistical model
+    prior::Dict{T,D},
+    n_agents::I,
+    agent_parameters::Vector{Dict{Any,Real}};
+    #Arguments from check_model
+    verbose::Bool = true,
+    agent::Agent,
+) where {T<:Union{String,Tuple,Any},D<:Distribution,I<:Int}
+    #Unless warnings are hidden
+    if verbose
+        #If there are any of the agent's parameters which have not been set in the fixed or sampled parameters
+        if any(key -> !(key in keys(prior)), keys(agent.parameters))
+            @warn "the agent has parameters which are not estimated. The agent's current parameter values are used as fixed parameters"
+        end
+    end
+
+    #If there are no parameters to sample
+    if length(prior) == 0
+        #Throw an error
+        throw(ArgumentError("No parameters where specified in the prior."))
+    end
 end
