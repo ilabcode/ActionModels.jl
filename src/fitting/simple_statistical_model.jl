@@ -40,7 +40,7 @@ function create_model(
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T2},
     grouping_cols::Union{Vector{T3},T3} = Vector{String}(),
-    verbose::Bool = true,
+    kwargs...,
 ) where {
     T<:Union{String,Tuple,Any},
     D<:Distribution,
@@ -63,7 +63,7 @@ function create_model(
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
-        verbose = verbose,
+        kwargs...,
     )
 end
 
@@ -81,6 +81,7 @@ function rename_chains(
     agent_parameters::Vector{Dict{Any,Real}},
 ) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol},I<:Int}
 
+    #Make sure grouping columns are a vector
     if !(grouping_cols isa Vector{C})
         grouping_cols = C[grouping_cols]
     end

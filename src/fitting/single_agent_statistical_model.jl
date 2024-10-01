@@ -25,14 +25,13 @@ function create_model(
     prior::Dict{T,D},
     inputs::Array{T1},
     actions::Array{T2};
-    verbose::Bool = true,
+    kwargs...,
 ) where {
     T<:Union{String,Tuple,Any},
     D<:Distribution,
     T1<:Union{Real,Missing},
     T2<:Union{Real,Missing},
 }
-
     #Create column names
     input_cols = map(x -> "input$x", 1:size(inputs, 2))
     action_cols = map(x -> "action$x", 1:size(actions, 2))
@@ -52,7 +51,7 @@ function create_model(
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
-        verbose = verbose,
+        kwargs...,
     )
 end
 

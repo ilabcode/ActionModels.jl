@@ -18,9 +18,9 @@ function ad_val(x::Real)
 end
 
 
-###############################################
-#### FUNCTION FOR CHECKING A CREATED MODEL ####
-###############################################
+############################################################
+#### FUNCTION FOR RENAMING THE CHAINS OF A FITTED MODEL ####
+############################################################
 function rename_chains(
     chains::Chains,
     model::DynamicPPL.Model,
@@ -45,7 +45,10 @@ function check_model(
     verbose::Bool = true,
 ) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 
-    #Run the check of the statistical model    check_statistical_model(statistical_model.args...; verbose = verbose, agent = agent)
+    #TODO： Make check for whether the agent model outputs the right amount of actions / accepts the right amoiunts of inputs
+
+    #Run the check of the statistical model    
+    check_statistical_model(statistical_model.args...; verbose = verbose, agent = agent)
 
     #Check that user-specified columns exist in the dataset
     if any(grouping_cols .∉ Ref(Symbol.(names(data))))

@@ -44,13 +44,14 @@ include("create_agent/create_premade_agent.jl")
 include("create_agent/multiple_actions.jl")
 include("create_agent/check_agent.jl")
 #Functions for fitting agents to data
-include("fitting/helper_functions.jl")
-include("fitting/extract_quantities.jl")
 include("fitting/create_model.jl")
+include("fitting/agent_model.jl")
 include("fitting/simple_statistical_model.jl")
 include("fitting/single_agent_statistical_model.jl")
 include("fitting/fit_model.jl")
 include("fitting/parameter_recovery.jl")
+include("fitting/helper_functions.jl")
+include("fitting/extract_quantities.jl")
 #include("fitting/prefit_checks.jl")
 
 #Plotting functions for agents
