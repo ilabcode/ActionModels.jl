@@ -72,7 +72,6 @@ using ActionModels, DataFrames
             input_cols = :inputs,
             action_cols = :actions,
             grouping_cols = :ID,
-            track_states = true,
         )
 
         #Extract quantities
@@ -111,7 +110,6 @@ using ActionModels, DataFrames
             input_cols = :inputs,
             action_cols = :actions,
             grouping_cols = [:ID, :category],
-            track_states = true,
         )
 
         #Extract quantities
@@ -150,7 +148,6 @@ using ActionModels, DataFrames
             input_cols = :inputs,
             action_cols = :actions,
             grouping_cols = :ID,
-            track_states = true,
         )
 
         #Extract quantities

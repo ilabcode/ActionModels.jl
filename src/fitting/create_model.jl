@@ -8,7 +8,6 @@ function create_model(
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3} = Vector{String}(),
-    track_states::Bool = false,
     verbose::Bool = true,
 ) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 
@@ -16,14 +15,8 @@ function create_model(
     #Create a copy of the agent to avoid changing the original 
     agent_model = deepcopy(agent)
 
-    #If states are to be tracked
-    if track_states
-        #Make sure the agent saves the history
-        set_save_history!(agent_model, true)
-    else
-        #Otherwise not
-        set_save_history!(agent_model, false)
-    end
+    #Turn off saving the history of states
+    set_save_history!(agent_model, false)
 
     ## Make sure columns are vectors of symbols ##
     if !(input_cols isa Vector)
@@ -47,7 +40,6 @@ function create_model(
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
-        track_states = track_states,
         verbose = verbose,
     )
 
@@ -59,7 +51,7 @@ function create_model(
         [Array(agent_data[:, action_cols]) for agent_data in groupby(data, grouping_cols)]
 
     #Create a full model combining the agent model and the statistical model
-    return full_model(agent_model, statistical_model, inputs, actions, track_states)
+    return full_model(agent_model, statistical_model, inputs, actions)
 end
 
 ###################################################################
@@ -70,7 +62,6 @@ end
     statistical_model::DynamicPPL.Model,
     inputs::Array{IA},
     actions::Array{AA},
-    track_states::Bool = false,
     multiple_inputs::Bool = size(first(inputs), 2) > 1,
     multiple_actions::Bool = size(first(actions), 2) > 1,
 ) where {IAR<:Union{Real,Missing},AAR<:Union{Real,Missing},IA<:Array{IAR},AA<:Array{AAR}}
@@ -84,15 +75,8 @@ end
         #Extract the agent parameters
         agents_parameters = statistical_model_return.agent_parameters
 
-        #If states are tracked
-        if track_states
-            #Initialize a vector for storing the states of the agents
-            agents_states = Vector{Dict}(undef, length(agents_parameters))
-            parameters_per_agent = Vector{Dict}(undef, length(agents_parameters))
-        else
-            agents_states = nothing
-            parameters_per_agent = nothing
-        end
+        #Initialize a vector for storing the states of the agents
+        parameters_per_agent = Vector{Dict}(undef, length(agents_parameters))
 
         ## For each agent ##
         for (agent_idx, agent_parameters) in enumerate(agents_parameters)
@@ -150,28 +134,15 @@ end
                     )
                 end
             end
-
-            #If states are tracked
-            if track_states
-                #Save the parameters of the agent
-                parameters_per_agent[agent_idx] = get_parameters(agent)
-                #Save the history of tracked states for the agent
-                agents_states[agent_idx] = get_history(agent)
-            end
+            #Save the parameters of the agent
+            parameters_per_agent[agent_idx] = get_parameters(agent)
         end
 
-        #if states are tracked
-        if track_states
-            #Return agents' parameters and tracked states
-            return GeneratedQuantitites(
-                parameters_per_agent,
-                agents_states,
-                statistical_model_return.statistical_values,
-            )
-        else
-            #Otherwise, return nothing
-            return nothing
-        end
+        #Return agents' parameters and tracked states
+        return GeneratedQuantitites(
+            parameters_per_agent,
+            statistical_model_return.statistical_values,
+        )
 
         #If an error occurs
     catch error

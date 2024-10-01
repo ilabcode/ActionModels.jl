@@ -25,7 +25,6 @@ function create_model(
     prior::Dict{T,D},
     inputs::Array{T1},
     actions::Array{T2};
-    track_states::Bool = false,
     verbose::Bool = true,
 ) where {
     T<:Union{String,Tuple,Any},
@@ -53,7 +52,6 @@ function create_model(
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
-        track_states = track_states,
         verbose = verbose,
     )
 end

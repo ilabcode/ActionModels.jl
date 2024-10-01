@@ -40,7 +40,6 @@ function create_model(
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T2},
     grouping_cols::Union{Vector{T3},T3} = Vector{String}(),
-    track_states::Bool = false,
     verbose::Bool = true,
 ) where {
     T<:Union{String,Tuple,Any},
@@ -64,7 +63,6 @@ function create_model(
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
-        track_states = track_states,
         verbose = verbose,
     )
 end

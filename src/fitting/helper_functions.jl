@@ -42,7 +42,6 @@ function check_model(
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3},
-    track_states::Bool,
     verbose::Bool = true,
 ) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 

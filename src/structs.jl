@@ -24,7 +24,6 @@ StatisticalModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
 #TYPE FOR RETURNING GENERATED QUANTITIES
 struct GeneratedQuantitites
     agents_parameters::Vector{Dict}
-    agents_states::Vector{Dict}
     statistical_values::Union{Some{Any},Nothing}
 end
 
