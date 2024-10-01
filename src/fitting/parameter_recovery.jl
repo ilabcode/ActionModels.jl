@@ -30,8 +30,6 @@ function single_recovery(
     #Fit the model to the simulated data
     result = fit_model(model; sampler_settings..., progress = false)
 
-    string(describe(result.chains)[2].nt.parameters[1])
-
     #Extract the posterior medians
     posterior_medians = get_posteriors(result.chains)
 
