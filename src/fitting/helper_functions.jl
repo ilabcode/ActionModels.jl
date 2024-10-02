@@ -28,7 +28,7 @@ function rename_chains(
     grouping_cols::Union{Vector{C},C},
 ) where {C<:Union{String,Symbol}}
     #This will multiple dispatch on the type of statistical model
-    rename_chains(chains, data, grouping_cols, model.args.statistical_model.args...)
+    rename_chains(chains, data, grouping_cols, model.args.population_model.args...)
 end
 
 
@@ -37,7 +37,7 @@ end
 ###############################################
 function check_model(
     agent::Agent,
-    statistical_model::DynamicPPL.Model,
+    population_model::DynamicPPL.Model,
     data::DataFrame;
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T3},
@@ -48,7 +48,7 @@ function check_model(
     #TODO： Make check for whether the agent model outputs the right amount of actions / accepts the right amoiunts of inputs
 
     #Run the check of the statistical model    
-    check_statistical_model(statistical_model.args...; verbose = verbose, agent = agent)
+    check_population_model(population_model.args...; verbose = verbose, agent = agent)
 
     #Check that user-specified columns exist in the dataset
     if any(grouping_cols .∉ Ref(Symbol.(names(data))))

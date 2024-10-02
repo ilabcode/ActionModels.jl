@@ -38,7 +38,7 @@ end
     reset!(agent)
 
     #Initialize a matrix for storing the action probability distributions
-    action_distributions = Matrix(undef, size(actions))
+    action_distributions = Matrix(undef, size(actions)...)
 
     #Go through each timestep 
     for (timestep, (input, action)) in enumerate(zip(inputs, Tuple.(eachrow(actions))))

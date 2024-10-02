@@ -2,7 +2,7 @@
 #######################################################################################################
 ### SIMPLE STATISTICAL MODEL WHERE AGENTS ARE INDEPENDENT AND THEIR PARAMETERS HAVE THE SAME PRIORS ###
 #######################################################################################################
-@model function simple_statistical_model(
+@model function independent_agents_population_model(
     prior::Dict{T,D},
     n_agents::I,
     agent_parameters::Vector{Dict{Any,Real}} = [Dict{Any,Real}() for _ = 1:n_agents],
@@ -53,12 +53,12 @@ function create_model(
     n_agents = length(groupby(data, grouping_cols))
 
     #Create a statistical model where the agents are independent and sampled from the same prior
-    statistical_model = simple_statistical_model(prior, n_agents)
+    population_model = independent_agents_population_model(prior, n_agents)
 
     #Create a full model combining the agent model and the statistical model
     return create_model(
         agent,
-        statistical_model,
+        population_model,
         data;
         input_cols = input_cols,
         action_cols = action_cols,
@@ -142,7 +142,7 @@ end
 #################################################################
 ####### CHECKS TO BE MADE FOR THE SIMPLE STATISTICAL MODEL ######
 #################################################################
-function check_statistical_model(
+function check_population_model(
     #Arguments from statistical model
     prior::Dict{T,D},
     n_agents::I,

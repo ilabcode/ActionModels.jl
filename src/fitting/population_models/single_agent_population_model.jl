@@ -1,7 +1,7 @@
 ##########################################
 ### STATISTICAL MODEL FOR SINGLE AGENT ###
 ##########################################
-@model function single_statistical_model(
+@model function single_agent_population_model(
     prior::Dict{T,D},
 ) where {T<:Union{String,Tuple,Any},D<:Distribution}
 
@@ -41,12 +41,12 @@ function create_model(
     data = DataFrame(hcat(inputs, actions), vcat(input_cols, action_cols))
 
     #Create the single-agent statistical model
-    statistical_model = single_statistical_model(prior)
+    population_model = single_agent_population_model(prior)
 
     #Create a full model combining the agent model and the statistical model
     return create_model(
         agent,
-        statistical_model,
+        population_model,
         data;
         input_cols = input_cols,
         action_cols = action_cols,
@@ -109,7 +109,7 @@ end
 ############################################################
 ### CHECKS TO MAKE FOR THE SINGLE-AGENT STAISTICAL MODEL ###
 ############################################################
-function check_statistical_model(
+function check_population_model(
     #Arguments from statistical model
     prior::Dict{T,D};
     #Arguments from the agent

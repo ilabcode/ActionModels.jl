@@ -3,7 +3,7 @@
 ###########################################################################################################
 function create_model(
     agent::Agent,
-    statistical_model::DynamicPPL.Model,
+    population_model::DynamicPPL.Model,
     data::DataFrame;
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T3},
@@ -39,27 +39,41 @@ function create_model(
     #Run checks for the model specifications
     check_model(
         agent,
-        statistical_model,
+        population_model,
         data;
         input_cols = input_cols,
         action_cols = action_cols,
         grouping_cols = grouping_cols,
         verbose = verbose,
     )
-
+    
+    
     ## Extract data ##
-    #One matrix per agent, for inputs and actions separately
-    #FIXME: put inputs into correct format
-    inputs =
-        [Array(agent_data[:, input_cols]) for agent_data in groupby(data, grouping_cols)]
-    actions =
-        [Array(agent_data[:, action_cols]) for agent_data in groupby(data, grouping_cols)]
+    #If there is only one input column
+    if length(input_cols) == 1
+        #Inputs are a vector of vectors of <:reals
+        inputs = [Vector(agent_data[!,first(input_cols)]) for agent_data in groupby(data, grouping_cols)]
+    else
+        #Otherwise, they are a vector of vectors of tuples
+        inputs = [Tuple.(eachrow(agent_data[!,input_cols])) for agent_data in groupby(data, grouping_cols)]
+    end
+    
+    #If there is only one action column
+    if length(action_cols) == 1
+        #Actions are a vector of arrays (vectors if there is only one action, matrices if there are multiple)
+        actions =
+            [Vector(agent_data[!, first(action_cols)]) for agent_data in groupby(data, grouping_cols)]
+    else
+        #Actions are a vector of arrays (vectors if there is only one action, matrices if there are multiple)
+        actions =
+            [Array(agent_data[!, action_cols]) for agent_data in groupby(data, grouping_cols)]
+    end
 
     #Extract agent id's as combined symbols in a vector
     agent_ids = [Symbol(join(string.(Tuple(row)), id_separator)) for row in eachrow(unique(data[!, grouping_cols]))]
 
     #Create a full model combining the agent model and the statistical model
-    return full_model(agent_model, statistical_model, inputs, actions, agent_ids, check_parameter_rejections = check_parameter_rejections)
+    return full_model(agent_model, population_model, inputs, actions, agent_ids, check_parameter_rejections = check_parameter_rejections)
 end
 
 ####################################################################
@@ -80,11 +94,11 @@ end
     ## For each agent ##
     for (agent_id, agent_parameters, agent_inputs, agent_actions) in zip(agent_ids, population_values.agent_parameters, inputs_per_agent, actions_per_agent)
 
-        @submodel prefix = agent_id agent_model(agent, agent_parameters, agent_inputs, agent_actions)
+        @submodel prefix = "$agent_id" agent_model(agent, agent_parameters, agent_inputs, agent_actions)
     end
 
     #Return agents' parameters and tracked states
-    return statistical_model_return
+    return population_values
 end
 
 
@@ -94,7 +108,7 @@ end
 
 # @model function full_model(
 #     agent::Agent,
-#     statistical_model::DynamicPPL.Model,
+#     population_model::DynamicPPL.Model,
 #     inputs_per_agent::Array{IA},
 #     actions_per_agent::Array{AA};
 #     agent_ids::Vector{Union{Symbol,Vector{Symbol}}},
@@ -107,7 +121,7 @@ end
 #         #Run the full model
 #         @submodel generated_quantities = full_model(
 #             agent,
-#             statistical_model,
+#             population_model,
 #             inputs_per_agent,
 #             actions_per_agent;
 #             agent_ids = agent_ids,
