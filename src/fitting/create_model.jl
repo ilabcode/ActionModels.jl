@@ -72,8 +72,17 @@ function create_model(
     #Extract agent id's as combined symbols in a vector
     agent_ids = [Symbol(join(string.(Tuple(row)), id_separator)) for row in eachrow(unique(data[!, grouping_cols]))]
 
+    ## Determine whether any actions are missing ##
+    if actions isa Vector{A} where {R<:Real, A<:Array{Union{Missing, R}}}
+        #If there are missing actions
+        missing_actions = MissingActions()
+    elseif actions isa Vector{A} where {R<:Real, A<:Array{R}}
+        #If there are no missing actions
+        missing_actions = nothing
+    end
+
     #Create a full model combining the agent model and the statistical model
-    return full_model(agent_model, population_model, inputs, actions, agent_ids, check_parameter_rejections = check_parameter_rejections)
+    return full_model(agent_model, population_model, inputs, actions, agent_ids, missing_actions = missing_actions, check_parameter_rejections = check_parameter_rejections)
 end
 
 ####################################################################
@@ -85,60 +94,17 @@ end
     inputs_per_agent::Vector{I},
     actions_per_agent::Vector{A},
     agent_ids::Vector{Symbol};
+    missing_actions::Union{Nothing, MissingActions} = MissingActions(),
     check_parameter_rejections::Nothing = nothing,
+    actions_flattened::A = vcat(actions_per_agent...)
 ) where {I<:Vector, R<:Real, A1 <:Union{R,Union{Missing,R}}, A<:Array{A1}}
 
     #Generate the agent parameters from the statistical model
     @submodel population_values = population_model
 
-    ## For each agent ##
-    for (agent_id, agent_parameters, agent_inputs, agent_actions) in zip(agent_ids, population_values.agent_parameters, inputs_per_agent, actions_per_agent)
+    #Generate the agent's behavior
+    @submodel agent_models(agent, agent_ids, population_values.agent_parameters, inputs_per_agent, actions_per_agent, actions_flattened, missing_actions)
 
-        @submodel prefix = "$agent_id" agent_model(agent, agent_parameters, agent_inputs, agent_actions)
-    end
-
-    #Return agents' parameters and tracked states
+    #Return values fron the population model (agent parameters and oher values)
     return population_values
 end
-
-
-#############################################################################
-### WRAPPER FUNCTION FOR FULL_MODEL FOR CHECKING FOR PARAMETER REJECTIONS ###
-#############################################################################
-
-# @model function full_model(
-#     agent::Agent,
-#     population_model::DynamicPPL.Model,
-#     inputs_per_agent::Array{IA},
-#     actions_per_agent::Array{AA};
-#     agent_ids::Vector{Union{Symbol,Vector{Symbol}}},
-#     check_parameter_rejections::CheckRejections,
-# ) where {IAR<:Union{Real,Missing},AAR<:Union{Real,Missing},IA<:Array{IAR},AA<:Array{AAR}}
-
-#     #Check whether errors occur
-#     try
-
-#         #Run the full model
-#         @submodel generated_quantities = full_model(
-#             agent,
-#             population_model,
-#             inputs_per_agent,
-#             actions_per_agent;
-#             agent_ids = agent_ids,
-#             check_parameter_rejections = nothing,
-#         )
-
-#         return generated_quantities
-
-#         #If an error occurs
-#     catch error
-#         #If it is of the custom errortype RejectParameters
-#         if error isa RejectParameters
-#             #Make Turing reject the sample
-#             Turing.@addlogprob!(-Inf)
-#         else
-#             #Otherwise, just throw the error
-#             rethrow(error)
-#         end
-#     end
-# end

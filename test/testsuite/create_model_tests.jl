@@ -161,7 +161,7 @@ using ActionModels, DataFrames
 
     @testset "multiple actions, missing actions" begin
         
-        
+
     end
 
     @testset "multiple actions" begin

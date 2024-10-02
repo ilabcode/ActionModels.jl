@@ -39,6 +39,8 @@ end
 struct CheckRejections
 end
 
+struct MissingActions
+end
 
 
 """
