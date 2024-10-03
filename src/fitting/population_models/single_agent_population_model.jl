@@ -14,7 +14,7 @@
         parameters[parameter] ~ distribution
     end
 
-    return StatisticalModelReturn([parameters])
+    return PopulationModelReturn([parameters])
 end
 
 #######################################################################################################################

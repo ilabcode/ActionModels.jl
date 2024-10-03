@@ -24,7 +24,7 @@
         end
     end
 
-    return StatisticalModelReturn(agent_parameters)
+    return PopulationModelReturn(agent_parameters)
 end
 
 
