@@ -78,7 +78,7 @@ function rename_chains(
     prior::Dict{T,D},
     n_agents::I,
     agent_parameters::Vector{Dict{Any,Real}},
-) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol},I<:Int}
+) where {T<:Union{String,Tuple,Any},D<:Distribution,I<:Int}
 
     #Extract agent ids
     agent_ids = model.args.agent_ids

@@ -3,15 +3,15 @@
 ####### FUNCTION FOR EXTRACTING GENERATED QUANTITIES ####
 #########################################################
 
-function extract_quantities(fitted_model::Chains, model::DynamicPPL.Model)
+function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
 
     #Extract the generated quantities from the fitted model
     quantities = generated_quantities(model, fitted_model)
 
     #Extract information for later
     _quantities = first(quantities)
-    n_agents = length(_quantities.agents_parameters)
-    parameter_keys = keys(first(_quantities.agents_parameters))
+    n_agents = length(_quantities.agent_parameters)
+    parameter_keys = keys(first(_quantities.agent_parameters))
 
     #Create containers for the restructured values
     agent_parameters = [
@@ -24,7 +24,7 @@ function extract_quantities(fitted_model::Chains, model::DynamicPPL.Model)
     for (sample_idx, sample) in enumerate(quantities)
 
         #Unpack the sample
-        sample_agent_parameters = sample.agents_parameters
+        sample_agent_parameters = sample.agent_parameters
         sample_statistical_values = sample.statistical_values
 
         #For each agent

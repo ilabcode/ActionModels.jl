@@ -46,13 +46,13 @@ include("create_agent/check_agent.jl")
 #Functions for fitting agents to data
 include("fitting/create_model.jl")
 include("fitting/agent_model.jl")
-include("fitting/population_models/independent_agents_population_model.jl")
-include("fitting/population_models/single_agent_population_model.jl")
 include("fitting/fit_model.jl")
 include("fitting/parameter_recovery.jl")
-include("fitting/helper_functions.jl")
-include("fitting/extract_quantities.jl")
-#include("fitting/prefit_checks.jl")
+include("fitting/population_models/independent_agents_population_model.jl")
+include("fitting/population_models/single_agent_population_model.jl")
+include("fitting/helper_functions/check_model.jl")
+include("fitting/helper_functions/extract_quantities.jl")
+include("fitting/helper_functions/helper_functions.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")

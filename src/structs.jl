@@ -24,9 +24,8 @@ StatisticalModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
 
 ### FOR THE GREATER FITMODEL FUNCTION
 mutable struct FitModelResults
-    model::DynamicPPL.Model
-    tracked_model::Union{Nothing,DynamicPPL.Model}
     chains::Chains
+    model::DynamicPPL.Model
 end
 
 """

@@ -63,7 +63,7 @@ function rename_chains(
     model::DynamicPPL.Model,
     #Arguments from statistical model
     prior::Dict{T,D},
-) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol}}
+) where {T<:Union{String,Tuple,Any},D<:Distribution}
 
     ## Make dict with replacement names ##
     replacement_names = Dict{String,String}()
