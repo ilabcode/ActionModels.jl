@@ -22,7 +22,7 @@ end
 ######################################
 struct PopulationModelReturn
     agent_parameters::Vector{Dict}
-    statistical_values::Any
+    other_values::Union{Nothing,Any}
 end
 PopulationModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
     PopulationModelReturn(agent_parameters, nothing)

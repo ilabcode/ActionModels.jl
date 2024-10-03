@@ -89,8 +89,8 @@ end
 ############################################
 ### WITH MISSING ACTIONS - SUPERFUNCTION ###
 ############################################
-@model function agent_models(agent::Agent, agent_ids::Vector{Symbol}, parameters_per_agent::Vector{D}, inputs_per_agent::Vector{I}, actions_per_agent::Vector{A}, actions_flattened::A, missing_actions::MissingActions) where {D<:Dict, I<:Vector, A<:Array}
-    
+@model function agent_models(agent::Agent, agent_ids::Vector{Symbol}, parameters_per_agent::Vector{D}, inputs_per_agent::Vector{I}, actions_per_agent::Vector{A}, actions_flattened::A2, missing_actions::MissingActions) where {D<:Dict, I<:Vector, A<:Array, A2<:Array}
+
     #For each agent 
     for (agent_id, agent_parameters, agent_inputs, agent_actions) in zip(agent_ids, parameters_per_agent, inputs_per_agent, actions_per_agent)
 

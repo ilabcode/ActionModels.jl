@@ -5,44 +5,50 @@
 
 function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
 
-    #Extract the generated quantities from the fitted model
+    # Extract the generated quantities from the fitted model
     quantities = generated_quantities(model, fitted_model)
 
-    #Extract information for later
-    _quantities = first(quantities)
-    n_agents = length(_quantities.agent_parameters)
-    parameter_keys = keys(first(_quantities.agent_parameters))
+    # Extract agent ids
+    agent_ids = model.args.agent_ids
+    n_agents = length(agent_ids)
 
-    #Create containers for the restructured values
-    agent_parameters = [
-        Dict(parameter_key => Vector{Real}() for parameter_key in parameter_keys) for
-        _ = 1:n_agents
-    ]
-    statistical_values = Vector()
+    # Extract parameter keys
+    parameter_keys = collect(keys(first(first(quantities).agent_parameters)))
+    parameter_keys_symbols = Symbol.(parameter_keys)
 
-    #For each sample
+    # Get the dimensionality of the array
+    n_samples = length(quantities)
+    n_agents = length(agent_ids)
+    n_parameters = length(parameter_keys)
+
+    # Create an empty 3-dimensional AxisArray
+    empty_array = Array{Float64}(undef, n_samples, n_agents, n_parameters)
+    parameter_values = AxisArray(empty_array, Axis{:sample}(1:n_samples), Axis{:agent}(agent_ids), Axis{:parameter}(parameter_keys_symbols))
+
+    # Populate the AxisArray
     for (sample_idx, sample) in enumerate(quantities)
-
-        #Unpack the sample
         sample_agent_parameters = sample.agent_parameters
-        sample_statistical_values = sample.statistical_values
 
-        #For each agent
-        for agent_idx = 1:n_agents
+        for (agent_idx, agent_id) in enumerate(agent_ids)
+            agent_parameters = sample_agent_parameters[agent_idx]
 
-            #For each parameter
-            for parameter_key in parameter_keys
-                #save the sampled parameter value
-                push!(
-                    agent_parameters[agent_idx][parameter_key],
-                    sample_agent_parameters[agent_idx][parameter_key],
-                )
+            for (parameter_key, parameter_key_symbol) in zip(parameter_keys, parameter_keys_symbols)
+                parameter_values[sample_idx, agent_id, parameter_key_symbol] = agent_parameters[parameter_key]
             end
         end
-
-        #Store the statistical value for the sample
-        push!(statistical_values, sample_statistical_values)
     end
 
-    return (agent_parameters, statistical_values)
+    #Extract the other values from the population model
+    other_values = [quantity.other_values for quantity in quantities]
+    #If they are all nothing, shorten them to one nothing
+    if all(isnothing, other_values)
+        other_values = nothing
+    end
+
+    #Only return other values if there are any
+    if isnothing(other_values)
+        return  parameter_values
+    else
+        return (agent_parameters = parameter_values, other_values = other_values)
+    end
 end
