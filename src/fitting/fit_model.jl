@@ -46,7 +46,7 @@ end
 ####################################################################
 # function fit_model(
 #     agent::Agent,
-#     statistical_model::Union{M,P},
+#     population_model::Union{M,P},
 #     data::DataFrame;
 #     parallelization::Union{Nothing,AbstractMCMC.AbstractMCMCEnsemble} = nothing,
 #     extract_quantities::Bool = true,
@@ -54,14 +54,14 @@ end
 # ) where {M<:DynamicPPL.Model,T<:Union{String,Tuple,Any},D<:Distribution,P<:Dict{T,D}}
 
 #     #Create a full model combining the agent model and the statistical model
-#     model = create_model(agent, statistical_model, data)
+#     model = create_model(agent, population_model, data)
 
 #     #Fit the model
 #     results = fit_model(model; parallelization = parallelization, sampler_kwargs...)
 
 #     #Add tracked model
 #     results.tracked_model =
-#         create_model(agent, statistical_model, data, track_states = true)
+#         create_model(agent, population_model, data, track_states = true)
 
 #     #Extract tracked states
 #     results.agent_parameters, results.agent_states, results.statistical_values =
