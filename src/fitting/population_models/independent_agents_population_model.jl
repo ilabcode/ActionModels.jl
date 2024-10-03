@@ -15,12 +15,12 @@
     parameter_distributions = repeat([param_dist for param_dist in values(prior)], 1, n_agents)
 
     #Sample parameter values
-    parameter_values ~ arraydist(parameter_distributions)
+    parameters ~ arraydist(parameter_distributions)
 
     #Put parameter values into vector of dictionaries
     for (parameter_idx, parameter_key) in enumerate(keys(prior))
         for agent_idx in 1:n_agents
-            agent_parameters[agent_idx][parameter_key] = parameter_values[parameter_idx, agent_idx]
+            agent_parameters[agent_idx][parameter_key] = parameters[parameter_idx, agent_idx]
         end
     end
 
@@ -87,16 +87,16 @@ function rename_chains(
     for (agent_idx, agent_id) in enumerate(agent_ids)
 
         #Go through each parameter in the prior
-        for (parameter_key, _) in prior
+        for (parameter_idx, parameter_key) in enumerate(keys(prior))
 
-            #If the parameter name is a string
-            if parameter_key isa String
-                #Include quation marks in the name to be replaced
-                parameter_key_left = "\"$(parameter_key)\""
-            else
-                #Otherwise, keep it as it is
-                parameter_key_left = parameter_key
-            end
+            # #If the parameter name is a string
+            # if parameter_key isa String
+            #     #Include quation marks in the name to be replaced
+            #     parameter_key_left = "\"$(parameter_key)\""
+            # else
+            #     #Otherwise, keep it as it is
+            #     parameter_key_left = parameter_key
+            # end
 
             #If the parameter key is a tuple
             if parameter_key isa Tuple
@@ -108,7 +108,7 @@ function rename_chains(
             end
 
             #Set a replacement name
-            replacement_names["parameters[$parameter_key_left][$agent_idx]"] = "$(agent_id).$parameter_key_right"
+            replacement_names["parameters[$parameter_idx, $agent_idx]"] = "$(agent_id).$parameter_key_right"
         end
     end
 

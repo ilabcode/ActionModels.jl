@@ -5,26 +5,36 @@ using ActionModels, DataFrames
     ### SETUP ###
     #Create dataframe
     data = DataFrame(
-        inputs = rand([0, 1], 20),
-        inputs_2 = rand([0, 1], 20),
-        actions = rand([0, 1], 20),
-        actions_2 = rand([0, 1], 20),
-        ID = [repeat(["A"], 5); repeat(["B"], 5); repeat(["A"], 5); repeat(["B"], 5)],
-        category = [repeat(["X"], 10); repeat(["Y"], 10)],
+        inputs = repeat([1, 1, 1, 2, 2, 2], 3),
+        actions = [0,0.5,0.8,1,1.5,1.8,0,0.2,0.3,0.4,0.5,0.6,0,2,0.5,4,5,3,],
+        age = vcat([repeat([20], 6), repeat([22], 6), repeat([28], 6)]...),
+        category = vcat([repeat(["1"], 6), repeat(["2"], 6), repeat(["2"], 6)]...),
+        id = vcat([repeat(["Hans"], 6), repeat(["Georg"], 6), repeat(["Jørgen"], 6)]...),
     )
 
     #Create agent
-    agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
+    agent = premade_agent("continuous_rescorla_wagner_gaussian", verbose = false)
+    # data = DataFrame(
+    #     inputs = rand([0, 1], 20),
+    #     inputs_2 = rand([0, 1], 20),
+    #     actions = rand([0, 1], 20),
+    #     actions_2 = rand([0, 1], 20),
+    #     ID = [repeat(["A"], 5); repeat(["B"], 5); repeat(["A"], 5); repeat(["B"], 5)],
+    #     category = [repeat(["X"], 10); repeat(["Y"], 10)],
+    # )
+
+    # #Create agent
+    # agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
 
     #Set prior
     prior = Dict(
         "learning_rate" => LogitNormal(0.0, 1.0),
-        "action_precision" => truncated(Normal(0.0, 1.0), lower = 0),
+        "action_noise" => truncated(Normal(0.0, 1.0), lower = 0),
     )
 
     #Set samplings settings
     sampler = NUTS(-1, 0.65; adtype = AutoReverseDiff(; compile = true))
-    n_iterations = 10
+    n_iterations = 1000
     n_chains = 2
     sampling_kwargs = (; progress = false)
 
@@ -56,7 +66,7 @@ using ActionModels, DataFrames
             data,
             input_cols = :inputs,
             action_cols = :actions,
-            grouping_cols = :ID,
+            grouping_cols = :id,
         )
 
         #Fit model
