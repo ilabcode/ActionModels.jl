@@ -8,21 +8,19 @@
     agent_parameters::Vector{Dict{Any,Real}} = [Dict{Any,Real}() for _ = 1:n_agents],
 ) where {T<:Union{String,Tuple,Any},D<:Distribution,I<:Int}
 
-    #Create container for sampled parameters
-    parameters = Dict{Any,Vector{Real}}()
+    #Make empty container for agent parameters
+    agent_parameters::Vector{Dict{Any,Real}} = [Dict{Any,Real}() for _ = 1:n_agents]
 
-    #Go through each of the parameters in the prior
-    for (parameter, distribution) in prior
-        #And sample a value for each agent
-        parameters[parameter] ~ filldist(distribution, n_agents)
-    end
+    #Create array ofdistributions to sample from
+    parameter_distributions = repeat([param_dist for param_dist in values(prior)], 1, n_agents)
 
-    #Go through each parameter
-    for (parameter, values) in parameters
-        #Go through each agent
-        for (agent_idx, value) in enumerate(values)
-            #Store the value in the right way
-            agent_parameters[agent_idx][parameter] = value
+    #Sample parameter values
+    parameter_values ~ arraydist(parameter_distributions)
+
+    #Put parameter values into vector of dictionaries
+    for (parameter_idx, parameter_key) in enumerate(keys(prior))
+        for agent_idx in 1:n_agents
+            agent_parameters[agent_idx][parameter_key] = parameter_values[parameter_idx, agent_idx]
         end
     end
 

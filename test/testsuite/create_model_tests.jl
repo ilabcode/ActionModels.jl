@@ -41,6 +41,9 @@ using ActionModels, DataFrames
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
+        #Extract quantities
+        (agent_parameters, statistical_values) = extract_quantities(model, fitted_model)
+
         renamed_model = rename_chains(fitted_model, model)
     end
 
