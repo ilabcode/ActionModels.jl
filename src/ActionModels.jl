@@ -10,7 +10,7 @@ using ProgressMeter, Distributed #TODO: get rid of this (only needed for paramet
 #Export functions
 export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
-export simple_statistical_model,
+export independent_agents_population_model,
     create_model, fit_model, parameter_recovery, single_recovery
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
@@ -44,13 +44,14 @@ include("create_agent/create_premade_agent.jl")
 include("create_agent/multiple_actions.jl")
 include("create_agent/check_agent.jl")
 #Functions for fitting agents to data
-include("fitting/helper_functions.jl")
-include("fitting/extract_quantities.jl")
 include("fitting/create_model.jl")
-include("fitting/simple_statistical_model.jl")
-include("fitting/single_agent_statistical_model.jl")
+include("fitting/agent_model.jl")
+include("fitting/population_models/independent_agents_population_model.jl")
+include("fitting/population_models/single_agent_population_model.jl")
 include("fitting/fit_model.jl")
 include("fitting/parameter_recovery.jl")
+include("fitting/helper_functions.jl")
+include("fitting/extract_quantities.jl")
 #include("fitting/prefit_checks.jl")
 
 #Plotting functions for agents

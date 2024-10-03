@@ -12,7 +12,7 @@ Base.@kwdef mutable struct Agent
     save_history::Bool = true
 end
 
-#TYPE FOR RETURNING THINGS FROM STATISTICAL MDOEL ###
+#TYPE FOR RETURNING OUTCOMES OF STATISTICAL MDOEL ###
 struct StatisticalModelReturn
     agent_parameters::Vector{Dict}
     statistical_values::Any
@@ -21,12 +21,6 @@ end
 StatisticalModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
     StatisticalModelReturn(agent_parameters, nothing)
 
-#TYPE FOR RETURNING GENERATED QUANTITIES
-struct GeneratedQuantitites
-    agents_parameters::Vector{Dict}
-    agents_states::Vector{Dict}
-    statistical_values::Union{Some{Any},Nothing}
-end
 
 ### FOR THE GREATER FITMODEL FUNCTION
 mutable struct FitModelResults
@@ -42,8 +36,11 @@ struct RejectParameters <: Exception
     errortext::Any
 end
 
+struct CheckRejections
+end
 
-
+struct MissingActions
+end
 
 
 """
