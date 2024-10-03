@@ -24,11 +24,10 @@ end
 function rename_chains(
     chains::Chains,
     model::DynamicPPL.Model,
-    data::DataFrame,
-    grouping_cols::Union{Vector{C},C},
 ) where {C<:Union{String,Symbol}}
+
     #This will multiple dispatch on the type of statistical model
-    rename_chains(chains, data, grouping_cols, model.args.population_model.args...)
+    rename_chains(chains, model, model.args.population_model.args...)
 end
 
 

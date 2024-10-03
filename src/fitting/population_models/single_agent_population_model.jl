@@ -60,19 +60,10 @@ end
 ################################################################################
 function rename_chains(
     chains::Chains,
-    data::DataFrame,
-    grouping_cols::Union{Vector{C},C},
+    model::DynamicPPL.Model,
     #Arguments from statistical model
     prior::Dict{T,D},
 ) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol}}
-
-    #Make sure the groupoing cols are a vector 
-    if !(grouping_cols isa Vector{C})
-        grouping_cols = C[grouping_cols]
-    end
-
-    ## Make dict with index to agent mapping ##
-    idx_to_agent = Dict{Int,Any}()
 
     ## Make dict with replacement names ##
     replacement_names = Dict{String,String}()
