@@ -73,40 +73,20 @@ end
 ##########################################################################
 function rename_chains(
     chains::Chains,
-    data::DataFrame,
-    grouping_cols::Union{Vector{C},C},
+    model::DynamicPPL.Model,
     #Arguments from statistical model
     prior::Dict{T,D},
     n_agents::I,
     agent_parameters::Vector{Dict{Any,Real}},
 ) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol},I<:Int}
 
-    #Make sure grouping columns are a vector
-    if !(grouping_cols isa Vector{C})
-        grouping_cols = C[grouping_cols]
-    end
-
-    ## Make dict with index to agent mapping ##
-    idx_to_agent = Dict{Int,Any}()
-
-    #Go through each unique agent ID
-    for (agent_idx, agent_key) in
-        enumerate(eachrow(unique(data, grouping_cols)[:, grouping_cols]))
-
-        #If there is only one grouping column
-        if length(grouping_cols) == 1
-            #Set the agent index to the agent ID
-            idx_to_agent[agent_idx] = agent_key[1]
-        else
-            #Set the agent index to the tuple of agent IDs
-            idx_to_agent[agent_idx] = Tuple(agent_key)
-        end
-    end
+    #Extract agent ids
+    agent_ids = model.args.agent_ids
 
     ## Make dict with replacement names ##
     replacement_names = Dict{String,String}()
 
-    for (agent_idx, agent_key) in idx_to_agent
+    for (agent_idx, agent_id) in enumerate(agent_ids)
 
         #Go through each parameter in the prior
         for (parameter_key, _) in prior
@@ -130,7 +110,7 @@ function rename_chains(
             end
 
             #Set a replacement name
-            replacement_names["parameters[$parameter_key_left][$agent_idx]"] = "$agent_key $parameter_key_right"
+            replacement_names["parameters[$parameter_key_left][$agent_idx]"] = "$(agent_id).$parameter_key_right"
         end
     end
 
