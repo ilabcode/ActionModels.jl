@@ -79,8 +79,24 @@ using ActionModels, DataFrames
         #     extract_quantities(fitted_model, model_tracked)
     end
 
-    @testset "no grouping cols" begin
+    @testset "custom statistical model" begin
 
+    end
+
+    @testset "no grouping cols" begin
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = Symbol[]
+        )
+
+        #Fit model
+        fitted_model =
+            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
     end
 
     @testset "multiple grouping cols" begin
@@ -155,15 +171,6 @@ using ActionModels, DataFrames
         #     extract_quantities(fitted_model, model_tracked)
     end
 
-    @testset "custom statistical model" begin
-
-    end
-
-    @testset "multiple actions, missing actions" begin
-        
-
-    end
-
     @testset "multiple actions" begin
 
         #Action model with multiple actions    
@@ -194,6 +201,11 @@ using ActionModels, DataFrames
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+
+    end
+
+    @testset "multiple actions, missing actions" begin
+        
 
     end
 

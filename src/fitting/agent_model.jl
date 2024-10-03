@@ -148,7 +148,6 @@ end
             actions[timestep, action_idx] ~
                 single_distribution
                 #TODO: can use @inbounds here when there's a check for whether the right amount of actions are produced
-                #TODO: Could use arraydist here if this was formatted as a vector of vectors (probably not!)
         end
 
         #Add the actions to the agent in case it needs it in the future
