@@ -1,4 +1,8 @@
+##################
+## AGENT STRUCT ##
+##################
 """
+Agent struct
 """
 Base.@kwdef mutable struct Agent
     action_model::Function
@@ -12,21 +16,24 @@ Base.@kwdef mutable struct Agent
     save_history::Bool = true
 end
 
-#TYPE FOR RETURNING OUTCOMES OF STATISTICAL MDOEL ###
-struct StatisticalModelReturn
+
+######################################
+## STRUCTS FOR CREATE AND FIT MODEL ##
+######################################
+struct PopulationModelReturn
     agent_parameters::Vector{Dict}
-    statistical_values::Any
+    other_values::Union{Nothing,Any}
 end
-#Add default value for statistical values
-StatisticalModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
-    StatisticalModelReturn(agent_parameters, nothing)
+PopulationModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
+    PopulationModelReturn(agent_parameters, nothing)
 
-
-### FOR THE GREATER FITMODEL FUNCTION
+struct CheckRejections
+end
+struct MissingActions
+end
 mutable struct FitModelResults
-    model::DynamicPPL.Model
-    tracked_model::Union{Nothing,DynamicPPL.Model}
     chains::Chains
+    model::DynamicPPL.Model
 end
 
 """
@@ -36,13 +43,10 @@ struct RejectParameters <: Exception
     errortext::Any
 end
 
-struct CheckRejections
-end
 
-struct MissingActions
-end
-
-
+####################################
+## STRUCTS FOR SETTING PARAMETERS ##
+####################################
 """
 Type to use for specifying a paramter that sets a state's initial value
 """
