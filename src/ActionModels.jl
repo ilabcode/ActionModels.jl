@@ -12,6 +12,7 @@ export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
 export independent_agents_population_model,
     create_model, fit_model, parameter_recovery, single_recovery
+export ChainSaveResume
 export plot_parameter_distribution,
     plot_predictive_simulation, plot_trajectory, plot_trajectory!
 export get_history,

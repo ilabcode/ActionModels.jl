@@ -9,9 +9,12 @@ struct ChainSaveResume
     chain_prefix::String
 end
 
-
-ChainSaveResume() = ChainSaveResume(100, "./.samplingstate", false, "ActionModels_chain_link")
-
+ChainSaveResume(;
+    save_every::Int = 100,
+    path = "./.samplingstate",
+    plot_progress::Bool = false,
+    chain_prefix = "ActionModels_chain_link",
+) = ChainSaveResume(save_every, path, plot_progress, chain_prefix)
 
 
 function prepare_sampler(
@@ -30,13 +33,13 @@ function prepare_sampler(
     sampler_ϵ = chains[:step_size][end]
     # create a new sampler with the last state
     # n_adapts can be zero because we load the warmed-up sampler state
-    return NUTS(;
-        n_adapts = 0,
-        δ = sampler.δ,
-        Δ_max = sampler.Δ_max,
-        adtype = sampler.adtype,
-        init_ϵ = sampler_ϵ,
-        max_depth = sampler.max_depth,
+    return NUTS(
+        0,
+        sampler.δ;
+        Δ_max=sampler.Δ_max,
+        adtype=sampler.adtype,
+        init_ϵ=sampler_ϵ,
+        max_depth=sampler.max_depth,
     )
 end
 
@@ -55,9 +58,10 @@ function validate_saved_sampling_state!(
         @error "Path $(save_resume.path) is not a directory"
     end
     # check if the path is writable
-    if !iswritable(save_resume.path)
+    if !(uperm(save_resume.path) & 0x02 == 0x02)
         @error "Path $(save_resume.path) is not writable"
     end
+    
 
     # find the last segment (for each chain)
     last_segment = Int[]
@@ -81,11 +85,11 @@ end
 
 function load_segment(
     save_resume::ChainSaveResume,
-    chain::Int,
+    chain_n::Int,
     segment::Int,
 )
     # load the chain
-    chain = h5open(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain)_s$(segment).h5"), "r") do file
+    chain = h5open(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain_n)_s$(segment).h5"), "r") do file
         read(file, Chains)
     end
     # extra validation?
@@ -93,20 +97,14 @@ function load_segment(
 end
 
 function save_segment(
-    chain::Chains,
+    seg::Chains,
     save_resume::ChainSaveResume,
-    segment::Int,
+    chain_n::Int,
+    seg_n::Int,
 )
-    seg_length = size(chain, 1)
-    seg_start = (segment-1) * save_resume.save_every + 1
-    seg_end = seg_start - 1 + seg_length
-
-    # update the chain range
-    chain = setrange(chain, seg_start:seg_end)
-
     # save the chain
-    h5open(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain.chain_id)_s$(segment).h5"), "w") do file
-        write(file, "chain", chain)
+    h5open(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain_n)_s$(seg_n).h5"), "w") do file
+        write(file, seg)
     end
 end
 
@@ -115,16 +113,22 @@ function combine_segments(
     n_segments::Int,
     n_chains::Int,
 )
-    chains = Chains[]
+    chains::Vector{Union{Nothing,Chains}} = fill(nothing, n_chains)
     for chain in 1:n_chains
-        segments = Chains[]
-        for segment in a:n_segments
-            segments[segment] = load_segment(save_resume, chain, segment)
+        segments::Vector{Union{Nothing,Chains}} = fill(nothing, n_segments)
+        seg_start = 1
+        for segment in 1:n_segments
+            seg = load_segment(save_resume, chain, segment)
+            # update the range
+            seg_end = seg_start + length(seg) - 1
+            seg = setrange(seg, seg_start:seg_end)
+            seg_start = seg_end + 1
+            segments[segment] = seg
         end
         chains[chain] = cat(segments..., dims=1)
     end
 
-    return chainscat(segments...)
+    return chainscat(chains...)
 end
 
 
@@ -142,7 +146,7 @@ function fit_model(
     show_sample_rejections::Bool=false,
     show_progress::Bool=true,
     result_save_path::Union{Nothing,String}=nothing,
-    save_resume::Union{ChainSaveResume, Nothing}=nothing,
+    save_resume::Union{ChainSaveResume,Nothing}=nothing,
     sampler_kwargs...,
 )
 
@@ -158,32 +162,38 @@ function fit_model(
 
     if save_resume isa ChainSaveResume && save_resume.save_every < n_iterations
         final_segment = n_iterations % save_resume.save_every
-        n_segments = floor(n_iterations / save_resume.save_every) + Int(final_segment > 0)
-        resume_from::Array[Union{Nothing,Chains}] = fill(nothing, n_chains)
+        n_segments = Int(floor(n_iterations / save_resume.save_every)) + Int(final_segment > 0)
+        resume_from::Vector{Union{Nothing,Chains}} = fill(nothing, n_chains)
         samplers = fill(sampler, n_chains)
         last_complete_segment = validate_saved_sampling_state!(save_resume, n_segments, n_chains)
+        # this outer loop can be parallelized
         for chain in 1:n_chains
             if last_complete_segment[chain] > 0
                 resume_from[chain] = load_segment(save_resume, chain, last_complete_segment[chain])
                 samplers[chain] = prepare_sampler(sampler, resume_from[chain])
             end
-            for cur_seg in start_seg:n_segments
+
+            # the inner loop must run sequentially
+            for cur_seg in last_complete_segment[chain] + 1:n_segments
                 # use the save_every value unless there are some iterations left over
                 n_iter = final_segment > 0 && cur_seg == n_segments ? final_segment : save_resume.save_every
                 # Run the sampler
-                chain = sample(
+                seg = sample(
                     model,
                     samplers[chain],
                     n_iter;
                     nchains=1,
                     progress=false,
-                    resume_from = resume_from[chain],
+                    resume_from=resume_from[chain],
+                    save_state=true,
                     sampler_kwargs...,
                 )
-                samplers[chain] = prepare_sampler(sampler, chain)
-                resume_from[chain] = chain
                 # Save the chain
-                save_segment(chain, save_resume, cur_seg)
+                save_segment(seg, save_resume, chain, cur_seg)
+                # Update the resume_from and sampler
+                samplers[chain] = prepare_sampler(sampler, seg)
+                resume_from[chain] = seg
+                
             end
         end
         chains = combine_segments(save_resume, n_segments, n_chains)
