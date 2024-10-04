@@ -96,8 +96,8 @@ end
     agent_ids::Vector{Symbol};
     missing_actions::Union{Nothing, MissingActions} = MissingActions(),
     check_parameter_rejections::Nothing = nothing,
-    actions_flattened::A = vcat(actions_per_agent...)
-) where {I<:Vector, R<:Real, A1 <:Union{R,Union{Missing,R}}, A<:Array{A1}}
+    actions_flattened::A2 = vcat(actions_per_agent...)
+) where {I<:Vector, R<:Real, A1 <:Union{R,Union{Missing,R}}, A<:Array{A1}, A2<:Array}
 
     #Generate the agent parameters from the statistical model
     @submodel population_values = population_model

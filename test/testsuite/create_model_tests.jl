@@ -1,31 +1,31 @@
 using Test
 using ActionModels, DataFrames
-
 @testset "fitting tests" begin
 
     ### SETUP ###
     #Create dataframe
     data = DataFrame(
-        inputs = rand([0, 1], 20),
-        inputs_2 = rand([0, 1], 20),
-        actions = rand([0, 1], 20),
-        actions_2 = rand([0, 1], 20),
-        ID = [repeat(["A"], 5); repeat(["B"], 5); repeat(["A"], 5); repeat(["B"], 5)],
-        category = [repeat(["X"], 10); repeat(["Y"], 10)],
+        inputs = repeat([1, 1, 1, 2, 2, 2], 3),
+        inputs_2 = repeat([1, 1, 1, 2, 2, 2], 3),
+        actions = [0,0.5,0.8,1,1.5,1.8,0,0.2,0.3,0.4,0.5,0.6,0,2,0.5,4,5,3,],
+        actions_2 = [0,0.5,0.8,1,1.5,1.8,0,0.2,0.3,0.4,0.5,0.6,0,2,0.5,4,5,3,],
+        age = vcat([repeat([20], 6), repeat([22], 6), repeat([28], 6)]...),
+        category = vcat([repeat(["1"], 6), repeat(["2"], 6), repeat(["2"], 6)]...),
+        id = vcat([repeat(["Hans"], 6), repeat(["Georg"], 6), repeat(["Jørgen"], 6)]...),
     )
 
     #Create agent
-    agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
+    agent = premade_agent("continuous_rescorla_wagner_gaussian", verbose = false)
 
     #Set prior
     prior = Dict(
         "learning_rate" => LogitNormal(0.0, 1.0),
-        "action_precision" => truncated(Normal(0.0, 1.0), lower = 0),
+        "action_noise" => truncated(Normal(0.0, 1.0), lower = 0),
     )
 
     #Set samplings settings
     sampler = NUTS(-1, 0.65; adtype = AutoReverseDiff(; compile = true))
-    n_iterations = 10
+    n_iterations = 1000
     n_chains = 2
     sampling_kwargs = (; progress = false)
 
@@ -42,7 +42,10 @@ using ActionModels, DataFrames
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
-        renamed_model = rename_chains(fitted_model, model, data, :ID)
+        #Extract quantities
+        agent_parameters = extract_quantities(model, fitted_model)
+       
+        renamed_model = rename_chains(fitted_model, model)
     end
 
     @testset "simple statistical model" begin
@@ -54,29 +57,18 @@ using ActionModels, DataFrames
             data,
             input_cols = :inputs,
             action_cols = :actions,
-            grouping_cols = :ID,
+            grouping_cols = :id,
         )
 
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+    
+        #Extract quantities
+        agent_parameters = extract_quantities(model, fitted_model)
 
         #Rename chains
-        renamed_model = rename_chains(fitted_model, model, data, :ID)
-
-        #Create model with tracking states
-        # model_tracked = create_model(
-        #     agent,
-        #     prior,
-        #     data,
-        #     input_cols = :inputs,
-        #     action_cols = :actions,
-        #     grouping_cols = :ID,
-        # )
-
-        #Extract quantities
-        # agent_parameters, agent_states, statistical_values =
-        #     extract_quantities(fitted_model, model_tracked)
+        renamed_model = rename_chains(fitted_model, model)
     end
 
     @testset "custom statistical model" begin
@@ -97,6 +89,12 @@ using ActionModels, DataFrames
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+
+        # #Extract quantities
+        # agent_parameters = extract_quantities(model, fitted_model)
+
+        # #Rename chains
+        # renamed_model = rename_chains(fitted_model, model)
     end
 
     @testset "multiple grouping cols" begin
@@ -108,29 +106,18 @@ using ActionModels, DataFrames
             data,
             input_cols = :inputs,
             action_cols = :actions,
-            grouping_cols = [:ID, :category],
+            grouping_cols = [:id, :category],
         )
 
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
+        #Extract quantities
+        agent_parameters = extract_quantities(model, fitted_model)
+
         #Rename chains
-        renamed_model = rename_chains(fitted_model, model, data, [:ID, :category])
-
-        # #Create model with tracking states
-        # model_tracked = create_model(
-        #     agent,
-        #     prior,
-        #     data,
-        #     input_cols = :inputs,
-        #     action_cols = :actions,
-        #     grouping_cols = [:ID, :category],
-        # )
-
-        # #Extract quantities
-        # agent_parameters, agent_states, statistical_values =
-        #     extract_quantities(fitted_model, model_tracked)
+        renamed_model = rename_chains(fitted_model, model)
     end
 
     @testset "missing actions" begin
@@ -146,29 +133,18 @@ using ActionModels, DataFrames
             new_data,
             input_cols = :inputs,
             action_cols = :actions,
-            grouping_cols = :ID,
+            grouping_cols = :id,
         )
 
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
+        #Extract quantities
+        agent_parameters = extract_quantities(model, fitted_model)
+
         #Rename chains
-        renamed_model = rename_chains(fitted_model, model, data, :ID)
-
-        # #Create model with tracking states
-        # model_tracked = create_model(
-        #     agent,
-        #     prior,
-        #     data,
-        #     input_cols = :inputs,
-        #     action_cols = :actions,
-        #     grouping_cols = :ID,
-        # )
-
-        # #Extract quantities
-        # agent_parameters, agent_states, statistical_values =
-        #     extract_quantities(fitted_model, model_tracked)
+        renamed_model = rename_chains(fitted_model, model)
     end
 
     @testset "multiple actions" begin
@@ -186,6 +162,7 @@ using ActionModels, DataFrames
         #Create agent
         new_agent = init_agent(multi_action, parameters = Dict("noise" => 1.0))
 
+        #Set prior
         new_prior = Dict("noise" => LogNormal(0.0, 1.0))
 
         #Create model
@@ -195,12 +172,18 @@ using ActionModels, DataFrames
             data,
             input_cols = :inputs,
             action_cols = [:actions, :actions_2],
-            grouping_cols = :ID,
+            grouping_cols = :id,
         )
 
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+
+        #Extract quantities
+        agent_parameters = extract_quantities(model, fitted_model)
+
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, model)
 
     end
 
@@ -234,12 +217,18 @@ using ActionModels, DataFrames
             data,
             input_cols = [:inputs, :inputs_2],
             action_cols = :actions,
-            grouping_cols = :ID,
+            grouping_cols = :id,
         )
 
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+
+        #Extract quantities
+        agent_parameters = extract_quantities(model, fitted_model)
+
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, model)
     end
 
     @testset "multiple inputs and multiple actions" begin
@@ -268,68 +257,17 @@ using ActionModels, DataFrames
             data,
             input_cols = [:inputs, :inputs_2],
             action_cols = [:actions, :actions_2],
-            grouping_cols = :ID,
+            grouping_cols = :id,
         )
 
         #Fit model
         fitted_model =
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+
+        #Extract quantities
+        agent_parameters = extract_quantities(model, fitted_model)
+
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, model)
     end
 end
-
-
-
-
-# @testset "ensure parameters are reset after fitting" begin
-
-#     agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
-
-#     initial_parameters = get_parameters(agent)
-
-#     param_priors = Dict("learning_rate" => Uniform(0, 1))
-
-#     inputs = [1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0]
-
-#     actions = give_inputs!(agent, inputs)
-
-#     chains = fit_model(
-#         agent,
-#         param_priors,
-#         inputs,
-#         actions,
-#         n_chains = 1,
-#         n_iterations = 10,
-#         verbose = false,
-#         show_progress = false,
-#     )
-
-#     @test get_parameters(agent) == initial_parameters
-
-# end
-
-
-# @testset "Make sure fitting allows using a custom sampler" begin
-
-#     agent = premade_agent("binary_rescorla_wagner_softmax", verbose = false)
-
-#     param_priors = Dict("learning_rate" => Uniform(0, 1))
-
-#     inputs = [1, 0, 1, 1, 1, 1, 1, 0, 0, 0, 0]
-
-#     actions = give_inputs!(agent, inputs)
-
-#     rwmh = externalsampler(AdvancedMH.RWMH(10))
-
-#     chains = fit_model(
-#         agent,
-#         param_priors,
-#         inputs,
-#         actions,
-#         n_chains = 1,
-#         n_iterations = 10,
-#         sampler = rwmh,
-#         verbose = false,
-#         show_progress = false,
-#     )
-
-# end

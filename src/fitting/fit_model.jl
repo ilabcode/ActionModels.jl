@@ -225,33 +225,6 @@ function fit_model(
     #     end
     # end
 
-    return FitModelResults(model, nothing, chains)
+    return FitModelResults(chains, model)
 end
 
-
-####################################################################
-### FULL CONVENIENCE FUNCTION THAT CAN ADD ADDITIONAL COMPONENTS ###
-####################################################################
-# function fit_model(
-#     agent::Agent,
-#     population_model::Union{M,P},
-#     data::DataFrame;
-#     parallelization::Union{Nothing,AbstractMCMC.AbstractMCMCEnsemble} = nothing,
-#     extract_quantities::Bool = true,
-#     sampler_kwargs...,
-# ) where {M<:DynamicPPL.Model,T<:Union{String,Tuple,Any},D<:Distribution,P<:Dict{T,D}}
-
-#     #Create a full model combining the agent model and the statistical model
-#     model = create_model(agent, population_model, data)
-
-#     #Fit the model
-#     results = fit_model(model; parallelization = parallelization, sampler_kwargs...)
-
-#     #Add tracked model
-#     results.tracked_model =
-#         create_model(agent, population_model, data, track_states = true)
-
-#     #Extract tracked states
-#     results.agent_parameters, results.agent_states, results.statistical_values =
-#         extract_quantities(results.chains, results.tracked_model)
-# end
