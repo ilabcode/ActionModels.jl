@@ -14,7 +14,16 @@ function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
 
     # Extract parameter keys
     parameter_keys = collect(keys(first(first(quantities).agent_parameters)))
-    parameter_keys_symbols = Symbol.(parameter_keys)
+    parameter_keys_symbols = [
+        begin
+            if parameter_key isa Tuple
+                Symbol(join(parameter_key, "__"))
+            else
+                Symbol(parameter_key)
+            end
+        end
+            for parameter_key in parameter_keys
+                ]
 
     # Get the dimensionality of the array
     n_samples = length(quantities)
@@ -32,7 +41,13 @@ function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
         for (agent_idx, agent_id) in enumerate(agent_ids)
             agent_parameters = sample_agent_parameters[agent_idx]
 
-            for (parameter_key, parameter_key_symbol) in zip(parameter_keys, parameter_keys_symbols)
+            for parameter_key in parameter_keys
+                #Join tuples
+                if parameter_key isa Tuple
+                    parameter_key_symbol = Symbol(join(parameter_key, "__"))
+                else
+                    parameter_key_symbol = Symbol(parameter_key)
+                end
                 parameter_values[sample_idx, agent_id, parameter_key_symbol] = agent_parameters[parameter_key]
             end
         end
