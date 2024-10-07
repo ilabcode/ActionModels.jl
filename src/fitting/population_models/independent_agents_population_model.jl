@@ -12,15 +12,17 @@
     agent_parameters::Vector{Dict{Any,Real}} = [Dict{Any,Real}() for _ = 1:n_agents]
 
     #Create array ofdistributions to sample from
-    parameter_distributions = repeat([param_dist for param_dist in values(prior)], 1, n_agents)
+    parameter_distributions =
+        repeat([param_dist for param_dist in values(prior)], 1, n_agents)
 
     #Sample parameter values
     parameters ~ arraydist(parameter_distributions)
 
     #Put parameter values into vector of dictionaries
     for (parameter_idx, parameter_key) in enumerate(keys(prior))
-        for agent_idx in 1:n_agents
-            agent_parameters[agent_idx][parameter_key] = parameters[parameter_idx, agent_idx]
+        for agent_idx = 1:n_agents
+            agent_parameters[agent_idx][parameter_key] =
+                parameters[parameter_idx, agent_idx]
         end
     end
 
@@ -88,15 +90,6 @@ function rename_chains(
 
         #Go through each parameter in the prior
         for (parameter_idx, parameter_key) in enumerate(keys(prior))
-
-            # #If the parameter name is a string
-            # if parameter_key isa String
-            #     #Include quation marks in the name to be replaced
-            #     parameter_key_left = "\"$(parameter_key)\""
-            # else
-            #     #Otherwise, keep it as it is
-            #     parameter_key_left = parameter_key
-            # end
 
             #If the parameter key is a tuple
             if parameter_key isa Tuple
