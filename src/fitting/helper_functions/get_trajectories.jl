@@ -21,7 +21,7 @@ function get_trajectories(
     state_key_symbols = [
         begin
             if state_key isa Tuple
-                Symbol(join(state_key, "__"))
+                Symbol(join(state_key, tuple_separator))
             else
                 Symbol(state_key)
             end
@@ -58,7 +58,7 @@ function get_trajectories(
 
                     ## Put parameter keys in the right format
                     parameter_string = string(parameter)
-                    parameter_string = split(parameter_string, "__")
+                    parameter_string = split(parameter_string, tuple_separator)
 
                     #if the parameter is a composite parameter
                     if length(parameter_string) > 1
@@ -86,7 +86,7 @@ function get_trajectories(
 
                     # Join tuples
                     if state isa Tuple
-                        state_key_symbol = Symbol(join(state, "__"))
+                        state_key_symbol = Symbol(join(state, tuple_separator))
                     else
                         state_key_symbol = Symbol(state)
                     end

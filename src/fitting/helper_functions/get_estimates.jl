@@ -154,11 +154,11 @@ function get_estimates(
             begin
                 #Join tuples
                 if state isa Tuple
-                    state = join(state, "__")
+                    state = join(state, tuple_separator)
                 end
 
                 #Join the agent and the state
-                Symbol(join((string(agent), string(state)), ".")) => Float64[]
+                Symbol(join((string(agent), string(state)), id_separator)) => Float64[]
             end for (state, agent) in Iterators.product(states, agents)
         ),
     )
@@ -178,11 +178,11 @@ function get_estimates(
 
                 #Join tuples
                 if state isa Tuple
-                    state = join(state, "__")
+                    state = join(state, tuple_separator)
                 end
 
                 # Add the value to the row
-                row[Symbol(join((string(agent), string(state)), "."))] = median_value
+                row[Symbol(join((string(agent), string(state)), id_separator))] = median_value
             end
 
             #Add the timestep to the row
