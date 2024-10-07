@@ -86,8 +86,36 @@ end
 
 
 
+
+
+
+
+############################################################################################
+####### FUNCTION FOR GENERATING SUMMARIZED VARIABLES FROM AN AGENT_PARMAETERS AXISARRAY ####
+############################################################################################
+function get_estimates(
+    agent_parameters::AxisArray{
+        Float64,
+        4,
+        Array{Float64,4},
+        Tuple{
+            Axis{:agent,Vector{Symbol}},
+            Axis{:parameter,Vector{Symbol}},
+            Axis{:sample,UnitRange{Int64}},
+            Axis{:chain,UnitRange{Int64}},
+        },
+    },
+    output_type::T = DataFrame,
+    summary_function::Function = median,
+) where T<:Union{Type{Dict}, Type{DataFrame}}
+
+    get_estimates(agent_parameters, summary_function, output_type) 
+
+end
+
+
 #############################################################################################################
-####### FUNCTION FOR GENERATING A DATAFRAME WITH SUMMARIZED VARIABLES FROM AN AGENT_PARMAETERS AXISARRAY ####
+####### DSISPATCH FUNCTION FOR GENERATING A DATAFRAME ####
 #############################################################################################################
 function get_estimates(
     agent_parameters::AxisArray{
@@ -101,8 +129,8 @@ function get_estimates(
             Axis{:chain,UnitRange{Int64}},
         },
     },
-    summary_function::Function = median;
-    output_type::Type{DataFrame} = DataFrame,
+    output_type::Type{DataFrame},
+    summary_function::Function = median,
 )
 
     #Extract agents and parameters
@@ -137,7 +165,6 @@ function get_estimates(
 end
 
 
-
 #########################################################
 ####### VERSION WHICH GENERATES A DICTIONARY INSTEAD ####
 #########################################################
@@ -152,8 +179,9 @@ function get_estimates(agent_parameters::AxisArray{
             Axis{:chain,UnitRange{Int64}},
         },
     },
-    summary_function::Function = median;
-    output_type::Type{Dict} = Dict,)
+    output_type::Type{Dict},
+    summary_function::Function = median,
+)
 
     #Extract agents and parameters
     agents = agent_parameters.axes[1]
