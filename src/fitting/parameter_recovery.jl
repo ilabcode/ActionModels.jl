@@ -30,8 +30,9 @@ function single_recovery(
     #Fit the model to the simulated data
     result = fit_model(model; sampler_settings..., progress = false)
 
-    #Extract the posterior medians
-    posterior_medians = get_posteriors(result.chains)
+    #Extract the agent posteriors
+    agent_parameters = extract_quantities(model, result.chains)
+    posterior_medians = get_estimates(agent_parameters, Dict)
 
     ## - Rename dictionaries - ##
     #Make a renamed dictionary with true parameter values

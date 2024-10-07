@@ -22,7 +22,7 @@ export get_history,
     give_inputs!,
     single_input!,
     set_save_history!
-export get_posteriors, extract_quantities, rename_chains, update_states!, get_estimates
+export extract_quantities, rename_chains, update_states!, get_estimates
 
 #Load premade agents
 function __init__()
@@ -52,6 +52,7 @@ include("fitting/population_models/independent_agents_population_model.jl")
 include("fitting/population_models/single_agent_population_model.jl")
 include("fitting/helper_functions/check_model.jl")
 include("fitting/helper_functions/extract_quantities.jl")
+include("fitting/helper_functions/get_estimates.jl")
 include("fitting/helper_functions/helper_functions.jl")
 
 #Plotting functions for agents
@@ -67,7 +68,6 @@ include("utils/give_inputs.jl")
 include("utils/reset.jl")
 include("utils/set_parameters.jl")
 include("utils/warn_premade_defaults.jl")
-include("utils/get_posteriors.jl")
 include("utils/pretty_printing.jl")
 include("utils/update_states.jl")
 include("utils/set_save_history.jl")
