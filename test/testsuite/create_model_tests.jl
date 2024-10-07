@@ -271,4 +271,3 @@ using ActionModels, DataFrames
         renamed_model = rename_chains(fitted_model, model)
     end
 end
-
