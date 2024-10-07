@@ -27,7 +27,7 @@ function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
     n_agents = length(agent_ids)
     n_parameters = length(parameter_keys)
 
-    # Create an empty 3-dimensional AxisArray
+    # Create an empty AxisArray
     empty_array = Array{Float64}(undef, n_agents, n_parameters, n_samples, n_chains)
     parameter_values = AxisArray(
         empty_array,

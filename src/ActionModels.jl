@@ -22,7 +22,7 @@ export get_history,
     give_inputs!,
     single_input!,
     set_save_history!
-export extract_quantities, rename_chains, update_states!, get_estimates
+export extract_quantities, rename_chains, update_states!, get_estimates, get_trajectories
 
 #Load premade agents
 function __init__()
@@ -53,6 +53,7 @@ include("fitting/population_models/single_agent_population_model.jl")
 include("fitting/helper_functions/check_model.jl")
 include("fitting/helper_functions/extract_quantities.jl")
 include("fitting/helper_functions/get_estimates.jl")
+include("fitting/helper_functions/get_trajectories.jl")
 include("fitting/helper_functions/helper_functions.jl")
 
 #Plotting functions for agents

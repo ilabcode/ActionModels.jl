@@ -1,6 +1,7 @@
 using Test
 using StatsPlots
 using ActionModels, DataFrames
+using AxisArrays
 @testset "fitting tests" begin
 
     ### SETUP ###
@@ -103,10 +104,15 @@ using ActionModels, DataFrames
         fitted_model =
             sample(model, sampler, n_iterations; sampling_kwargs...)
 
-        #Extract quantities
+        #Extract agent parameters
         agent_parameters = extract_quantities(model, fitted_model)
         estimates_df = get_estimates(agent_parameters)
         estimates_dict = get_estimates(agent_parameters, Dict)
+        #Extract state trajectories
+        state_trajectories = get_trajectories(model, fitted_model, ["value", "input", "action"])
+
+        @test state_trajectories isa AxisArrays.AxisArray{Float64, 5, Array{Float64, 5}, Tuple{AxisArrays.Axis{:agent, Vector{Symbol}}, AxisArrays.Axis{:state, Vector{Symbol}}, AxisArrays.Axis{:timestep, UnitRange{Int64}}, AxisArrays.Axis{:sample, UnitRange{Int64}}, AxisArrays.Axis{:chain, UnitRange{Int64}}}}
+        @test agent_parameters isa AxisArrays.AxisArray{Float64, 4, Array{Float64, 4}, Tuple{AxisArrays.Axis{:agent, Vector{Symbol}}, AxisArrays.Axis{:parameter, Vector{Symbol}}, AxisArrays.Axis{:sample, UnitRange{Int64}}, AxisArrays.Axis{:chain, UnitRange{Int64}}}}
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
