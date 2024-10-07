@@ -25,30 +25,38 @@ function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
             for parameter_key in parameter_keys
                 ]
 
-    # Get the dimensionality of the array
-    n_samples = length(quantities)
+    # Get the dimensionality of the output array
+    (n_samples, _, n_chains) = size(fitted_model.value)
     n_agents = length(agent_ids)
     n_parameters = length(parameter_keys)
 
     # Create an empty 3-dimensional AxisArray
-    empty_array = Array{Float64}(undef, n_samples, n_agents, n_parameters)
-    parameter_values = AxisArray(empty_array, Axis{:sample}(1:n_samples), Axis{:agent}(agent_ids), Axis{:parameter}(parameter_keys_symbols))
+    empty_array = Array{Float64}(undef, n_agents, n_parameters, n_samples, n_chains)
+    parameter_values = AxisArray(empty_array, Axis{:agent}(agent_ids), Axis{:parameter}(parameter_keys_symbols), Axis{:sample}(1:n_samples), Axis{:chain}(1:n_chains))
 
-    # Populate the AxisArray
-    for (sample_idx, sample) in enumerate(quantities)
-        sample_agent_parameters = sample.agent_parameters
+    # For each chain and each sample
+    for chain_idx in 1:n_chains
+        for sample_idx in 1:n_samples
 
-        for (agent_idx, agent_id) in enumerate(agent_ids)
-            agent_parameters = sample_agent_parameters[agent_idx]
+            #Extract the corresponding quantity.
+            sample_quantities = quantities[(chain_idx - 1) * n_samples + sample_idx]
+            sample_agent_parameters = sample_quantities.agent_parameters
 
-            for parameter_key in parameter_keys
-                #Join tuples
-                if parameter_key isa Tuple
-                    parameter_key_symbol = Symbol(join(parameter_key, "__"))
-                else
-                    parameter_key_symbol = Symbol(parameter_key)
+            # For each agent
+            for (agent_idx, agent_id) in enumerate(agent_ids)
+                agent_parameters = sample_agent_parameters[agent_idx]
+
+                # For each aprameter
+                for parameter_key in parameter_keys
+                    # Join tuples
+                    if parameter_key isa Tuple
+                        parameter_key_symbol = Symbol(join(parameter_key, "__"))
+                    else
+                        parameter_key_symbol = Symbol(parameter_key)
+                    end
+                    #Store the value
+                    parameter_values[agent_idx, parameter_key_symbol, sample_idx, chain_idx] = agent_parameters[parameter_key]
                 end
-                parameter_values[sample_idx, agent_id, parameter_key_symbol] = agent_parameters[parameter_key]
             end
         end
     end

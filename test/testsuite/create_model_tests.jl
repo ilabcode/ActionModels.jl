@@ -27,9 +27,7 @@ using ActionModels, DataFrames
     #Set samplings settings
     sampler = NUTS(-1, 0.65; adtype = AutoReverseDiff(; compile = true))
     n_iterations = 1000
-    n_chains = 2
     sampling_kwargs = (; progress = false)
-
 
     @testset "single agent" begin
         #Extract inputs and actions from data
@@ -44,7 +42,7 @@ using ActionModels, DataFrames
             sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
 
         #Extract quantities
-        agent_parameters = extract_quantities(model, fitted_model)
+        #agent_parameters = extract_quantities(model, fitted_model)
         
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -273,3 +271,4 @@ using ActionModels, DataFrames
         renamed_model = rename_chains(fitted_model, model)
     end
 end
+
