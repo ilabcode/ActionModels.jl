@@ -103,7 +103,7 @@ function plot_trajectory(
 
     @show plots
     #Plot all plots
-    plot(plots..., layput = (length(state_keys), 1))
+    plot(plots..., layout = (length(state_keys), 1))
 end
 
 
