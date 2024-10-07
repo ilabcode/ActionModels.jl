@@ -1,4 +1,5 @@
 using Test
+using StatsPlots
 using ActionModels, DataFrames
 @testset "fitting tests" begin
 
@@ -107,11 +108,17 @@ using ActionModels, DataFrames
         estimates_df = get_estimates(agent_parameters)
         estimates_dict = get_estimates(agent_parameters, Dict)
 
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, model)
+
         #Check that the learning rates are estimated right
         @test estimates_df[!,:learning_rate] == sort(estimates_df[!,:learning_rate])
 
-        #Rename chains
-        renamed_model = rename_chains(fitted_model, model)
+        #Fit model
+        prior_chains = sample(model, Prior(), n_iterations; sampling_kwargs...)
+        prior_chains = rename_chains(prior_chains, model)
+
+        plot_parameter_distribution(prior_chains, renamed_model)
     end
 
     @testset "custom statistical model" begin
