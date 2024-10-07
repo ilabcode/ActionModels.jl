@@ -105,6 +105,7 @@ using ActionModels, DataFrames
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
         estimates_df = get_estimates(agent_parameters)
+        estimates_dict = get_estimates(agent_parameters, output_type = Dict)
 
         #Check that the learning rates are estimated right
         @test estimates_df[!,:learning_rate] == sort(estimates_df[!,:learning_rate])

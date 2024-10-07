@@ -135,3 +135,47 @@ function get_estimates(
 
     return df
 end
+
+
+
+#########################################################
+####### VERSION WHICH GENERATES A DICTIONARY INSTEAD ####
+#########################################################
+function get_estimates(agent_parameters::AxisArray{
+        Float64,
+        4,
+        Array{Float64,4},
+        Tuple{
+            Axis{:agent,Vector{Symbol}},
+            Axis{:parameter,Vector{Symbol}},
+            Axis{:sample,UnitRange{Int64}},
+            Axis{:chain,UnitRange{Int64}},
+        },
+    },
+    summary_function::Function = median;
+    output_type::Type{Dict} = Dict,)
+
+    #Extract agents and parameters
+    agents = agent_parameters.axes[1]
+    parameters = agent_parameters.axes[2]
+
+    # Initialize an empty dictionary
+    estimates_dict = Dict{Symbol, Dict{Symbol, Float64}}()
+
+    # Populate the dictionary with median values
+    for (i, agent) in enumerate(agents)
+        agent_dict = Dict{Symbol, Float64}()
+        for (j, parameter) in enumerate(parameters)
+            # Extract the values for the current agent and parameter across samples and chains
+            values = agent_parameters[agent, parameter, :, :]
+            # Calculate the median value
+            median_value = summary_function(values)
+            # Add the median value to the agent's dictionary
+            agent_dict[Symbol(parameter)] = median_value
+        end
+        # Add the agent's dictionary to the main dictionary
+        estimates_dict[Symbol(agent)] = agent_dict
+    end
+
+    return estimates_dict
+end
