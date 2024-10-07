@@ -15,7 +15,7 @@ function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
     parameter_keys_symbols = [
         begin
             if parameter_key isa Tuple
-                Symbol(join(parameter_key, "__"))
+                Symbol(join(parameter_key, tuple_separator))
             else
                 Symbol(parameter_key)
             end
@@ -53,7 +53,7 @@ function extract_quantities(model::DynamicPPL.Model, fitted_model::Chains)
                 for parameter_key in parameter_keys
                     # Join tuples
                     if parameter_key isa Tuple
-                        parameter_key_symbol = Symbol(join(parameter_key, "__"))
+                        parameter_key_symbol = Symbol(join(parameter_key, tuple_separator))
                     else
                         parameter_key_symbol = Symbol(parameter_key)
                     end

@@ -9,7 +9,6 @@ function create_model(
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3},
     check_parameter_rejections::Union{Nothing,CheckRejections} = nothing,
-    id_separator::String = ".",
     verbose::Bool = true,
 ) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 

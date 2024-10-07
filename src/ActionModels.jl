@@ -38,6 +38,9 @@ end
 #Types for agents and errors
 include("structs.jl")
 
+const id_separator = "."
+const tuple_separator = "__"
+
 #Functions for creating agents
 include("create_agent/init_agent.jl")
 include("create_agent/create_premade_agent.jl")

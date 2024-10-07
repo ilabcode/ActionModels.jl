@@ -83,7 +83,7 @@ function rename_chains(
         #If the parameter key is a tuple
         if parameter_key isa Tuple
             #Join the tuple with double underscores
-            parameter_key_right = join(parameter_key, "__")
+            parameter_key_right = join(parameter_key, tuple_separator)
         else
             #Otherwise, keep it as it is
             parameter_key_right = parameter_key
