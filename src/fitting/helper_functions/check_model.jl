@@ -1,34 +1,10 @@
-#####################################################################################################
-####### FUNCTIONS FOR EXTRACTING A VALUE WHICH WORKS WITH DIFFERENT AUTODIFFERENTIATION BACKENDS ####
-#####################################################################################################
-
-function ad_val(x::ReverseDiff.TrackedReal)
-    return ReverseDiff.value(x)
-end
-function ad_val(x::ReverseDiff.TrackedArray)
-    return ReverseDiff.value(x)
-end
-
-function ad_val(x::ForwardDiff.Dual)
-    return ForwardDiff.value(x)
-end
-
-function ad_val(x::Real)
-    return x
-end
-
 
 ############################################################
 #### FUNCTION FOR RENAMING THE CHAINS OF A FITTED MODEL ####
 ############################################################
-function rename_chains(
-    chains::Chains,
-    model::DynamicPPL.Model,
-    data::DataFrame,
-    grouping_cols::Union{Vector{C},C},
-) where {C<:Union{String,Symbol}}
+function rename_chains(chains::Chains, model::DynamicPPL.Model)
     #This will multiple dispatch on the type of statistical model
-    rename_chains(chains, data, grouping_cols, model.args.population_model.args...)
+    rename_chains(chains, model, model.args.population_model.args...)
 end
 
 

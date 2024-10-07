@@ -1,4 +1,4 @@
-@userplot Plot_Parameter_Distribution
+@userplot Plot_Parameters
 
 """
     plot_parameter_distribution(fitted_model, param_priors;
@@ -29,30 +29,31 @@ Plot the prior and posterior distributions of the parameters of a fitted model.
  - 'plot_width': Width of the plot.
  - 'plot_height': Height of the plot.
 """
-plot_parameter_distribution
-
+plot_parameters
 @recipe function f(
-    pl::Plot_Parameter_Distribution;
-    subplot_titles = Dict(),
+    plt::Plot_Parameters;
+    summary_function = median,
     show_distributions = true,
     show_intervals = true,
-    prior_color = :green,
-    posterior_color = :orange,
-    prior_interval_offset = 0,
-    posterior_interval_offset = 0.01,
     inner_interval = 0.5,
     outer_interval = 0.8,
+    prior_color = :green,
+    posterior_color = :orange,
     plot_width = 900,
     plot_height = 300,
+    prior_interval_offset = 0,
+    posterior_interval_offset = 0.01,
+    subplot_titles = Dict(),
 )
 
-    ### Setup ###
-    #Get arguments
-    fitted_model = pl.args[1]
-    param_priors = pl.args[2]
+    #Extract prior and posterior chains
+    prior_chains, posterior_chains = plt.args
+
+    #Extract parmaeter keys
+    parameter_keys = describe(prior_chains)[1].nt.parameters
 
     #Get number of subplots
-    n_subplots = length(param_priors)
+    n_subplots = length(parameter_keys)
 
     #Specify how to arrange subplots, and their size
     layout := (n_subplots, 1)
@@ -71,43 +72,19 @@ plot_parameter_distribution
     ]
 
     #For each parameter
-    for (param_key, param_prior) in param_priors
+    for parameter_key in parameter_keys
 
-        #Get posterior from the fitted_model
-        param_posterior = Array(fitted_model[:, string(param_key), :])[:]
-
-        ### Get uncertainty interval bar sizes ###
-        #Get the quantiles for the prior and posterior
-        prior_quantiles = Turing.Statistics.quantile(param_prior, interval_quantiles)
-        posterior_quantiles =
-            Turing.Statistics.quantile(param_posterior, interval_quantiles)
-
-        #Get prior median and interval bounds
-        prior_median = prior_quantiles[3]
-        prior_inner_interval_lower = (prior_quantiles[3] - prior_quantiles[2])
-        prior_inner_interval_upper = (prior_quantiles[4] - prior_quantiles[3])
-        prior_outer_interval_lower = (prior_quantiles[3] - prior_quantiles[1])
-        prior_outer_interval_upper = (prior_quantiles[5] - prior_quantiles[3])
-
-        #Get posterior median and interval bounds
-        posterior_median = posterior_quantiles[3]
-        posterior_inner_interval_lower = (posterior_quantiles[3] - posterior_quantiles[2])
-        posterior_inner_interval_upper = (posterior_quantiles[4] - posterior_quantiles[3])
-        posterior_outer_interval_lower = (posterior_quantiles[3] - posterior_quantiles[1])
-        posterior_outer_interval_upper = (posterior_quantiles[5] - posterior_quantiles[3])
-
-
-        ### General plotting settings ###
+        ## Setup ##
         #Advance the plot number track one step
         plot_number = plot_number += 1
 
         #If the user has specified a subplot title
-        if param_key in keys(subplot_titles)
+        if parameter_key in keys(subplot_titles)
             #Use user-specified title
-            title := subplot_titles[param_key]
+            title := subplot_titles[parameter_key]
         else
             #Otherwise use the parameter name as the subplot title
-            title := join(param_key, " ")
+            title := string(parameter_key)
         end
 
         #Remove the y axis
@@ -117,6 +94,10 @@ plot_parameter_distribution
         #Set the font size
         legendfontsize --> 15
 
+        ## Get the prior and posterior samples ##
+        #Get the prior and posterior samples
+        prior = Array(prior_chains[:, string(parameter_key), :])[:]
+        posterior = Array(posterior_chains[:, string(parameter_key), :])[:]
 
         ### Plot prior and posterior distribution ###
         #if show distributions
@@ -124,6 +105,9 @@ plot_parameter_distribution
 
             ## Prior distribution
             @series begin
+                #Set to be a density plot
+                seriestype := :density
+
                 #Set color
                 color := prior_color
                 #Set transparency
@@ -136,9 +120,11 @@ plot_parameter_distribution
                 end
                 #Remove labels
                 label := nothing
+                #Set to trim the distribution
+                trim := true
 
                 #Plot the distribution
-                param_prior
+                prior
             end
 
             ## Posterior distribution
@@ -158,13 +144,40 @@ plot_parameter_distribution
                 end
                 #Remove label
                 label := nothing
+                #Set to trim the distribution
+                trim := true
+
                 #Plot the posterior
-                param_posterior
+                posterior
             end
         end
 
+
         ### Plot uncertainty intervals ###
         if show_intervals
+
+            ### Get uncertainty interval bar sizes ###
+            #Get quantiles 
+            prior_quantiles = Turing.Statistics.quantile(prior, interval_quantiles)
+            posterior_quantiles = Turing.Statistics.quantile(posterior, interval_quantiles)
+
+            #Get prior median and interval bounds
+            prior_median = prior_quantiles[3]
+            prior_inner_interval_lower = (prior_quantiles[3] - prior_quantiles[2])
+            prior_inner_interval_upper = (prior_quantiles[4] - prior_quantiles[3])
+            prior_outer_interval_lower = (prior_quantiles[3] - prior_quantiles[1])
+            prior_outer_interval_upper = (prior_quantiles[5] - prior_quantiles[3])
+
+            #Get posterior median and interval bounds
+            posterior_median = posterior_quantiles[3]
+            posterior_inner_interval_lower =
+                (posterior_quantiles[3] - posterior_quantiles[2])
+            posterior_inner_interval_upper =
+                (posterior_quantiles[4] - posterior_quantiles[3])
+            posterior_outer_interval_lower =
+                (posterior_quantiles[3] - posterior_quantiles[1])
+            posterior_outer_interval_upper =
+                (posterior_quantiles[5] - posterior_quantiles[3])
 
             ## Prior outer interval
             @series begin
@@ -278,8 +291,12 @@ plot_parameter_distribution
             end
         end
 
-        ### Plot medians ###
-        ## Prior median
+        ### Plot point estimates ###
+        #Get point estimates
+        prior_point_estimate = summary_function(prior)
+        posterior_point_estimate = summary_function(posterior)
+
+        #Prior
         @series begin
             #Scatterplot or a single point
             seriestype := :scatter
@@ -300,10 +317,10 @@ plot_parameter_distribution
             label := "Prior"
 
             #Plot the prior median
-            [(prior_median, prior_interval_offset)]
+            [(prior_point_estimate, prior_interval_offset)]
         end
 
-        ## Posterior
+
         @series begin
             #Scatterplot or a single point
             seriestype := :scatter
@@ -324,7 +341,7 @@ plot_parameter_distribution
             label := "Posterior"
 
             #Plot the prior median
-            [(posterior_median, posterior_interval_offset)]
+            [(posterior_point_estimate, posterior_interval_offset)]
         end
     end
 end

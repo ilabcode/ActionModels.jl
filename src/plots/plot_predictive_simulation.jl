@@ -20,6 +20,29 @@ Simulate distributions of states and actions for an agent, with parameters sampl
 - 'alpha::Real = 0.1': the transparency of each simulated trajectory line.
 - 'linewidth::Real = 2': specify linewidth on your plot.
 """
+# function plot_trajectory(
+#     trajectories = AxisArrays.AxisArray{
+#             Union{Missing,Float64},
+#             5,
+#             Array{Union{Missing,Float64},5},
+#             Tuple{
+#                 AxisArrays.Axis{:agent,Vector{Symbol}},
+#                 AxisArrays.Axis{:state,Vector{Symbol}},
+#                 AxisArrays.Axis{:timestep,UnitRange{Int64}},
+#                 AxisArrays.Axis{:sample,UnitRange{Int64}},
+#                 AxisArrays.Axis{:chain,UnitRange{Int64}},
+#             },
+#         }
+# )
+
+
+# end
+
+
+
+
+
+
 function plot_predictive_simulation(
     param_distributions::Union{Chains,Dict},
     agent::Agent,

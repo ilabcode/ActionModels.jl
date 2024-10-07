@@ -14,7 +14,7 @@
         parameters[parameter] ~ distribution
     end
 
-    return StatisticalModelReturn([parameters])
+    return PopulationModelReturn([parameters])
 end
 
 #######################################################################################################################
@@ -60,19 +60,10 @@ end
 ################################################################################
 function rename_chains(
     chains::Chains,
-    data::DataFrame,
-    grouping_cols::Union{Vector{C},C},
+    model::DynamicPPL.Model,
     #Arguments from statistical model
     prior::Dict{T,D},
-) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol}}
-
-    #Make sure the groupoing cols are a vector 
-    if !(grouping_cols isa Vector{C})
-        grouping_cols = C[grouping_cols]
-    end
-
-    ## Make dict with index to agent mapping ##
-    idx_to_agent = Dict{Int,Any}()
+) where {T<:Union{String,Tuple,Any},D<:Distribution}
 
     ## Make dict with replacement names ##
     replacement_names = Dict{String,String}()
@@ -92,7 +83,7 @@ function rename_chains(
         #If the parameter key is a tuple
         if parameter_key isa Tuple
             #Join the tuple with double underscores
-            parameter_key_right = join(parameter_key, "__")
+            parameter_key_right = join(parameter_key, tuple_separator)
         else
             #Otherwise, keep it as it is
             parameter_key_right = parameter_key

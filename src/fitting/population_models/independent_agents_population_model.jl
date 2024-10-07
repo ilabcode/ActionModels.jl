@@ -8,25 +8,25 @@
     agent_parameters::Vector{Dict{Any,Real}} = [Dict{Any,Real}() for _ = 1:n_agents],
 ) where {T<:Union{String,Tuple,Any},D<:Distribution,I<:Int}
 
-    #Create container for sampled parameters
-    parameters = Dict{Any,Vector{Real}}()
+    #Make empty container for agent parameters
+    agent_parameters::Vector{Dict{Any,Real}} = [Dict{Any,Real}() for _ = 1:n_agents]
 
-    #Go through each of the parameters in the prior
-    for (parameter, distribution) in prior
-        #And sample a value for each agent
-        parameters[parameter] ~ filldist(distribution, n_agents)
-    end
+    #Create array ofdistributions to sample from
+    parameter_distributions =
+        repeat([param_dist for param_dist in values(prior)], 1, n_agents)
 
-    #Go through each parameter
-    for (parameter, values) in parameters
-        #Go through each agent
-        for (agent_idx, value) in enumerate(values)
-            #Store the value in the right way
-            agent_parameters[agent_idx][parameter] = value
+    #Sample parameter values
+    parameters ~ arraydist(parameter_distributions)
+
+    #Put parameter values into vector of dictionaries
+    for (parameter_idx, parameter_key) in enumerate(keys(prior))
+        for agent_idx = 1:n_agents
+            agent_parameters[agent_idx][parameter_key] =
+                parameters[parameter_idx, agent_idx]
         end
     end
 
-    return StatisticalModelReturn(agent_parameters)
+    return PopulationModelReturn(agent_parameters)
 end
 
 
@@ -73,64 +73,35 @@ end
 ##########################################################################
 function rename_chains(
     chains::Chains,
-    data::DataFrame,
-    grouping_cols::Union{Vector{C},C},
+    model::DynamicPPL.Model,
     #Arguments from statistical model
     prior::Dict{T,D},
     n_agents::I,
     agent_parameters::Vector{Dict{Any,Real}},
-) where {T<:Union{String,Tuple,Any},D<:Distribution,C<:Union{String,Symbol},I<:Int}
+) where {T<:Union{String,Tuple,Any},D<:Distribution,I<:Int}
 
-    #Make sure grouping columns are a vector
-    if !(grouping_cols isa Vector{C})
-        grouping_cols = C[grouping_cols]
-    end
-
-    ## Make dict with index to agent mapping ##
-    idx_to_agent = Dict{Int,Any}()
-
-    #Go through each unique agent ID
-    for (agent_idx, agent_key) in
-        enumerate(eachrow(unique(data, grouping_cols)[:, grouping_cols]))
-
-        #If there is only one grouping column
-        if length(grouping_cols) == 1
-            #Set the agent index to the agent ID
-            idx_to_agent[agent_idx] = agent_key[1]
-        else
-            #Set the agent index to the tuple of agent IDs
-            idx_to_agent[agent_idx] = Tuple(agent_key)
-        end
-    end
+    #Extract agent ids
+    agent_ids = model.args.agent_ids
 
     ## Make dict with replacement names ##
     replacement_names = Dict{String,String}()
 
-    for (agent_idx, agent_key) in idx_to_agent
+    for (agent_idx, agent_id) in enumerate(agent_ids)
 
         #Go through each parameter in the prior
-        for (parameter_key, _) in prior
-
-            #If the parameter name is a string
-            if parameter_key isa String
-                #Include quation marks in the name to be replaced
-                parameter_key_left = "\"$(parameter_key)\""
-            else
-                #Otherwise, keep it as it is
-                parameter_key_left = parameter_key
-            end
+        for (parameter_idx, parameter_key) in enumerate(keys(prior))
 
             #If the parameter key is a tuple
             if parameter_key isa Tuple
                 #Join the tuple with double underscores
-                parameter_key_right = join(parameter_key, "__")
+                parameter_key_right = join(parameter_key, tuple_separator)
             else
                 #Otherwise, keep it as it is
                 parameter_key_right = parameter_key
             end
 
             #Set a replacement name
-            replacement_names["parameters[$parameter_key_left][$agent_idx]"] = "$agent_key $parameter_key_right"
+            replacement_names["parameters[$parameter_idx, $agent_idx]"] = "$(agent_id).$parameter_key_right"
         end
     end
 
