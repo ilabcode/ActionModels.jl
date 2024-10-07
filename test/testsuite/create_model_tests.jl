@@ -78,8 +78,7 @@ using AxisArrays
         model = create_model(agent, prior, inputs, actions)
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         #agent_parameters = extract_quantities(model, fitted_model)
@@ -101,24 +100,47 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract agent parameters
         agent_parameters = extract_quantities(model, fitted_model)
         estimates_df = get_estimates(agent_parameters)
         estimates_dict = get_estimates(agent_parameters, Dict)
-        #Extract state trajectories
-        state_trajectories = get_trajectories(model, fitted_model, ["value", "input", "action"])
 
-        @test state_trajectories isa AxisArrays.AxisArray{Float64, 5, Array{Float64, 5}, Tuple{AxisArrays.Axis{:agent, Vector{Symbol}}, AxisArrays.Axis{:state, Vector{Symbol}}, AxisArrays.Axis{:timestep, UnitRange{Int64}}, AxisArrays.Axis{:sample, UnitRange{Int64}}, AxisArrays.Axis{:chain, UnitRange{Int64}}}}
-        @test agent_parameters isa AxisArrays.AxisArray{Float64, 4, Array{Float64, 4}, Tuple{AxisArrays.Axis{:agent, Vector{Symbol}}, AxisArrays.Axis{:parameter, Vector{Symbol}}, AxisArrays.Axis{:sample, UnitRange{Int64}}, AxisArrays.Axis{:chain, UnitRange{Int64}}}}
+        #Extract state trajectories
+        state_trajectories =
+            get_trajectories(model, fitted_model, ["value", "input", "action"])
+        trajectory_estimates_df = get_estimates(state_trajectories)
+
+        @test state_trajectories isa AxisArrays.AxisArray{
+            Union{Missing,Float64},
+            5,
+            Array{Union{Missing,Float64},5},
+            Tuple{
+                AxisArrays.Axis{:agent,Vector{Symbol}},
+                AxisArrays.Axis{:state,Vector{Symbol}},
+                AxisArrays.Axis{:timestep,UnitRange{Int64}},
+                AxisArrays.Axis{:sample,UnitRange{Int64}},
+                AxisArrays.Axis{:chain,UnitRange{Int64}},
+            },
+        }
+        @test agent_parameters isa AxisArrays.AxisArray{
+            Float64,
+            4,
+            Array{Float64,4},
+            Tuple{
+                AxisArrays.Axis{:agent,Vector{Symbol}},
+                AxisArrays.Axis{:parameter,Vector{Symbol}},
+                AxisArrays.Axis{:sample,UnitRange{Int64}},
+                AxisArrays.Axis{:chain,UnitRange{Int64}},
+            },
+        }
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
 
         #Check that the learning rates are estimated right
-        @test estimates_df[!,:learning_rate] == sort(estimates_df[!,:learning_rate])
+        @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
 
         #Fit model
         prior_chains = sample(model, Prior(), n_iterations; sampling_kwargs...)
@@ -143,8 +165,7 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         # #Extract quantities
         # agent_parameters = extract_quantities(model, fitted_model)
@@ -166,15 +187,14 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
         estimates_df = get_estimates(agent_parameters)
 
         #Check that the learning rates are estimated right
-        @test estimates_df[!,:learning_rate] == sort(estimates_df[!,:learning_rate])
+        @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -197,8 +217,7 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
@@ -237,8 +256,7 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
@@ -282,8 +300,7 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
@@ -322,8 +339,7 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
@@ -363,8 +379,7 @@ using AxisArrays
         )
 
         #Fit model
-        fitted_model =
-            sample(model, sampler, n_iterations; sampling_kwargs...)
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
@@ -374,3 +389,11 @@ using AxisArrays
         renamed_model = rename_chains(fitted_model, model)
     end
 end
+
+
+
+
+using StatsPlots
+density(state_trajectories[:Hans, :value, 2, :, :])
+
+state_trajectories[:Hans, :value, 6, :, :]

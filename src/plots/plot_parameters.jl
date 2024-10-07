@@ -32,7 +32,7 @@ Plot the prior and posterior distributions of the parameters of a fitted model.
 plot_parameters
 @recipe function f(
     plt::Plot_Parameters;
-    summary_function::Function = median,
+    summary_function = median,
     show_distributions = true,
     show_intervals = true,
     inner_interval = 0.5,
@@ -43,7 +43,7 @@ plot_parameters
     plot_height = 300,
     prior_interval_offset = 0,
     posterior_interval_offset = 0.01,
-    subplot_titles = Dict()
+    subplot_titles = Dict(),
 )
 
     #Extract prior and posterior chains
@@ -146,7 +146,7 @@ plot_parameters
                 label := nothing
                 #Set to trim the distribution
                 trim := true
-                
+
                 #Plot the posterior
                 posterior
             end
@@ -170,10 +170,14 @@ plot_parameters
 
             #Get posterior median and interval bounds
             posterior_median = posterior_quantiles[3]
-            posterior_inner_interval_lower = (posterior_quantiles[3] - posterior_quantiles[2])
-            posterior_inner_interval_upper = (posterior_quantiles[4] - posterior_quantiles[3])
-            posterior_outer_interval_lower = (posterior_quantiles[3] - posterior_quantiles[1])
-            posterior_outer_interval_upper = (posterior_quantiles[5] - posterior_quantiles[3])
+            posterior_inner_interval_lower =
+                (posterior_quantiles[3] - posterior_quantiles[2])
+            posterior_inner_interval_upper =
+                (posterior_quantiles[4] - posterior_quantiles[3])
+            posterior_outer_interval_lower =
+                (posterior_quantiles[3] - posterior_quantiles[1])
+            posterior_outer_interval_upper =
+                (posterior_quantiles[5] - posterior_quantiles[3])
 
             ## Prior outer interval
             @series begin
