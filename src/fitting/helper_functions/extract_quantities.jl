@@ -111,7 +111,7 @@ function get_estimates(
 
     # Initialize an empty DataFrame
     df = DataFrame(Dict(Symbol(parameter) => Float64[] for parameter in parameters))
-    df[!, :agent_id] = Symbol[]
+    df[!, :agent] = Symbol[]
 
     # Populate the DataFrame with median values
     for (i, agent) in enumerate(agents)
@@ -125,13 +125,13 @@ function get_estimates(
             row[Symbol(parameter)] = median_value
         end
         #Add an agent id to the row
-        row[:agent_id] = agent
+        row[:agent] = agent
         # Add the row to the DataFrame
         push!(df, row)
     end
 
     # Reorder the columns to have agent_id as the first column
-    select!(df, :agent_id, names(df)[1:end-1]...)
+    select!(df, :agent, names(df)[1:end-1]...)
 
     return df
 end

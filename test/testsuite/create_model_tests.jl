@@ -9,17 +9,17 @@ using ActionModels, DataFrames
         inputs_2 = repeat([1, 1, 1, 2, 2, 2], 3),
         actions = [
             0,
-            0.5,
-            0.8,
-            1,
-            1.5,
-            1.8,
-            0,
             0.2,
             0.3,
             0.4,
             0.5,
             0.6,
+            0,
+            0.5,
+            0.8,
+            1,
+            1.5,
+            1.8,
             0,
             2,
             0.5,
@@ -29,17 +29,17 @@ using ActionModels, DataFrames
         ],
         actions_2 = [
             0,
-            0.5,
-            0.8,
-            1,
-            1.5,
-            1.8,
-            0,
             0.2,
             0.3,
             0.4,
             0.5,
             0.6,
+            0,
+            0.5,
+            0.8,
+            1,
+            1.5,
+            1.8,
             0,
             2,
             0.5,
@@ -77,7 +77,7 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         #agent_parameters = extract_quantities(model, fitted_model)
@@ -100,10 +100,14 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
+        estimates_df = get_estimates(agent_parameters)
+
+        #Check that the learning rates are estimated right
+        @test estimates_df[!,:learning_rate] == sort(estimates_df[!,:learning_rate])
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -126,7 +130,7 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         # #Extract quantities
         # agent_parameters = extract_quantities(model, fitted_model)
@@ -149,10 +153,14 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
+        estimates_df = get_estimates(agent_parameters)
+
+        #Check that the learning rates are estimated right
+        @test estimates_df[!,:learning_rate] == sort(estimates_df[!,:learning_rate])
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -176,10 +184,11 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
+        estimates_df = get_estimates(agent_parameters)
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -215,10 +224,11 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
+        estimates_df = get_estimates(agent_parameters)
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -259,10 +269,11 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
+        estimates_df = get_estimates(agent_parameters)
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -298,10 +309,11 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
+        estimates_df = get_estimates(agent_parameters)
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
@@ -338,10 +350,11 @@ using ActionModels, DataFrames
 
         #Fit model
         fitted_model =
-            sample(model, sampler, n_iterations; n_chains = n_chains, sampling_kwargs...)
+            sample(model, sampler, n_iterations; sampling_kwargs...)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
+        estimates_df = get_estimates(agent_parameters)
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)

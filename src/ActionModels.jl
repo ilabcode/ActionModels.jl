@@ -22,7 +22,7 @@ export get_history,
     give_inputs!,
     single_input!,
     set_save_history!
-export get_posteriors, extract_quantities, rename_chains, update_states!
+export get_posteriors, extract_quantities, rename_chains, update_states!, get_estimates
 
 #Load premade agents
 function __init__()
