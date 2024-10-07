@@ -39,4 +39,3 @@ function fit_model(
 
     return FitModelResults(chains, model)
 end
-
