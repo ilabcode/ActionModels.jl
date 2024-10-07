@@ -9,7 +9,7 @@ function create_model(
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3},
     check_parameter_rejections::Union{Nothing, CheckRejections} = nothing,
-    id_separator::String = "__",
+    id_separator::String = ".",
     verbose::Bool = true,
 ) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 
@@ -70,7 +70,10 @@ function create_model(
     end
 
     #Extract agent id's as combined symbols in a vector
-    agent_ids = [Symbol(join(string.(Tuple(row)), id_separator)) for row in eachrow(unique(data[!, grouping_cols]))]
+    # agent_ids = [
+    #     Symbol(join(string.(Tuple(row)), id_separator))
+    #      for row in eachrow(unique(data[!, grouping_cols]))]
+    agent_ids = [Symbol(join([string(col_name) * "" * string(row[col_name]) for col_name in grouping_cols], id_separator)) for row in eachrow(unique(data[!, grouping_cols]))]
 
     ## Determine whether any actions are missing ##
     if actions isa Vector{A} where {R<:Real, A<:Array{Union{Missing, R}}}

@@ -89,15 +89,6 @@ function rename_chains(
         #Go through each parameter in the prior
         for (parameter_idx, parameter_key) in enumerate(keys(prior))
 
-            # #If the parameter name is a string
-            # if parameter_key isa String
-            #     #Include quation marks in the name to be replaced
-            #     parameter_key_left = "\"$(parameter_key)\""
-            # else
-            #     #Otherwise, keep it as it is
-            #     parameter_key_left = parameter_key
-            # end
-
             #If the parameter key is a tuple
             if parameter_key isa Tuple
                 #Join the tuple with double underscores
