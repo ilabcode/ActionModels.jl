@@ -69,12 +69,16 @@ function create_model(
             [Array(agent_data[!, action_cols]) for agent_data in groupby(data, grouping_cols)]
     end
 
-    #Extract agent id's as combined symbols in a vector
-    # agent_ids = [
-    #     Symbol(join(string.(Tuple(row)), id_separator))
-    #      for row in eachrow(unique(data[!, grouping_cols]))]
-    agent_ids = [Symbol(join([string(col_name) * "" * string(row[col_name]) for col_name in grouping_cols], id_separator)) for row in eachrow(unique(data[!, grouping_cols]))]
+    #If there is only one grouping column
+    if length(grouping_cols) == 1     
+        #Use the vaues fo that column as ID
+        agent_ids = [Symbol(i) for i in unique(data[!, first(grouping_cols)])]
+    else
+        #Otherwise, use combinations of the column name and their values
+        agent_ids = [Symbol(join([string(col_name) * "" * string(row[col_name]) for col_name in grouping_cols], id_separator)) for row in eachrow(unique(data[!, grouping_cols]))]
 
+    end
+    
     ## Determine whether any actions are missing ##
     if actions isa Vector{A} where {R<:Real, A<:Array{Union{Missing, R}}}
         #If there are missing actions

@@ -45,7 +45,8 @@ using ActionModels, DataFrames
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
-       
+        
+        #Rename chains
         renamed_model = rename_chains(fitted_model, model)
     end
 
