@@ -118,7 +118,7 @@ using ActionModels, DataFrames
         prior_chains = sample(model, Prior(), n_iterations; sampling_kwargs...)
         prior_chains = rename_chains(prior_chains, model)
 
-        plot_parameter_distribution(prior_chains, renamed_model)
+        plot_parameters(prior_chains, renamed_model)
     end
 
     @testset "custom statistical model" begin

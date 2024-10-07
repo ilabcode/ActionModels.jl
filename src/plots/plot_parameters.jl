@@ -1,4 +1,4 @@
-@userplot Plot_Parameter_Distribution
+@userplot Plot_Parameters
 
 """
     plot_parameter_distribution(fitted_model, param_priors;
@@ -29,9 +29,9 @@ Plot the prior and posterior distributions of the parameters of a fitted model.
  - 'plot_width': Width of the plot.
  - 'plot_height': Height of the plot.
 """
-plot_parameter_distribution
+plot_parameters
 @recipe function f(
-    plt::Plot_Parameter_Distribution;
+    plt::Plot_Parameters;
     summary_function::Function = median,
     show_distributions = true,
     show_intervals = true,

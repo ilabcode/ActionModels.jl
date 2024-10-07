@@ -57,7 +57,7 @@ include("fitting/helper_functions/helper_functions.jl")
 
 #Plotting functions for agents
 include("plots/plot_predictive_simulation.jl")
-include("plots/plot_parameter_distribution.jl")
+include("plots/plot_parameters.jl")
 include("plots/plot_trajectory.jl")
 
 #Utility functions for agents
