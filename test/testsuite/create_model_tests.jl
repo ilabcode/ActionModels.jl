@@ -389,11 +389,3 @@ using AxisArrays
         renamed_model = rename_chains(fitted_model, model)
     end
 end
-
-
-
-
-using StatsPlots
-density(state_trajectories[:Hans, :value, 2, :, :])
-
-state_trajectories[:Hans, :value, 6, :, :]
