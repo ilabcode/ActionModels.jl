@@ -198,14 +198,26 @@ function fit_model(
         end
         chains = combine_segments(save_resume, n_segments, n_chains)
     else
-        chains = sample(
-            model,
-            sampler,
-            n_iterations;
-            nchains=n_chains,
-            progress=show_progress,
-            sampler_kwargs...,
-        )
+        if parallelization isa AbstractMCMC.AbstractMCMCEnsemble
+            chains = sample(
+                model,
+                sampler,
+                parallelization,
+                n_iterations;
+                nchains=n_chains,
+                progress=show_progress,
+                sampler_kwargs...,
+            )
+        else
+            chains = sample(
+                model,
+                sampler,
+                n_iterations;
+                nchains=n_chains,
+                progress=show_progress,
+                sampler_kwargs...,
+            )
+        end
     end
 
     # ## Fit model ##
@@ -227,4 +239,3 @@ function fit_model(
 
     return FitModelResults(chains, model)
 end
-
