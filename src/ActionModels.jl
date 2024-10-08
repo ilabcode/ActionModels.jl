@@ -2,12 +2,9 @@ module ActionModels
 
 #Load packages
 using Reexport
-@reexport using Turing
-#using Distributions, DataFrames, RecipesBase, Logging
-using DataFrames, RecipesBase, ReverseDiff, Logging, AxisArrays
-using Turing: Distributions, DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC, MCMCChains
-using MCMCChainsStorage, HDF5
+using Turing, ReverseDiff, DataFrames, AxisArrays, RecipesBase, Logging
 using ProgressMeter, Distributed #TODO: get rid of this (only needed for parameter recovery)
+using MCMCChainsStorage, HDF5
 @reexport using Distributions
 using Turing: DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
 #Export functions
