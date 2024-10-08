@@ -1,5 +1,6 @@
-@userplot Plot_Parameters
-
+@userplot struct Plot_Parameters{T<:Tuple{Chains,Chains}}
+    args::T
+end
 """
     plot_parameter_distribution(fitted_model, param_priors;
         subplot_titles = Dict(),

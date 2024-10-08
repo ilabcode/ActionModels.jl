@@ -45,29 +45,41 @@ function get_estimates(
     agents = agent_parameters.axes[1]
     parameters = agent_parameters.axes[2]
 
+    #Construct grouping column names
+    grouping_cols = [Symbol(first(split(i, id_column_separator))) for i in split(string(first(agents)), id_separator)]
+
     # Initialize an empty DataFrame
     df = DataFrame(Dict(Symbol(parameter) => Float64[] for parameter in parameters))
-    df[!, :agent] = Symbol[]
+    #Add grouping colnames
+    for column_name in grouping_cols
+        df[!, column_name] = String[]
+    end
 
     # Populate the DataFrame with median values
-    for (i, agent) in enumerate(agents)
+    for agent_id in agents
         row = Dict()
-        for (j, parameter) in enumerate(parameters)
+        for parameter in parameters
             # Extract the values for the current agent and parameter across samples and chains
-            values = agent_parameters[agent, parameter, :, :]
+            values = agent_parameters[agent_id, parameter, :, :]
             # Calculate the median value
             median_value = summary_function(values)
             # Add the median value to the row
             row[Symbol(parameter)] = median_value
         end
-        #Add an agent id to the row
-        row[:agent] = agent
+        
+        #Split agent ids
+        split_agent_ids = split(string(agent_id), id_separator)
+        #Add them to the row
+        for (agent_id_part, column_name) in zip(split_agent_ids, grouping_cols)
+            row[column_name] = string(split(agent_id_part, id_column_separator)[2])
+        end
+
         # Add the row to the DataFrame
         push!(df, row)
     end
 
-    # Reorder the columns to have agent_id as the first column
-    select!(df, :agent, names(df)[1:end-1]...)
+    # Reorder the columns to have agent id's as the first columns
+    select!(df, grouping_cols, names(df)[1:end-length(grouping_cols)]...)
 
     return df
 end
@@ -121,9 +133,6 @@ end
 
 
 
-
-
-
 ###########################################################################################
 ###### FUNCTION FOR GENERATING SUMMARIZED VARIABLES FROM AN AGENT_PARMAETERS AXISARRAY ####
 ###########################################################################################
@@ -148,7 +157,10 @@ function get_estimates(
     states = state_trajectories.axes[2]
     timesteps = state_trajectories.axes[3]
 
-    # Initialize an empty DataFrame
+    #Construct grouping column names
+    grouping_cols = [Symbol(first(split(i, id_column_separator))) for i in split(string(first(agents)), id_separator)]
+
+    # Initialize an empty DataFrame with the states, the grouping columns and the timestep
     df = DataFrame(
         Dict(
             begin
@@ -156,23 +168,25 @@ function get_estimates(
                 if state isa Tuple
                     state = join(state, tuple_separator)
                 end
-
-                #Join the agent and the state
-                Symbol(join((string(agent), string(state)), id_separator)) => Float64[]
-            end for (state, agent) in Iterators.product(states, agents)
+                state => Float64[]
+            end for state in states
         ),
     )
+    for column_name in grouping_cols
+        df[!, column_name] = String[]
+    end
     df[!, :timestep] = Int[]
 
+    
     # Populate the DataFrame with median values
-    for timestep in timesteps
-        row = Dict()
-
-        for agent in agents
+    for agent_id in agents
+    
+        for timestep in timesteps
+            row = Dict()
 
             for state in states
                 # Extract the state for the current agent and state, at the current timestep
-                values = state_trajectories[agent, state, timestep+1, :, :]
+                values = state_trajectories[agent_id, state, timestep+1, :, :]
                 # Calculate the point estimate
                 median_value = summary_function(values)
 
@@ -182,19 +196,26 @@ function get_estimates(
                 end
 
                 # Add the value to the row
-                row[Symbol(join((string(agent), string(state)), id_separator))] = median_value
+                row[state] = median_value
+            end
+
+            #Split agent ids
+            split_agent_ids = split(string(agent_id), id_separator)
+            #Add them to the row
+            for (agent_id_part, column_name) in zip(split_agent_ids, grouping_cols)
+                row[column_name] = string(split(agent_id_part, id_column_separator)[2])
             end
 
             #Add the timestep to the row
             row[:timestep] = timestep
+            
+            # Add the row to the DataFrame
+            push!(df, row, promote = true)
         end
-
-        # Add the row to the DataFrame
-        push!(df, row, promote = true)
     end
 
     # Reorder the columns to have agent_id as the first column
-    select!(df, :timestep, names(df)[1:end-1]...)
+    select!(df, vcat(grouping_cols,[:timestep]), names(df)[1:end-(length(grouping_cols)+1)]...)
 
     return df
 end

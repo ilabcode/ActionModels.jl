@@ -2,18 +2,18 @@ module ActionModels
 
 #Load packages
 using Reexport
-@reexport using Turing
-#using Distributions, DataFrames, RecipesBase, Logging
-using DataFrames, RecipesBase, ReverseDiff, Logging, AxisArrays
-using Turing: Distributions, DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
+using Turing, ReverseDiff, DataFrames, AxisArrays, RecipesBase, Logging
 using ProgressMeter, Distributed #TODO: get rid of this (only needed for parameter recovery)
+using MCMCChainsStorage, HDF5
+@reexport using Distributions
+using Turing: DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
 #Export functions
 export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
 export independent_agents_population_model,
     create_model, fit_model, parameter_recovery, single_recovery
-export plot_parameter_distribution,
-    plot_predictive_simulation, plot_trajectory, plot_trajectory!
+export ChainSaveResume
+export plot_parameters, plot_trajectories, plot_trajectory, plot_trajectory!
 export get_history,
     get_states,
     get_parameters,
@@ -39,6 +39,7 @@ end
 include("structs.jl")
 
 const id_separator = "."
+const id_column_separator = ":"
 const tuple_separator = "__"
 
 #Functions for creating agents
@@ -60,7 +61,7 @@ include("fitting/helper_functions/get_trajectories.jl")
 include("fitting/helper_functions/helper_functions.jl")
 
 #Plotting functions for agents
-include("plots/plot_predictive_simulation.jl")
+include("plots/plot_trajectories.jl")
 include("plots/plot_parameters.jl")
 include("plots/plot_trajectory.jl")
 

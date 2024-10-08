@@ -1,7 +1,10 @@
 using Test
 using StatsPlots
 using ActionModels, DataFrames
-using AxisArrays
+using AxisArrays, Turing
+using Turing: AutoReverseDiff
+
+
 @testset "fitting tests" begin
 
     ### SETUP ###
@@ -109,9 +112,11 @@ using AxisArrays
         estimates_dict = get_estimates(agent_parameters, Dict)
 
         #Extract state trajectories
-        state_trajectories =
-            get_trajectories(model, fitted_model, ["value", "input", "action"])
+        state_trajectories = get_trajectories(model, fitted_model, ["value", "action"])
         trajectory_estimates_df = get_estimates(state_trajectories)
+
+        #Check that the learning rates are estimated right
+        @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
 
         @test state_trajectories isa AxisArrays.AxisArray{
             Union{Missing,Float64},
@@ -137,14 +142,15 @@ using AxisArrays
             },
         }
 
-        #Check that the learning rates are estimated right
-        @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
-
         #Fit model
         prior_chains = sample(model, Prior(), n_iterations; sampling_kwargs...)
-        prior_chains = rename_chains(prior_chains, model)
+        renamed_prior_chains = rename_chains(prior_chains, model)
 
-        plot_parameters(prior_chains, renamed_model)
+        plot_parameters(renamed_prior_chains, renamed_model)
+
+        prior_trajectories = get_trajectories(model, prior_chains, ["value", "action"])
+        plot_trajectories(prior_trajectories)
+        plot_trajectories(state_trajectories)
     end
 
     @testset "custom statistical model" begin
@@ -186,16 +192,22 @@ using AxisArrays
 
         #Fit model
         fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, model)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
         estimates_df = get_estimates(agent_parameters)
 
+        #Extract state trajectories
+        state_trajectories = get_trajectories(model, fitted_model, ["value", "action"])
+        trajectory_estimates_df = get_estimates(state_trajectories)
+
+
         #Check that the learning rates are estimated right
         @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
 
-        #Rename chains
-        renamed_model = rename_chains(fitted_model, model)
+
     end
 
     @testset "missing actions" begin
