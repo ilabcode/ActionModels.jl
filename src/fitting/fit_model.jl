@@ -1,7 +1,3 @@
-using HDF5
-using MCMCChains
-using MCMCChainsStorage
-
 struct ChainSaveResume
     save_every::Int
     path::String
@@ -137,7 +133,7 @@ end
 #####################################################################
 function fit_model(
     model::DynamicPPL.Model;
-    parallelization::Union{Nothing,AbstractMCMC.AbstractMCMCEnsemble}=nothing,
+    parallelization::AbstractMCMC.AbstractMCMCEnsemble=MCMCSerial(),
     sampler::Union{DynamicPPL.AbstractSampler,Turing.Inference.InferenceAlgorithm}=NUTS(;
         adtype=AutoReverseDiff(compile=true),
     ),
@@ -198,26 +194,15 @@ function fit_model(
         end
         chains = combine_segments(save_resume, n_segments, n_chains)
     else
-        if parallelization isa AbstractMCMC.AbstractMCMCEnsemble
-            chains = sample(
-                model,
-                sampler,
-                parallelization,
-                n_iterations;
-                nchains=n_chains,
-                progress=show_progress,
-                sampler_kwargs...,
-            )
-        else
-            chains = sample(
-                model,
-                sampler,
-                n_iterations;
-                nchains=n_chains,
-                progress=show_progress,
-                sampler_kwargs...,
-            )
-        end
+        chains = sample(
+            model,
+            sampler,
+            parallelization,
+            n_iterations,
+            n_chains;
+            progress=show_progress,
+            sampler_kwargs...,
+        )
     end
 
     # ## Fit model ##
