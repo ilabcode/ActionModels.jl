@@ -1,7 +1,9 @@
 using Test
 using StatsPlots
 using ActionModels, DataFrames
-using AxisArrays
+using AxisArrays, Turing
+
+
 @testset "fitting tests" begin
 
     ### SETUP ###
@@ -109,9 +111,11 @@ using AxisArrays
         estimates_dict = get_estimates(agent_parameters, Dict)
 
         #Extract state trajectories
-        state_trajectories =
-            get_trajectories(model, fitted_model, ["value", "input", "action"])
+        state_trajectories = get_trajectories(model, fitted_model, ["value", "action"])
         trajectory_estimates_df = get_estimates(state_trajectories)
+
+        #Check that the learning rates are estimated right
+        @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
 
         @test state_trajectories isa AxisArrays.AxisArray{
             Union{Missing,Float64},
@@ -137,14 +141,14 @@ using AxisArrays
             },
         }
 
-        #Check that the learning rates are estimated right
-        @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
-
         #Fit model
         prior_chains = sample(model, Prior(), n_iterations; sampling_kwargs...)
-        prior_chains = rename_chains(prior_chains, model)
+        renamed_prior_chains = rename_chains(prior_chains, model)
 
-        plot_parameters(prior_chains, renamed_model)
+        plot_parameters(renamed_prior_chains, renamed_model)
+
+        prior_trajectories = get_trajectories(model, prior_chains, ["value", "action"])
+        plot_trajectories(prior_trajectories)
     end
 
     @testset "custom statistical model" begin
@@ -386,4 +390,90 @@ using AxisArrays
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
     end
+end
+
+
+function plot_trajectory(
+    trajectories = AxisArrays.AxisArray{
+        Union{Missing,Float64},
+        5,
+        Array{Union{Missing,Float64},5},
+        Tuple{
+            AxisArrays.Axis{:agent,Vector{Symbol}},
+            AxisArrays.Axis{:state,Vector{Symbol}},
+            AxisArrays.Axis{:timestep,UnitRange{Int64}},
+            AxisArrays.Axis{:sample,UnitRange{Int64}},
+            AxisArrays.Axis{:chain,UnitRange{Int64}},
+        },
+    },
+    sample_color::Union{String,Symbol} = :gray,
+    sample_alpha::Real = 0.1,
+    sample_linewidth::Real = 1,
+    summary_function::Function = median,
+    summary_alpha::Real = 1,
+    summary_color::Union{String,Symbol} = :red,
+    summary_linewidth::Real = 2,
+)
+
+    #Extract dimensions
+    agent_ids, state_keys, timesteps, samples, chains = trajectories.axes
+
+    #Initialize plot vector
+    plots = Vector(undef, length(state_keys))
+
+    #For each state
+    for (state_idx, state_key) in enumerate(state_keys)
+        #Initialize plot
+        plots[state_idx] = plot()
+
+        #Plot samples for each agent
+        for agent_id in agent_ids
+            #For each chain and sample
+            for chain in chains
+                for sample in samples
+
+                    #Extract the values for the current agent and parameter across samples and chains
+                    values = trajectories[agent_id, state_key, :, sample, chain]
+
+                    #Plot the samples
+                    plot!(
+                        plots[state_idx],
+                        values;
+                        seriestype = :line,
+                        color = sample_color,
+                        alpha = sample_alpha,
+                        linewidth = sample_linewidth,
+                        label = "",
+                    )
+                end
+            end
+        end
+
+        #Plot summarized value for each agent
+        for agent_id in agent_ids
+
+            #Get vector of medians
+            summary_values = [
+                summary_function(trajectories[agent_id, state_key, timestep+1, :, :])
+                for timestep in timesteps
+            ]
+
+            #Plot the summary value
+            plot!(
+                plots[state_idx],
+                summary_values;
+                seriestype = :line,
+                color = summary_color,
+                linewidth = summary_linewidth,
+                alpha = summary_alpha,
+                label = "",
+            )
+        end
+
+        #Add finished plot to plot vector
+        push!(plots, plt)
+    end
+
+    #Plot all plots
+    plot(plots..., layput = (length(state_keys), 1))
 end

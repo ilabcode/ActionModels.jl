@@ -182,7 +182,8 @@ function get_estimates(
                 end
 
                 # Add the value to the row
-                row[Symbol(join((string(agent), string(state)), id_separator))] = median_value
+                row[Symbol(join((string(agent), string(state)), id_separator))] =
+                    median_value
             end
 
             #Add the timestep to the row
