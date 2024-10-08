@@ -30,8 +30,9 @@ function single_recovery(
     #Fit the model to the simulated data
     result = fit_model(model; sampler_settings..., progress = false)
 
-    #Extract the posterior medians
-    posterior_medians = get_posteriors(result.chains)
+    #Extract the agent posteriors
+    agent_parameters = extract_quantities(model, result.chains)
+    posterior_medians = get_estimates(agent_parameters, Dict)
 
     ## - Rename dictionaries - ##
     #Make a renamed dictionary with true parameter values
@@ -40,12 +41,12 @@ function single_recovery(
     for key in keys(parameters)
         #Concatenate tuples
         if key isa Tuple
-            new_key = join(key, "__")
+            new_key = join(key, tuple_separator)
         else
             new_key = key
         end
         #Add prefix to show that it is an estimate
-        new_key = "true__" * new_key
+        new_key = "true" * id_separator * new_key
         #Save in the new dict
         true_parameters[new_key] = parameters[key]
     end
@@ -56,12 +57,12 @@ function single_recovery(
     for key in keys(posterior_medians)
         #Concatenate tuples
         if key isa Tuple
-            new_key = join(key, "__")
+            new_key = join(key, tuple_separator)
         else
             new_key = key
         end
         #Add prefix to show that it is an estimate
-        new_key = "estimated__" * new_key
+        new_key = "estimated" * id_separator * new_key
         #Save in the new dict
         estimated_parameters[new_key] = posterior_medians[key]
     end
