@@ -77,25 +77,18 @@ function create_model(
         ]
     end
 
-    #If there is only one grouping column
-    if length(grouping_cols) == 1
-        #Use the vaues fo that column as ID
-        agent_ids = [Symbol(i) for i in unique(data[!, first(grouping_cols)])]
-    else
-        #Otherwise, use combinations of the column name and their values
-        agent_ids = [
-            Symbol(
-                join(
-                    [
-                        string(col_name) * "" * string(row[col_name]) for
-                        col_name in grouping_cols
-                    ],
-                    id_separator,
-                ),
-            ) for row in eachrow(unique(data[!, grouping_cols]))
-        ]
-
-    end
+    #Create agent ids from the grouping columns and their values
+    agent_ids = [
+        Symbol(
+            join(
+                [
+                    string(col_name) * id_column_separator * string(row[col_name]) for
+                    col_name in grouping_cols
+                ],
+                id_separator,
+            ),
+        ) for row in eachrow(unique(data[!, grouping_cols]))
+    ]
 
     ## Determine whether any actions are missing ##
     if actions isa Vector{A} where {R<:Real,A<:Array{Union{Missing,R}}}
