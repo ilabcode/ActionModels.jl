@@ -2,6 +2,8 @@ using Test
 using StatsPlots
 using ActionModels, DataFrames
 using AxisArrays
+
+
 @testset "fitting tests" begin
 
     ### SETUP ###
@@ -110,7 +112,7 @@ using AxisArrays
 
         #Extract state trajectories
         state_trajectories =
-            get_trajectories(model, fitted_model, ["value", "input", "action"])
+            get_trajectories(model, fitted_model, ["value", "action"])
         trajectory_estimates_df = get_estimates(state_trajectories)
 
         #Check that the learning rates are estimated right
@@ -146,7 +148,7 @@ using AxisArrays
 
         plot_parameters(prior_chains, renamed_model)
 
-        #plot_trajectory(state_trajectories)
+        plot_trajectories(state_trajectories)
     end
 
     @testset "custom statistical model" begin
