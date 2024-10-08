@@ -144,11 +144,13 @@ using AxisArrays
 
         #Fit model
         prior_chains = sample(model, Prior(), n_iterations; sampling_kwargs...)
-        prior_chains = rename_chains(prior_chains, model)
+        renamed_prior_chains = rename_chains(prior_chains, model)
 
         plot_parameters(prior_chains, renamed_model)
 
-        plot_trajectories(state_trajectories)
+        prior_trajectories =
+            get_trajectories(model, prior_chains, ["value", "action"])
+        plot_trajectories(prior_trajectories)
     end
 
     @testset "custom statistical model" begin
