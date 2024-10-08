@@ -21,12 +21,12 @@ plot_trajectories
         plt::Plot_Trajectories,        
         sample_color::Union{String,Symbol} = :gray,
         sample_alpha::Real = 0.1,
-        sample_linewidth::Real = 1,
+        sample_linewidth::Real = 0.5,
 
         summary_function::Function = median,
         summary_alpha::Real = 1,
         summary_color::Union{String,Symbol} = :red,
-        summary_linewidth::Real = 2,
+        summary_linewidth::Real = 1,
 
         plot_width::Int = 800,
         plot_height::Int = 600,
@@ -64,6 +64,10 @@ plot_trajectories
             #Otherwise use the parameter name as the subplot title
             title := string(state_key)
         end
+
+        #Set the xticks to be the timesteps
+        xticks := (1:length(timesteps), 0:timesteps[end])
+        xlabel := "Timestep"
 
         #Set the font size
         legendfontsize --> 15
