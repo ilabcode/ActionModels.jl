@@ -4,6 +4,7 @@ module ActionModels
 using Reexport
 using Turing, ReverseDiff, DataFrames, AxisArrays, RecipesBase, Logging
 using ProgressMeter, Distributed #TODO: get rid of this (only needed for parameter recovery)
+using MCMCChainsStorage, HDF5
 @reexport using Distributions
 using Turing: DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
 #Export functions
@@ -11,6 +12,7 @@ export Agent, RejectParameters, InitialStateParameter, ParameterGroup
 export init_agent, premade_agent, warn_premade_defaults, multiple_actions, check_agent
 export independent_agents_population_model,
     create_model, fit_model, parameter_recovery, single_recovery
+export ChainSaveResume
 export plot_parameters, plot_trajectories, plot_trajectory, plot_trajectory!
 export get_history,
     get_states,

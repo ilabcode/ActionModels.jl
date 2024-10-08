@@ -54,12 +54,37 @@ using Distributed
         @test results isa ActionModels.FitModelResults
     end
 
+    @testset "basic run - save_resume" begin
+
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+        )
+        save_resume = ChainSaveResume(path = mktempdir())
+        results = fit_model(
+            model;
+            sampler = sampler,
+            n_iterations = n_iterations,
+            n_chains = n_chains,
+            save_resume=save_resume,
+            sampling_kwargs...,
+        )
+
+        @test results isa ActionModels.FitModelResults
+    end
+
 
     @testset "parallelized" begin
         addprocs(4)
         @everywhere begin
             ### SETUP ###
             using ActionModels, DataFrames
+            #Turing.setprogress!(false)
             #Create dataframe
             data = DataFrame(
                 inputs = rand([0, 1], 20),
