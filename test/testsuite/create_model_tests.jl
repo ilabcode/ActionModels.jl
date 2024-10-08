@@ -1,7 +1,7 @@
 using Test
 using StatsPlots
 using ActionModels, DataFrames
-using AxisArrays
+using AxisArrays, Turing
 
 
 @testset "fitting tests" begin
@@ -111,8 +111,7 @@ using AxisArrays
         estimates_dict = get_estimates(agent_parameters, Dict)
 
         #Extract state trajectories
-        state_trajectories =
-            get_trajectories(model, fitted_model, ["value", "action"])
+        state_trajectories = get_trajectories(model, fitted_model, ["value", "action"])
         trajectory_estimates_df = get_estimates(state_trajectories)
 
         #Check that the learning rates are estimated right
@@ -146,10 +145,9 @@ using AxisArrays
         prior_chains = sample(model, Prior(), n_iterations; sampling_kwargs...)
         renamed_prior_chains = rename_chains(prior_chains, model)
 
-        plot_parameters(prior_chains, renamed_model)
+        plot_parameters(renamed_prior_chains, renamed_model)
 
-        prior_trajectories =
-            get_trajectories(model, prior_chains, ["value", "action"])
+        prior_trajectories = get_trajectories(model, prior_chains, ["value", "action"])
         plot_trajectories(prior_trajectories)
     end
 
@@ -397,28 +395,25 @@ end
 
 function plot_trajectory(
     trajectories = AxisArrays.AxisArray{
-            Union{Missing,Float64},
-            5,
-            Array{Union{Missing,Float64},5},
-            Tuple{
-                AxisArrays.Axis{:agent,Vector{Symbol}},
-                AxisArrays.Axis{:state,Vector{Symbol}},
-                AxisArrays.Axis{:timestep,UnitRange{Int64}},
-                AxisArrays.Axis{:sample,UnitRange{Int64}},
-                AxisArrays.Axis{:chain,UnitRange{Int64}},
-            },
+        Union{Missing,Float64},
+        5,
+        Array{Union{Missing,Float64},5},
+        Tuple{
+            AxisArrays.Axis{:agent,Vector{Symbol}},
+            AxisArrays.Axis{:state,Vector{Symbol}},
+            AxisArrays.Axis{:timestep,UnitRange{Int64}},
+            AxisArrays.Axis{:sample,UnitRange{Int64}},
+            AxisArrays.Axis{:chain,UnitRange{Int64}},
         },
-        
-        sample_color::Union{String,Symbol} = :gray,
-        sample_alpha::Real = 0.1,
-        sample_linewidth::Real = 1,
-
-        summary_function::Function = median,
-        summary_alpha::Real = 1,
-        summary_color::Union{String,Symbol} = :red,
-        summary_linewidth::Real = 2,
-
-    )
+    },
+    sample_color::Union{String,Symbol} = :gray,
+    sample_alpha::Real = 0.1,
+    sample_linewidth::Real = 1,
+    summary_function::Function = median,
+    summary_alpha::Real = 1,
+    summary_color::Union{String,Symbol} = :red,
+    summary_linewidth::Real = 2,
+)
 
     #Extract dimensions
     agent_ids, state_keys, timesteps, samples, chains = trajectories.axes
@@ -427,7 +422,7 @@ function plot_trajectory(
     plots = Vector(undef, length(state_keys))
 
     #For each state
-    for (state_idx,state_key) in enumerate(state_keys)
+    for (state_idx, state_key) in enumerate(state_keys)
         #Initialize plot
         plots[state_idx] = plot()
 
@@ -458,7 +453,10 @@ function plot_trajectory(
         for agent_id in agent_ids
 
             #Get vector of medians
-            summary_values = [summary_function(trajectories[agent_id, state_key, timestep+1, :, :]) for timestep in timesteps]
+            summary_values = [
+                summary_function(trajectories[agent_id, state_key, timestep+1, :, :])
+                for timestep in timesteps
+            ]
 
             #Plot the summary value
             plot!(

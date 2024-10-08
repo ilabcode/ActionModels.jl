@@ -1,16 +1,19 @@
-@userplot struct Plot_Trajectories{T<:Tuple{AxisArrays.AxisArray{
-                    Union{Missing,Float64},
-                    5,
-                    Array{Union{Missing,Float64},5},
-                    Tuple{
-                        AxisArrays.Axis{:agent,Vector{Symbol}},
-                        AxisArrays.Axis{:state,Vector{Symbol}},
-                        AxisArrays.Axis{:timestep,UnitRange{Int64}},
-                        AxisArrays.Axis{:sample,UnitRange{Int64}},
-                        AxisArrays.Axis{:chain,UnitRange{Int64}},
-                    },
-                },
-             }}
+@userplot struct Plot_Trajectories{
+    T<:Tuple{
+        AxisArrays.AxisArray{
+            Union{Missing,Float64},
+            5,
+            Array{Union{Missing,Float64},5},
+            Tuple{
+                AxisArrays.Axis{:agent,Vector{Symbol}},
+                AxisArrays.Axis{:state,Vector{Symbol}},
+                AxisArrays.Axis{:timestep,UnitRange{Int64}},
+                AxisArrays.Axis{:sample,UnitRange{Int64}},
+                AxisArrays.Axis{:chain,UnitRange{Int64}},
+            },
+        },
+    },
+}
     args::T
 end
 
@@ -18,20 +21,18 @@ end
 """
 plot_trajectories
 @recipe function f(
-        plt::Plot_Trajectories,        
-        sample_color::Union{String,Symbol} = :gray,
-        sample_alpha::Real = 0.1,
-        sample_linewidth::Real = 0.5,
-
-        summary_function::Function = median,
-        summary_alpha::Real = 1,
-        summary_color::Union{String,Symbol} = :red,
-        summary_linewidth::Real = 1,
-
-        plot_width::Int = 800,
-        plot_height::Int = 600,
-        subplot_titles = Dict()
-    )
+    plt::Plot_Trajectories,
+    sample_color::Union{String,Symbol} = :gray,
+    sample_alpha::Real = 0.1,
+    sample_linewidth::Real = 0.5,
+    summary_function::Function = median,
+    summary_alpha::Real = 1,
+    summary_color::Union{String,Symbol} = :red,
+    summary_linewidth::Real = 1,
+    plot_width::Int = 800,
+    plot_height::Int = 600,
+    subplot_titles = Dict(),
+)
 
     #Extract trajectories
     trajectories = plt.args[1]
@@ -72,8 +73,8 @@ plot_trajectories
         #Set the font size
         legendfontsize --> 15
 
-         #Plot samples for each agent
-         for agent_id in agent_ids
+        #Plot samples for each agent
+        for agent_id in agent_ids
             #For each chain and sample
             for chain in chains
                 for sample in samples
@@ -99,7 +100,10 @@ plot_trajectories
         for agent_id in agent_ids
 
             #Get vector of point estimates
-            summary_values = [summary_function(trajectories[agent_id, state_key, timestep+1, :, :]) for timestep in timesteps]
+            summary_values = [
+                summary_function(trajectories[agent_id, state_key, timestep+1, :, :])
+                for timestep in timesteps
+            ]
 
             #Plot the summary value
             @series begin

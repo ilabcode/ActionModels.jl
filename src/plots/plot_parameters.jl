@@ -1,4 +1,4 @@
-@userplot struct Plot_Parameters{T}
+@userplot struct Plot_Parameters{T<:Tuple{Chains,Chains}}
     args::T
 end
 """
