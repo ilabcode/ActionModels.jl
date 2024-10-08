@@ -63,7 +63,7 @@ function get_trajectories(
                     #if the parameter is a composite parameter
                     if length(parameter_string) > 1
                         #Put it in a tuple
-                        parameter_string = Tuple(parameter_string)
+                        parameter_string = Tuple(string.(parameter_string))
                     else
                         #Otherwise, just take the first element
                         parameter_string = string(parameter)
