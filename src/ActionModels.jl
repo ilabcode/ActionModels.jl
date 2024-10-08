@@ -37,6 +37,7 @@ end
 include("structs.jl")
 
 const id_separator = "."
+const id_column_separator = ":"
 const tuple_separator = "__"
 
 #Functions for creating agents

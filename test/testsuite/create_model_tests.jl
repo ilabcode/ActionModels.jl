@@ -2,6 +2,7 @@ using Test
 using StatsPlots
 using ActionModels, DataFrames
 using AxisArrays, Turing
+using Turing: AutoReverseDiff
 
 
 @testset "fitting tests" begin
@@ -191,16 +192,22 @@ using AxisArrays, Turing
 
         #Fit model
         fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
+        #Rename chains
+        renamed_model = rename_chains(fitted_model, model)
 
         #Extract quantities
         agent_parameters = extract_quantities(model, fitted_model)
         estimates_df = get_estimates(agent_parameters)
 
+        #Extract state trajectories
+        state_trajectories = get_trajectories(model, fitted_model, ["value", "action"])
+        trajectory_estimates_df = get_estimates(state_trajectories)
+
+
         #Check that the learning rates are estimated right
         @test estimates_df[!, :learning_rate] == sort(estimates_df[!, :learning_rate])
 
-        #Rename chains
-        renamed_model = rename_chains(fitted_model, model)
+
     end
 
     @testset "missing actions" begin
