@@ -50,9 +50,9 @@ function get_estimates(
     df[!, :agent] = Symbol[]
 
     # Populate the DataFrame with median values
-    for (i, agent) in enumerate(agents)
+    for agent in agents
         row = Dict()
-        for (j, parameter) in enumerate(parameters)
+        for parameter in parameters
             # Extract the values for the current agent and parameter across samples and chains
             values = agent_parameters[agent, parameter, :, :]
             # Calculate the median value

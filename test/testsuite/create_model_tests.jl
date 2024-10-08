@@ -149,6 +149,7 @@ using AxisArrays, Turing
 
         prior_trajectories = get_trajectories(model, prior_chains, ["value", "action"])
         plot_trajectories(prior_trajectories)
+        plot_trajectories(state_trajectories)
     end
 
     @testset "custom statistical model" begin
