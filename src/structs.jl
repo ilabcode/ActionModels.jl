@@ -84,3 +84,19 @@ Base.@kwdef struct RegressionPrior{D1<:Distribution, D2<:Distribution}
     β::Union{D1, Vector{D1}} = TDist(3)*2.5
     σ::Union{D2, Vector{Vector{D2}}} = truncated(TDist(3)*2.5, lower = 0)
 end
+
+"""
+Input struct for specifying a regression
+"""
+struct Regression
+    formula::MixedModels.FormulaTerm
+    prior::RegPrior
+    link::Function
+
+    Regression(formula::MixedModels.FormulaTerm, prior::RegPrior = RegPrior(), link::Function = identity) = begin
+        new(formula, prior, link)
+    end
+    Regression(formula::MixedModels.FormulaTerm, link::Function, prior::RegPrior = RegPrior()) = begin
+        new(formula, prior, link)
+    end
+end
