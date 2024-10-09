@@ -34,6 +34,8 @@ function create_model(
     data::DataFrame;
     priors::Union{RegressionPrior,Vector{RegressionPrior}} = RegressionPrior(),
     link_functions::Union{Function,Vector{Function}} = identity,
+    input_cols::Vector{C},
+    action_cols::Vector{C},
     grouping_cols::Vector{C},
 ) where {F<:MixedModels.FormulaTerm,C<:Union{String,Symbol}}
 
@@ -75,7 +77,7 @@ function create_model(
 
     #Initialize vector of sinlge regression models
     regression_models = Vector{DynamicPPL.Model}(undef, length(regression_formulas))
-    parameter_names = Vector{Union{String,Tuple}}(undef, length(regression_formulas))
+    parameter_names = Vector{String}(undef, length(regression_formulas))
 
     #For each formula in the regression formulas, and its corresponding prior and link function
     for (model_idx, (formula, prior, link_function)) in
@@ -84,19 +86,24 @@ function create_model(
         #Prepare the data for the regression model
         X, Z = prepare_regression_data(formula, statistical_data)
 
+        #Convert to normal matrix
+        Z = Matrix.(Z)
+        
         #Condition the linear model
         regression_models[model_idx] =
             linear_model(X, Z, link_function = link_function, prior = prior)
 
         #Store the parameter name from the formula
-        parameter_names[model_idx] = formula.lhs
+        parameter_names[model_idx] = string(formula.lhs)
     end
 
     #Create the combined regression statistical model
     statistical_model =
         regression_statistical_model(regression_models, parameter_names, n_agents)
 
-    #Pass to the standard create_model function
+    return statistical_model
+
+    #TODO: Instead of returning the model, pass it to the standard create_model function
     ##HERE##
 end
 
@@ -111,12 +118,12 @@ end
 ) where {T<:DynamicPPL.Model}
 
     #Initialize vector of dicts with agent parameters
-    agents_params = Dict{Union{String,Tuple{String}},Real}[
-        Dict{Union{String,Tuple{String}},Real}() for _ = 1:n_agents
+    agents_params = Dict{String,Real}[
+        Dict{String,Real}() for _ = 1:n_agents
     ]
 
     #For each parameter and its corresponding linear regression model
-    for (parameter_name, linear_submodel) in zip(linear_submodels, parameter_names)
+    for (linear_submodel, parameter_name) in zip(linear_submodels, parameter_names)
         #Run the linear regression model to extract parameters for each agent
         @submodel prefix = string(parameter_name) parameter_values = linear_submodel
 
@@ -148,7 +155,7 @@ link function: link(θ)
     link_function::Function = identity,
     prior::RegressionPrior = RegressionPrior(),
     n_β::Int = size(X, 2), # number of fixed effect parameters
-    size_r::Vector{Tuple{Int,Int}} = size.(Z), # number of random effect parameters, per group
+    size_r::Vector{Int} = size.(Z, 2), # number of random effect parameters, per group
     has_ranef::Bool = length(Z) > 0 && any(length.(Z) .> 0),
 ) where {R1<:Real,R2<:Real,MR<:Matrix{R2}}
 
@@ -158,11 +165,11 @@ link function: link(θ)
     β ~ filldist(prior.β, n_β)
 
     #Do fixed effect linear regression
-    Θ = X * β
+    η = X * β
 
     #If there are random effects
     if has_ranef
-
+        
         #Initialize vector of random effect parameters
         r = Vector{Matrix{Real}}(undef, length(Z))
 
@@ -170,15 +177,15 @@ link function: link(θ)
         for (ranefⱼ, (Zⱼ, size_rⱼ)) in enumerate(zip(Z, size_r))
 
             #Sample its parameters (both intercepts and slopes)
-            r[ranefⱼ] ~ filldist(prior.r, size_rⱼ...)
+            r[ranefⱼ] ~ filldist(prior.r, size_rⱼ)
 
             #Add the random effect to the linear model
-            Θ += sum(Zⱼ * transpose(r[ranefⱼ]), dims = 2) #FIXME: MAKE SOMEONE CHECK THIS
+            η += Zⱼ * r[ranefⱼ] 
         end
     end
 
     #Apply the link function, and return the resulting parameter for each participant
-    return link_function.(Θ)
+    return link_function.(η)
 end
 
 

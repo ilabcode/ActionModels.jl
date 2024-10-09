@@ -4,12 +4,11 @@ Pkg.activate("../../docs")
 
 using Test
 using Distributions
-using TuringGLM
 using DataFrames
 using LogExpFunctions
 using MixedModels
+using Turing
 
-using Revise
 using ActionModels
 
 
@@ -189,7 +188,7 @@ using ActionModels
 
     @testset "new interface for statistical model - random slope" begin
         agent = premade_agent("continuous_rescorla_wagner_gaussian")
-        samples = ActionModels.create_model(
+        model = create_model(
             agent,
             @formula(learning_rate ~ age + (1 + age | treatment)),
             example_data_combined;
@@ -197,6 +196,9 @@ using ActionModels
             input_cols = [:input],
             grouping_cols = [:id, :treatment],
         )
+
+
+        out = sample(model, NUTS(), 1000)
 
         @show summary(samples)
     end
@@ -259,5 +261,9 @@ using ActionModels
 
         X, Z = ActionModels.prepare_regression_data(formula7, unique(example_data_combined, [:treatment, :id]))
 
+        Zj = Z[1]
+        rj = [1,2,3,4]
+        
+        Zj * rj
     end
 end
