@@ -71,7 +71,7 @@ using Distributed
             sampler = sampler,
             n_iterations = n_iterations,
             n_chains = n_chains,
-            save_resume=save_resume,
+            save_resume = save_resume,
             sampling_kwargs...,
         )
 

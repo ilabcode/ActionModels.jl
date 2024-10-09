@@ -35,7 +35,7 @@ function create_model(
     #Create column names
     input_cols = map(x -> "input$x", 1:size(inputs, 2))
     action_cols = map(x -> "action$x", 1:size(actions, 2))
-    
+
     #Create dataframe of the inputs and actions
     data = DataFrame(hcat(inputs, actions), vcat(input_cols, action_cols))
 

@@ -11,21 +11,23 @@
 # DONE: (1.0) check integration of the new functionality
 # DONE: Compare with old implementation of specifying statistical model
 # TODO: (1.0) Example / usecase / tutorials)
+#      - TODO: Fit a real dataset
 # DONE: check if we can get rid of TuringGLM
 # DONE: support dropping intercepts (fixed and random)
 # TODO: implement rename_chains for linear regressions
+# TODO: implement check_population_model
+#       - TODO: Make check for whether there is a name collision with creating column with the parameter name
+#       - TODO: check for whether the vector of priors is the correct amount
 # DONE: prepare to merge
-# TODO: merge
-    #(search for FIXME)
-# TODO: allow for varying priors: set up a regressionprior
-# TODO: Decide whether to have a type including formula, prior and link function that the users use
-# TODO: create model API decision
-# TODO: Make check for whether there is a name collision with creating column with the parameter name
+# DONE: merge
+# TODO: (search for FIXME)
+# TODO: allow for varying priors: set up a regressionprior constructor
+# TODO: Decide whether to have a type including formula, prior and link function that the users use & create model API decision
 # TODO: Copy input data to avoid the above mutating the input
 # DONE: Make sure the centering of the random slopes is good (γ, τ, σ)
 # TODO: add to documentation that there shoulnd't be random slopes for the most specific level of grouping column (particularly when you only have one grouping column)
 # TODO: models withut random effects: make sure there is an intercept
-
+# TODO: Clean tests up
 
 using ActionModels, Turing, Distributions
 ##########################################################################################################
@@ -92,16 +94,24 @@ function create_model(
 
         if has_ranef(formula)
             #Extract each function term (random effect part of formula)
-            ranef_groups = [term for term in formula.rhs if term isa MixedModels.FunctionTerm]
+            ranef_groups =
+                [term for term in formula.rhs if term isa MixedModels.FunctionTerm]
             #For each random effect, extract the number of categories there are in the dataset
-            n_ranef_categories = [nrow(unique(population_data, Symbol(term.args[2]))) for term in ranef_groups]
+            n_ranef_categories = [
+                nrow(unique(population_data, Symbol(term.args[2]))) for term in ranef_groups
+            ]
         else
             n_ranef_categories = nothing
         end
-        
+
         #Condition the linear model
-        regression_models[model_idx] =
-            linear_model(X, Z, n_ranef_categories, link_function = link_function, prior = prior)
+        regression_models[model_idx] = linear_model(
+            X,
+            Z,
+            n_ranef_categories,
+            link_function = link_function,
+            prior = prior,
+        )
 
         #Store the parameter name from the formula
         parameter_names[model_idx] = string(formula.lhs)
@@ -134,9 +144,7 @@ end
 ) where {T<:DynamicPPL.Model}
 
     #Initialize vector of dicts with agent parameters
-    agent_parameters = Dict{String,Real}[
-        Dict{String,Real}() for _ = 1:n_agents
-    ]
+    agent_parameters = Dict{String,Real}[Dict{String,Real}() for _ = 1:n_agents]
 
     #For each parameter and its corresponding linear regression model
     for (linear_submodel, parameter_name) in zip(linear_submodels, parameter_names)
@@ -172,7 +180,11 @@ link function: link(η)
     link_function::Function = identity,
     prior::RegressionPrior = RegressionPrior(),
     n_β::Int = size(X, 2), # number of fixed effect parameters
-    size_r::Union{Nothing,Vector{Int}} = if isnothing(Z) nothing else size.(Z, 2) end, # number of random effect parameters, per group
+    size_r::Union{Nothing,Vector{Int}} = if isnothing(Z)
+        nothing
+    else
+        size.(Z, 2)
+    end, # number of random effect parameters, per group
     has_ranef::Bool = !isnothing(Z),
 ) where {R1<:Real,R2<:Real,MR<:Matrix{R2}}
 
@@ -186,7 +198,7 @@ link function: link(η)
 
     #If there are random effects
     if has_ranef
-        
+
         #Initialize vector of random effect parameters
         σ = Vector{Vector{Real}}(undef, length(Z))
         r = Vector{Matrix{Real}}(undef, length(Z))
@@ -201,13 +213,16 @@ link function: link(η)
             σ[ranefⱼ] ~ filldist(prior.σ, n_ranef_params)
 
             #Expand the standard deviation to the number of parameters
-            r[ranefⱼ] ~ arraydist([Normal(0,σ[ranefⱼ][idx]) for idx in 1:n_ranef_params for _ in 1:n_ranef_categories[ranefⱼ]])
+            r[ranefⱼ] ~ arraydist([
+                Normal(0, σ[ranefⱼ][idx]) for idx = 1:n_ranef_params for
+                _ = 1:n_ranef_categories[ranefⱼ]
+            ])
 
             # #Sample its parameters (both intercepts and slopes)
             # r[ranefⱼ] ~ filldist(Normal(0, σ[ranefⱼ]), size_rⱼ)
 
             #Add the random effect to the linear model
-            η += Zⱼ * r[ranefⱼ] 
+            η += Zⱼ * r[ranefⱼ]
         end
     end
 
@@ -279,7 +294,13 @@ function rename_chains()
 end
 
 
-function check_population_model(::Vector{DynamicPPL.Model}, ::Vector{String}, ::Int64; verbose::Bool, agent::Agent)
+function check_population_model(
+    ::Vector{DynamicPPL.Model},
+    ::Vector{String},
+    ::Int64;
+    verbose::Bool,
+    agent::Agent,
+)
     #TODO
     return nothing
 end

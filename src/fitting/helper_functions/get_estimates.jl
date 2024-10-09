@@ -46,7 +46,10 @@ function get_estimates(
     parameters = agent_parameters.axes[2]
 
     #Construct grouping column names
-    grouping_cols = [Symbol(first(split(i, id_column_separator))) for i in split(string(first(agents)), id_separator)]
+    grouping_cols = [
+        Symbol(first(split(i, id_column_separator))) for
+        i in split(string(first(agents)), id_separator)
+    ]
 
     # Initialize an empty DataFrame
     df = DataFrame(Dict(Symbol(parameter) => Float64[] for parameter in parameters))
@@ -66,7 +69,7 @@ function get_estimates(
             # Add the median value to the row
             row[Symbol(parameter)] = median_value
         end
-        
+
         #Split agent ids
         split_agent_ids = split(string(agent_id), id_separator)
         #Add them to the row
@@ -158,29 +161,28 @@ function get_estimates(
     timesteps = state_trajectories.axes[3]
 
     #Construct grouping column names
-    grouping_cols = [Symbol(first(split(i, id_column_separator))) for i in split(string(first(agents)), id_separator)]
+    grouping_cols = [
+        Symbol(first(split(i, id_column_separator))) for
+        i in split(string(first(agents)), id_separator)
+    ]
 
     # Initialize an empty DataFrame with the states, the grouping columns and the timestep
-    df = DataFrame(
-        Dict(
-            begin
-                #Join tuples
-                if state isa Tuple
-                    state = join(state, tuple_separator)
-                end
-                state => Float64[]
-            end for state in states
-        ),
-    )
+    df = DataFrame(Dict(begin
+        #Join tuples
+        if state isa Tuple
+            state = join(state, tuple_separator)
+        end
+        state => Float64[]
+    end for state in states))
     for column_name in grouping_cols
         df[!, column_name] = String[]
     end
     df[!, :timestep] = Int[]
 
-    
+
     # Populate the DataFrame with median values
     for agent_id in agents
-    
+
         for timestep in timesteps
             row = Dict()
 
@@ -208,14 +210,18 @@ function get_estimates(
 
             #Add the timestep to the row
             row[:timestep] = timestep
-            
+
             # Add the row to the DataFrame
             push!(df, row, promote = true)
         end
     end
 
     # Reorder the columns to have agent_id as the first column
-    select!(df, vcat(grouping_cols,[:timestep]), names(df)[1:end-(length(grouping_cols)+1)]...)
+    select!(
+        df,
+        vcat(grouping_cols, [:timestep]),
+        names(df)[1:end-(length(grouping_cols)+1)]...,
+    )
 
     return df
 end
