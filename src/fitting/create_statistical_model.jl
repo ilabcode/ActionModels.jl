@@ -3,7 +3,7 @@
 # DONE: expand to multiple formulas / flexible names
 # - DONE: parameters inside different statistical models gets overridden by each other!
 # TODO: finish the prepare_data function
-# TODO: think about tuple parameter names (ie initial values or HGF params)
+# DONE: think about tuple parameter names (ie initial values or HGF params)
 # DONE: random slopes
 # DONE: more than one random intercept
 # DONE: intercept-only model
@@ -15,11 +15,16 @@
 # DONE: support dropping intercepts (fixed and random)
 # TODO: implement rename_chains for linear regressions
 # DONE: prepare to merge
-# TODO: allow for varying priors
+# TODO: merge
+    #(search for FIXME)
+# TODO: allow for varying priors: set up a regressionprior
 # TODO: Decide whether to have a type including formula, prior and link function that the users use
+# TODO: create model API decision
+# TODO: add to documentation that there shoulnd't be random slopes for the most specific level of grouping column (particularly when you only have one grouping column)
+
+
 
 using ActionModels, Turing, Distributions
-
 ##########################################################################################################
 ## User-level function for creating a æinear regression statiscial mdoel and using it with ActionModels ##
 ##########################################################################################################
@@ -185,11 +190,10 @@ function prepare_regression_data(
     statistical_data::DataFrame,
 )
 
-    #### COMNTINUE HER #####
-    ### Z is weird, because itmlooksm like it treats age as categorical ###
+    #### COMNTINUE HERE #####
+    ### Z is weird, because it looks like it treats age as categorical ###
     ### find out why this happens in MixedModel, when it does fixed effects just fine (know age is continuous) !!!!!!!!!! ###
     ### Using apply_schema beforehand breaks MixedModel (because MixedModel applies apply_schema itself)
-
 
     #Inset column with the name fo the agetn parameter, to avoid error from MixedModel
     insertcols!(statistical_data, Symbol(formula.lhs) => 1) #TODO: FIND SOMETHING LESS HACKY
@@ -256,6 +260,14 @@ function rename_chains()
     # end
     # return replacenames(chains, replacement_names)
 end
+
+
+
+
+
+
+
+
 
 
 

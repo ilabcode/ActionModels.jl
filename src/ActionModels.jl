@@ -4,7 +4,6 @@ module ActionModels
 using ReverseDiff,
     ForwardDiff,
     Turing,
-    TuringGLM,
     Distributions,
     DataFrames,
     RecipesBase,
