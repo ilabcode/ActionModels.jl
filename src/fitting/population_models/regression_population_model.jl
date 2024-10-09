@@ -10,25 +10,25 @@
 # DONE better / custom priors
 # DONE: (1.0) check integration of the new functionality
 # DONE: Compare with old implementation of specifying statistical model
-# TODO: (1.0) Example / usecase / tutorials)
-#      - TODO: Fit a real dataset
 # DONE: check if we can get rid of TuringGLM
+# DONE: prepare to merge
+# DONE: merge
 # DONE: support dropping intercepts (fixed and random)
-# TODO: implement rename_chains for linear regressions
+# DONE: allow for varying priors: set up a regressionprior constructor
+# DONE: Copy input data to avoid the above mutating the input
+# DONE: Make sure the centering of the random slopes is good (γ, τ, σ)
+# DONE: Clean tests up
+# TODO: (1.0) rename link_function to inv_link_function
+# TODO: (1.0) models withut random effects: make sure there is an intercept
+# TODO: (1.0) implement rename_chains for linear regressions (also for ordering of the random effects 
+#             - MAYBE some code uses the data order, maybe some uses the formula order)
+# TODO: (1.0) implement Regression type
 # TODO: implement check_population_model
 #       - TODO: Make check for whether there is a name collision with creating column with the parameter name
 #       - TODO: check for whether the vector of priors is the correct amount
-# DONE: prepare to merge
-# DONE: merge
-# TODO: (search for FIXME)
-# TODO: allow for varying priors: set up a regressionprior constructor
-# TODO: Decide whether to have a type including formula, prior and link function that the users use & create model API decision
-# DONE: Copy input data to avoid the above mutating the input
-# DONE: Make sure the centering of the random slopes is good (γ, τ, σ)
+# TODO: (1.0) Example / usecase / tutorials)
+#      - TODO: Fit a real dataset
 # TODO: add to documentation that there shoulnd't be random slopes for the most specific level of grouping column (particularly when you only have one grouping column)
-# TODO: models withut random effects: make sure there is an intercept
-# DONE: Clean tests up
-# TODO: rename link_function to inv_link_function
 
 using ActionModels, Turing, Distributions
 ##########################################################################################################
@@ -198,8 +198,6 @@ link function: link(η)
     end, # number of random effect parameters, per group
     has_ranef::Bool = !isnothing(Z),
 ) where {R1<:Real,R2<:Real,MR<:Matrix{R2}}
-
-    # FIXME: support different priors here
 
     #Sample beta / effect size parameters (including intercept)
     β ~ prior.β
