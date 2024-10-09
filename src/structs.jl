@@ -70,9 +70,17 @@ Base.@kwdef mutable struct GroupedParameters
 end
 
 """
-Type for regression priors for use with statistical models
+Internal type for prepared regression priors
 """
-Base.@kwdef mutable struct RegressionPrior
-    β::Distribution = TDist(3)
-    σ::Distribution = Exponential(1)
+Base.@kwdef mutable struct RegPrior
+    β::Distribution
+    σ::Union{Nothing,Vector{Distribution}}
+end
+
+"""
+Input struct for setting regression priors
+"""
+Base.@kwdef struct RegressionPrior{D1<:Distribution, D2<:Distribution}
+    β::Union{D1, Vector{D1}} = TDist(3)*2.5
+    σ::Union{D2, Vector{Vector{D2}}} = truncated(TDist(3)*2.5, lower = 0)
 end

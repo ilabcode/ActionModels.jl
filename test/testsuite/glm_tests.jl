@@ -3,14 +3,13 @@ using Pkg
 Pkg.activate("../../docs")
 
 using Test
-using Distributions
-using DataFrames
-using LogExpFunctions
-using MixedModels
-using Turing
 using LogExpFunctions
 
 using ActionModels
+using Distributions
+using DataFrames
+using MixedModels
+using Turing
 
 
 @testset "linear regression tests" begin
@@ -60,7 +59,7 @@ using ActionModels
             data;
             action_cols = [:actions],
             input_cols = [:input],
-            grouping_cols = [:id],
+            grouping_cols = [:id, :treatment],
         )
 
         samples = sample(model, sampler, n_iterations; sampling_kwargs...)
@@ -73,20 +72,20 @@ using ActionModels
             data;
             action_cols = [:actions],
             input_cols = [:input],
-            grouping_cols = [:id],
+            grouping_cols = [:id, :treatment],
         )
 
         samples = sample(model, sampler, n_iterations; sampling_kwargs...)
     end
 
-    @testset "fixed effect only" begin
+    @testset "THIS IS WRONG: MISSIGN IMPLICIT INTERCEPT fixed effect only" begin
         model = create_model(
             agent,
             @formula(learning_rate ~ age),
             data;
             action_cols = [:actions],
             input_cols = [:input],
-            grouping_cols = [:id],
+            grouping_cols = [:id, :treatment],
         )
 
         samples = sample(model, sampler, n_iterations; sampling_kwargs...)
@@ -99,7 +98,7 @@ using ActionModels
             data;
             action_cols = [:actions],
             input_cols = [:input],
-            grouping_cols = [:id],
+            grouping_cols = [:id, :treatment],
         )
 
         samples = sample(model, sampler, n_iterations; sampling_kwargs...)
@@ -168,12 +167,40 @@ using ActionModels
             link_functions = [identity, LogExpFunctions.exp],
             action_cols = [:actions],
             input_cols = [:input],
-            grouping_cols = [:id],
+            grouping_cols = [:id, :treatment],
         )
 
         samples = sample(model, sampler, n_iterations; sampling_kwargs...)
     end
 
+    @testset "manual prior specification" begin
+        model = create_model(
+            agent,
+            [
+                @formula(learning_rate ~ age + (1 | id)),
+                @formula(action_noise ~ age + (1 + age | treatment) + (1 | id)),
+            ],
+            data;
+            link_functions = [identity, LogExpFunctions.exp],
+            priors = [
+                RegressionPrior(
+                    β = [Normal(0, 1), Normal(0, 1)],
+                ),
+                RegressionPrior(
+                    β = Normal(0, 1),
+                    σ = [[LogNormal(0, 1), LogNormal(0, 1)], [LogNormal(0, 1)]],
+                ),
+            ],
+            action_cols = [:actions],
+            input_cols = [:input],
+            grouping_cols = [:id, :treatment],
+        )
+        
+        samples = sample(model, sampler, n_iterations; sampling_kwargs...)
+
+        agent_parameters = extract_quantities(model, samples)
+        df = get_estimates(agent_parameters)
+    end
 
     # @testset "single linear model interface" begin
 

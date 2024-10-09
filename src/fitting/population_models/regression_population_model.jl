@@ -23,11 +23,12 @@
 # TODO: (search for FIXME)
 # TODO: allow for varying priors: set up a regressionprior constructor
 # TODO: Decide whether to have a type including formula, prior and link function that the users use & create model API decision
-# TODO: Copy input data to avoid the above mutating the input
+# DONE: Copy input data to avoid the above mutating the input
 # DONE: Make sure the centering of the random slopes is good (γ, τ, σ)
 # TODO: add to documentation that there shoulnd't be random slopes for the most specific level of grouping column (particularly when you only have one grouping column)
 # TODO: models withut random effects: make sure there is an intercept
-# TODO: Clean tests up
+# DONE: Clean tests up
+# TODO: rename link_function to inv_link_function
 
 using ActionModels, Turing, Distributions
 ##########################################################################################################
@@ -37,13 +38,13 @@ function create_model(
     agent::Agent,
     regression_formulas::Union{F,Vector{F}},
     data::DataFrame;
-    priors::Union{RegressionPrior,Vector{RegressionPrior}} = RegressionPrior(),
+    priors::Union{R,Vector{R}} = RegressionPrior(),
     link_functions::Union{Function,Vector{Function}} = identity,
     input_cols::Vector{C},
     action_cols::Vector{C},
     grouping_cols::Vector{C},
     kwargs...,
-) where {F<:MixedModels.FormulaTerm,C<:Union{String,Symbol}}
+) where {F<:MixedModels.FormulaTerm,C<:Union{String,Symbol}, R<:RegressionPrior}
 
     ## Setup ##
 
@@ -100,8 +101,19 @@ function create_model(
             n_ranef_categories = [
                 nrow(unique(population_data, Symbol(term.args[2]))) for term in ranef_groups
             ]
+
+            #Set priors
+            internal_prior = RegPrior(
+                β = if prior.β isa Vector arraydist(prior.β) else filldist(prior.β, size(X, 2)) end,
+                σ = if prior.σ isa Vector arraydist.(prior.σ) else [filldist(prior.σ, Int(size(Zⱼ, 2) / n_ranef_categories[ranefⱼ])) for (ranefⱼ, Zⱼ) in enumerate(Z)] end )
         else
+
             n_ranef_categories = nothing
+
+            #Set priors, and no random effects
+            internal_prior = RegPrior(
+                β = if prior.β isa Vector arraydist(prior.β) else filldist(prior.β, size(X, 2)) end,
+                σ = nothing)
         end
 
         #Condition the linear model
@@ -110,7 +122,7 @@ function create_model(
             Z,
             n_ranef_categories,
             link_function = link_function,
-            prior = prior,
+            prior = internal_prior,
         )
 
         #Store the parameter name from the formula
@@ -177,9 +189,8 @@ link function: link(η)
     X::Matrix{R1}, # model matrix for fixed effects
     Z::Union{Nothing,Vector{MR}}, # vector of model matrices for each random effect
     n_ranef_categories::Union{Nothing,Vector{Int}}; # number of random effect parameters, per group
-    link_function::Function = identity,
-    prior::RegressionPrior = RegressionPrior(),
-    n_β::Int = size(X, 2), # number of fixed effect parameters
+    link_function::Function,
+    prior::RegPrior,
     size_r::Union{Nothing,Vector{Int}} = if isnothing(Z)
         nothing
     else
@@ -191,7 +202,7 @@ link function: link(η)
     # FIXME: support different priors here
 
     #Sample beta / effect size parameters (including intercept)
-    β ~ filldist(prior.β, n_β)
+    β ~ prior.β
 
     #Do fixed effect linear regression
     η = X * β
@@ -210,16 +221,13 @@ link function: link(η)
             n_ranef_params = Int(size_rⱼ / n_ranef_categories[ranefⱼ])
 
             #Sample the standard deviation of the random effect
-            σ[ranefⱼ] ~ filldist(prior.σ, n_ranef_params)
+            σ[ranefⱼ] ~ prior.σ[ranefⱼ]
 
             #Expand the standard deviation to the number of parameters
             r[ranefⱼ] ~ arraydist([
                 Normal(0, σ[ranefⱼ][idx]) for idx = 1:n_ranef_params for
                 _ = 1:n_ranef_categories[ranefⱼ]
             ])
-
-            # #Sample its parameters (both intercepts and slopes)
-            # r[ranefⱼ] ~ filldist(Normal(0, σ[ranefⱼ]), size_rⱼ)
 
             #Add the random effect to the linear model
             η += Zⱼ * r[ranefⱼ]
