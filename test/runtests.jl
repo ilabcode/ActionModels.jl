@@ -1,4 +1,17 @@
-using ActionModels
+### TODO:
+# Make check in full_model that returned agents_parameters is same length as inputs/actions
+# Benchmark the try-catch in full_model
+# Figure out helper function for extracting generated quantities (track_states true/false)
+# Fix typing in create_model and full_model to give concrete types
+# Make rename_chains also deal with missing actions
+# full workflow: model comparison (PSIS)
+# use arraydist for multiple actions 
+# consider using a submodel for the agent model
+# consider: make parameter recovery that uses a single model, so that pmap is unnecessary
+# append the generated quantities to the chain (can use or reconstruct from https://github.com/farr/MCMCChainsStorage.jl)
+
+
+using ActionModels, DataFrames
 using Test
 using Glob
 

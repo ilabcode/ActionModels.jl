@@ -1,208 +1,144 @@
-"""
-    create_agent_model(agent,param_priors,inputs,actions,impute_missing_actions)
-
-Create a Turing model object used for fitting an ActionModels agent.
-"""
-@model function create_agent_model(
+###########################################################################################################
+### FUNCTION FOR CREATING A CONDITIONED TURING MODEL FROM AN AGENT, A DATAFRAME AND A STATISTICAL MODEL ###
+###########################################################################################################
+function create_model(
     agent::Agent,
-    multilevel_parameters_info::Vector,
-    agent_parameters_info::Vector,
-    inputs::Dict,
-    actions::Dict,
-    multilevel_groups::Vector,
-    multiple_inputs::Bool,
-    multiple_actions::Bool,
-    impute_missing_actions::Bool,
-)
+    population_model::DynamicPPL.Model,
+    data::DataFrame;
+    input_cols::Union{Vector{T1},T1},
+    action_cols::Union{Vector{T2},T3},
+    grouping_cols::Union{Vector{T3},T3},
+    check_parameter_rejections::Union{Nothing,CheckRejections} = nothing,
+    verbose::Bool = true,
+) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 
-    #Initialize dictionaries for storing sampled parameters
-    multilevel_parameters = Dict()
-    agent_parameters = Dict()
+    ## SETUP ##
+    #Create a copy of the agent to avoid changing the original 
+    agent_model = deepcopy(agent)
 
-    #Go through each multilevel parameter
-    for parameter_info in multilevel_parameters_info
+    #Turn off saving the history of states
+    set_save_history!(agent_model, false)
 
-        #Set up a sub-dictionary for the value of this parameter in each group
-        multilevel_parameters[parameter_info.name] = Dict()
+    ## Make sure columns are vectors of symbols ##
+    if !(input_cols isa Vector)
+        input_cols = [input_cols]
+    end
+    input_cols = Symbol.(input_cols)
 
-        #Go through each group that the parameter belongs to
-        for group in parameter_info.group_levels
+    if !(action_cols isa Vector)
+        action_cols = [action_cols]
+    end
+    action_cols = Symbol.(action_cols)
 
-            #If the parameter does not depend on a higher level
-            if !parameter_info.multilevel_dependent
+    if !(grouping_cols isa Vector)
+        grouping_cols = [grouping_cols]
+    end
+    grouping_cols = Symbol.(grouping_cols)
 
-                #Sample the parameter from the given prior distribution
-                multilevel_parameters[parameter_info.name][group] ~
-                    parameter_info.distribution
+    #Run checks for the model specifications
+    check_model(
+        agent,
+        population_model,
+        data;
+        input_cols = input_cols,
+        action_cols = action_cols,
+        grouping_cols = grouping_cols,
+        verbose = verbose,
+    )
 
-                #Otherwise if it depends on a higher-level parameter
-            else
 
-                #Create empty vector for storing distribution parameter values
-                distribution_parameters = []
-
-                #Go through each parameter in the higher-level distribution
-                for distribution_parameter_key in parameter_info.parameters
-
-                    #Get the dictionary of parameter values in the parent
-                    parent_parameters = multilevel_parameters[distribution_parameter_key]
-
-                    #Get out the different groups that the parent can belong to
-                    parent_parameters_groups = collect(keys(parent_parameters))
-
-                    #Find the group of the parent which the current parameter is derived from
-                    higher_group = parent_parameters_groups[findall(
-                        x -> all(x .∈ [group]),
-                        parent_parameters_groups,
-                    )][1]
-
-                    #Store the parameter value from that group, which should already be sampled
-                    push!(distribution_parameters, parent_parameters[higher_group])
-                end
-
-                #Give the distribution parameters to the specified distribution, and sample this parameter
-                multilevel_parameters[parameter_info.name][group] ~
-                    parameter_info.distribution(distribution_parameters...)
-            end
-        end
+    ## Extract data ##
+    #If there is only one input column
+    if length(input_cols) == 1
+        #Inputs are a vector of vectors of <:reals
+        inputs = [
+            Vector(agent_data[!, first(input_cols)]) for
+            agent_data in groupby(data, grouping_cols)
+        ]
+    else
+        #Otherwise, they are a vector of vectors of tuples
+        inputs = [
+            Tuple.(eachrow(agent_data[!, input_cols])) for
+            agent_data in groupby(data, grouping_cols)
+        ]
     end
 
-    #If no errors occur
-    try
-
-        #Go through each group
-        for group in multilevel_groups
-
-            ### Sample parameters ###
-            #Initialize a within-group parameter dictionary
-            agent_parameters[group] = Dict()
-
-            #Sample within-group parameters from the priors
-            for parameter_info in agent_parameters_info
-
-                #If the parameter does not depend on a higher level
-                if !parameter_info.multilevel_dependent
-
-                    #Sample the parameter from the given prior
-                    agent_parameters[group][parameter_info.name] ~
-                        parameter_info.distribution
-
-                    #Otherwise if it depends on a higher-level parameter
-                else
-
-                    #Create empty vector for storing distribution parameter values
-                    distribution_parameters = []
-
-                    #Go through each parameter in the higher-level distribution
-                    for distribution_parameter_key in parameter_info.parameters
-
-                        #Get the dictionary of parameter values in the parent
-                        parent_parameters =
-                            multilevel_parameters[distribution_parameter_key]
-
-                        #Get out the different groups that the parent can belong to
-                        parent_parameters_groups = collect(keys(parent_parameters))
-
-                        #Find the group of the parent which the current parameter is derived from
-                        higher_group = parent_parameters_groups[findall(
-                            x -> all(x .∈ [group]),
-                            parent_parameters_groups,
-                        )][1]
-
-                        #Store the parameter value from that group, which should already be sampled
-                        push!(distribution_parameters, parent_parameters[higher_group])
-                    end
-
-                    #And sample the agents' parameters from the distribution
-                    agent_parameters[group][parameter_info.name] ~
-                        parameter_info.distribution(distribution_parameters...)
-                end
-            end
-
-            #Set agent parameters to the sampled values
-            set_parameters!(agent, agent_parameters[group])
-            reset!(agent)
-
-
-            ### Give inputs ###
-            #If there is only one input
-            if !multiple_inputs
-                #Iterate over inputs one at a time
-                iterator = enumerate(inputs[group])
-            else
-                #Iterate over rows of inputs
-                iterator = enumerate(Vector.(eachrow(inputs[group])))
-            end
-
-            #Go through each timestep
-            for (timestep, input) in iterator
-
-                #Get the action probability distribution from the action model
-                action_distribution = agent.action_model(agent, input)
-
-                ### Sample actions ###
-                #If there is only a single action
-                if !multiple_actions
-
-                    # If missing actions are to be imputed, we do not care if the action exists
-                    if !impute_missing_actions
-                        # If we should not impute missing actions, we need to check if the action exists
-                        @inbounds action_exists = !ismissing(actions[group][timestep])
-                        # if the action doesn't exist, we skip this timestep
-                        if !action_exists
-                            continue
-                        end
-                    end
-
-                    #Sample the action from the probability distribution
-                    actions[group][timestep] ~ action_distribution
-
-                    #Save the action to the agent in case it needs it in the future
-                    agent.states["action"] = ad_val(actions[group][timestep])
-
-
-                    #If there are multiple actions
-                else
-
-                    #Initialize empty vector for storing actions
-                    sampled_actions = []
-
-                    #Go through each separate action
-                    for (action_idx, single_distribution) in enumerate(action_distribution)
-
-                        # If missing actions are to be imputed, we do not care if the action exists
-                        if !impute_missing_actions
-                            # If we should not impute missing actions, we need to check if the action exists
-                            @inbounds action_exists =
-                                !ismissing(actions[group][timestep, action_idx])
-                            # if the action doesn't exist, we skip this timestep
-                            if !action_exists
-                                continue
-                            end
-                        end
-
-                        #Sample the action from the probability distribution
-                        @inbounds actions[group][timestep, action_idx] ~ single_distribution
-
-                        #Save the action
-                        push!(sampled_actions, ad_val(actions[group][timestep, action_idx]))
-                    end
-
-                    #Save the action to the agent, for models that need previous action
-                    agent.states["action"] = sampled_actions
-                end
-            end
-        end
-
-        #If an error occurs
-    catch e
-        #If it is of the custom errortype RejectParameters
-        if e isa RejectParameters
-            #Make Turing reject the sample
-            Turing.@addlogprob!(-Inf)
-        else
-            #Otherwise, just throw the error
-            throw(e)
-        end
+    #If there is only one action column
+    if length(action_cols) == 1
+        #Actions are a vector of arrays (vectors if there is only one action, matrices if there are multiple)
+        actions = [
+            Vector(agent_data[!, first(action_cols)]) for
+            agent_data in groupby(data, grouping_cols)
+        ]
+    else
+        #Actions are a vector of arrays (vectors if there is only one action, matrices if there are multiple)
+        actions = [
+            Array(agent_data[!, action_cols]) for agent_data in groupby(data, grouping_cols)
+        ]
     end
+
+    #Create agent ids from the grouping columns and their values
+    agent_ids = [
+        Symbol(
+            join(
+                [
+                    string(col_name) * id_column_separator * string(row[col_name]) for
+                    col_name in grouping_cols
+                ],
+                id_separator,
+            ),
+        ) for row in eachrow(unique(data[!, grouping_cols]))
+    ]
+
+    ## Determine whether any actions are missing ##
+    if actions isa Vector{A} where {R<:Real,A<:Array{Union{Missing,R}}}
+        #If there are missing actions
+        missing_actions = MissingActions()
+    elseif actions isa Vector{A} where {R<:Real,A<:Array{R}}
+        #If there are no missing actions
+        missing_actions = nothing
+    end
+
+    #Create a full model combining the agent model and the statistical model
+    return full_model(
+        agent_model,
+        population_model,
+        inputs,
+        actions,
+        agent_ids,
+        missing_actions = missing_actions,
+        check_parameter_rejections = check_parameter_rejections,
+    )
+end
+
+####################################################################
+### FUNCTION FOR DOING FULL AGENT AND STATISTICAL MODEL COMBINED ###
+####################################################################
+@model function full_model(
+    agent::Agent,
+    population_model::DynamicPPL.Model,
+    inputs_per_agent::Vector{I},
+    actions_per_agent::Vector{A},
+    agent_ids::Vector{Symbol};
+    missing_actions::Union{Nothing,MissingActions} = MissingActions(),
+    check_parameter_rejections::Nothing = nothing,
+    actions_flattened::A2 = vcat(actions_per_agent...),
+) where {I<:Vector,R<:Real,A1<:Union{R,Union{Missing,R}},A<:Array{A1},A2<:Array}
+
+    #Generate the agent parameters from the statistical model
+    @submodel population_values = population_model
+
+    #Generate the agent's behavior
+    @submodel agent_models(
+        agent,
+        agent_ids,
+        population_values.agent_parameters,
+        inputs_per_agent,
+        actions_per_agent,
+        actions_flattened,
+        missing_actions,
+    )
+
+    #Return values fron the population model (agent parameters and oher values)
+    return population_values
 end

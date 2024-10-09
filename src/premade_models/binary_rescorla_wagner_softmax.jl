@@ -28,15 +28,10 @@ function binary_rescorla_wagner_softmax(agent::Agent, input::Union{Bool,Integer}
     action_distribution = Distributions.Bernoulli(action_probability)
 
     #Update states
-    update_states!(
-        agent,
-        Dict(
-            "value" => new_value,
-            "value_probability" => 1 / (1 + exp(-new_value)),
-            "action_probability" => action_probability,
-            "input" => input,
-        ),
-    )
+    update_states!(agent, "value", new_value)
+    update_states!(agent, "value_probability", 1 / (1 + exp(-new_value)))
+    update_states!(agent, "action_probability", action_probability)
+    update_states!(agent, "input", input)
 
     return action_distribution
 end
