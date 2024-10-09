@@ -108,8 +108,9 @@ using Turing: AutoReverseDiff
 
         #Extract agent parameters
         agent_parameters = extract_quantities(model, fitted_model)
-        estimates_df = get_estimates(agent_parameters)
+        estimates_df = get_estimates(agent_parameters, DataFrame)
         estimates_dict = get_estimates(agent_parameters, Dict)
+        #estimates_chains = get_estimates(agent_parameters, Chains)
 
         #Extract state trajectories
         state_trajectories = get_trajectories(model, fitted_model, ["value", "action"])
