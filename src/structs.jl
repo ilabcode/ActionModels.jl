@@ -74,5 +74,5 @@ Type for regression priors for use with statistical models
 """
 Base.@kwdef mutable struct RegressionPrior
     β::Distribution = TDist(3)
-    r::Distribution = TDist(3)
+    σ::Distribution = Exponential(1)
 end

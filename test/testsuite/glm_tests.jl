@@ -166,7 +166,7 @@ using ActionModels
         # # hierarchical
         # samples = fit_model(agent, prior, example_data;
         #                     action_cols = [:actions], input_cols = [:input],
-        #                     statistical_model = @formula(learning_rate ~ 1 + (1|id)))
+        #                     population_model = @formula(learning_rate ~ 1 + (1|id)))
 
         # [@formula(), @formula(), @formula()] # dont assume defaults -- dont estimate non-specified params
     end
@@ -197,6 +197,15 @@ using ActionModels
             grouping_cols = [:id, :treatment],
         )
 
+
+        model = create_model(
+            agent,
+            @formula(learning_rate ~ 1 + treatment),
+            example_data_combined;
+            action_cols = [:actions],
+            input_cols = [:input],
+            grouping_cols = [:id, :treatment],
+        )
 
         out = sample(model, NUTS(), 1000)
 
@@ -260,10 +269,5 @@ using ActionModels
         ActionModels.prepare_regression_data(formula6, unique(example_data, :id))
 
         X, Z = ActionModels.prepare_regression_data(formula7, unique(example_data_combined, [:treatment, :id]))
-
-        Zj = Z[1]
-        rj = [1,2,3,4]
-        
-        Zj * rj
     end
 end
