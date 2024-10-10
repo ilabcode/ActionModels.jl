@@ -18,6 +18,7 @@
 # DONE: Copy input data to avoid the above mutating the input
 # DONE: Make sure the centering of the random slopes is good (γ, τ, σ)
 # DONE: Clean tests up
+# TODO: Add normalization of predictors
 # TODO: (1.0) rename link_function to inv_link_function
 # TODO: (1.0) models withut random effects: make sure there is an intercept
 # TODO: (1.0) implement rename_chains for linear regressions (also for ordering of the random effects 

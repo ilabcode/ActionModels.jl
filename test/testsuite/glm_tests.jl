@@ -177,18 +177,18 @@ using Turing
         model = create_model(
             agent,
             [
-                @formula(learning_rate ~ age + (1 | id)),
-                @formula(action_noise ~ age + (1 + age | treatment) + (1 | id)),
+                @formula(learning_rate ~ age + (1 + age | treatment) + (1 | id)),
+                @formula(action_noise ~ age + (1 | id)),
             ],
             data;
-            link_functions = [identity, LogExpFunctions.exp],
+            link_functions = [logistic, LogExpFunctions.exp],
             priors = [
                 RegressionPrior(
                     β = [Normal(0, 1), Normal(0, 1)],
+                    σ = [[LogNormal(0, 1), LogNormal(0, 1)], [LogNormal(0, 1)]],
                 ),
                 RegressionPrior(
                     β = Normal(0, 1),
-                    σ = [[LogNormal(0, 1), LogNormal(0, 1)], [LogNormal(0, 1)]],
                 ),
             ],
             action_cols = [:actions],
@@ -199,7 +199,22 @@ using Turing
         samples = sample(model, sampler, n_iterations; sampling_kwargs...)
 
         agent_parameters = extract_quantities(model, samples)
-        df = get_estimates(agent_parameters)
+        agent_parameter_df = get_estimates(agent_parameters)
+
+        trajectories = get_trajectories(model, samples, ["value", "action"])
+        state_trajectories_df = get_estimates(trajectories)
+
+        using StatsPlots
+        plot_trajectories(trajectories)
+
+        prior_samples = sample(model, Prior(), n_iterations; sampling_kwargs...)
+
+        prior_agent_parameters = extract_quantities(model, prior_samples)
+
+        prior_trajectories = get_trajectories(model, prior_samples, ["value", "action"])
+        plot_trajectories(prior_trajectories)
+
+        plot_parameters(prior_samples, samples)
     end
 
     # @testset "single linear model interface" begin
