@@ -8,7 +8,7 @@
     inputs_per_agent::Vector{I},
     actions_per_agent::Vector{Vector{R}},
     actions_flattened::Vector{R},
-    missing_actions::Nothing,
+    missing_actions::Val{false},
 ) where {D<:Dict,I<:Vector,R<:Real}
 
     #TODO: Could use a list comprehension here to make it more efficient
@@ -58,7 +58,7 @@ end
     inputs_per_agent::Vector{I},
     actions_per_agent::Vector{Matrix{R}},
     actions_flattened::Matrix{R},
-    missing_actions::Nothing,
+    missing_actions::Val{false},
 ) where {D<:Dict,I<:Vector,R<:Real}
 
     #Initialize a vector for storing the action probability distributions
@@ -114,7 +114,7 @@ end
     inputs_per_agent::Vector{I},
     actions_per_agent::Vector{A},
     actions_flattened::A2,
-    missing_actions::MissingActions,
+    missing_actions::Val{true},
 ) where {D<:Dict,I<:Vector,A<:Array,A2<:Array}
 
     #For each agent 

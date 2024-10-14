@@ -27,8 +27,6 @@ end
 PopulationModelReturn(agent_parameters::Vector{D}) where {D<:Dict} =
     PopulationModelReturn(agent_parameters, nothing)
 
-struct CheckRejections end
-struct MissingActions end
 mutable struct FitModelResults
     chains::Chains
     model::DynamicPPL.Model
