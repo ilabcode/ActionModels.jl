@@ -108,8 +108,9 @@ using Turing: AutoReverseDiff
 
         #Extract agent parameters
         agent_parameters = extract_quantities(model, fitted_model)
-        estimates_df = get_estimates(agent_parameters)
+        estimates_df = get_estimates(agent_parameters, DataFrame)
         estimates_dict = get_estimates(agent_parameters, Dict)
+        #estimates_chains = get_estimates(agent_parameters, Chains)
 
         #Extract state trajectories
         state_trajectories = get_trajectories(model, fitted_model, ["value", "action"])
@@ -397,5 +398,44 @@ using Turing: AutoReverseDiff
 
         #Rename chains
         renamed_model = rename_chains(fitted_model, model)
+    end
+
+    @testset "Check for parameter rejections" begin
+        #Action model with multiple actions    
+        function action_with_errors(agent, input::R) where {R<:Real}
+
+            noise = agent.parameters["noise"]
+
+            if noise > 2.5
+                 #Throw an error that will reject samples when fitted
+                throw(
+                    RejectParameters(
+                        "Rejected noise",
+                    ),
+                )
+            end
+
+            actiondist = Normal(input, noise)
+
+            return actiondist
+        end
+        #Create agent
+        new_agent = init_agent(action_with_errors, parameters = Dict("noise" => 1.0))
+
+        new_prior = Dict("noise" => truncated(Normal(0.0, 1.0), lower = 0, upper = 3.1))
+
+        #Create model
+        model = create_model(
+            new_agent,
+            new_prior,
+            data,
+            input_cols = [:inputs],
+            action_cols = [:actions],
+            grouping_cols = :id,
+            check_parameter_rejections = true,
+        )
+
+        #Fit model
+        fitted_model = sample(model, sampler, n_iterations; sampling_kwargs...)
     end
 end

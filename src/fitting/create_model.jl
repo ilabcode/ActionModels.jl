@@ -8,7 +8,7 @@ function create_model(
     input_cols::Union{Vector{T1},T1},
     action_cols::Union{Vector{T2},T3},
     grouping_cols::Union{Vector{T3},T3},
-    check_parameter_rejections::Union{Nothing,CheckRejections} = nothing,
+    check_parameter_rejections::Bool = false,
     verbose::Bool = true,
 ) where {T1<:Union{String,Symbol},T2<:Union{String,Symbol},T3<:Union{String,Symbol}}
 
@@ -93,10 +93,10 @@ function create_model(
     ## Determine whether any actions are missing ##
     if actions isa Vector{A} where {R<:Real,A<:Array{Union{Missing,R}}}
         #If there are missing actions
-        missing_actions = MissingActions()
+        missing_actions = true
     elseif actions isa Vector{A} where {R<:Real,A<:Array{R}}
         #If there are no missing actions
-        missing_actions = nothing
+        missing_actions = false
     end
 
     #Create a full model combining the agent model and the statistical model
@@ -106,8 +106,8 @@ function create_model(
         inputs,
         actions,
         agent_ids,
-        missing_actions = missing_actions,
-        check_parameter_rejections = check_parameter_rejections,
+        Val(check_parameter_rejections),
+        Val(missing_actions),
     )
 end
 
@@ -119,9 +119,9 @@ end
     population_model::DynamicPPL.Model,
     inputs_per_agent::Vector{I},
     actions_per_agent::Vector{A},
-    agent_ids::Vector{Symbol};
-    missing_actions::Union{Nothing,MissingActions} = MissingActions(),
-    check_parameter_rejections::Nothing = nothing,
+    agent_ids::Vector{Symbol},
+    check_parameter_rejections::Val{false},
+    missing_actions::Union{Val{false},Val{true}};
     actions_flattened::A2 = vcat(actions_per_agent...),
 ) where {I<:Vector,R<:Real,A1<:Union{R,Union{Missing,R}},A<:Array{A1},A2<:Array}
 
@@ -141,4 +141,53 @@ end
 
     #Return values fron the population model (agent parameters and oher values)
     return population_values
+end
+
+
+
+
+###################################################
+### VERSION WITH CHECK FOR PARAMETER REJECTIONS ###
+###################################################
+@model function full_model(
+    agent::Agent,
+    population_model::DynamicPPL.Model,
+    inputs_per_agent::Vector{I},
+    actions_per_agent::Vector{A},
+    agent_ids::Vector{Symbol},
+    check_parameter_rejections::Val{true},
+    missing_actions::Union{Val{false},Val{true}};
+    actions_flattened::A2 = vcat(actions_per_agent...),
+) where {I<:Vector,R<:Real,A1<:Union{R,Union{Missing,R}},A<:Array{A1},A2<:Array}
+
+    #Check for errors
+    try
+        #Generate the agent parameters from the statistical model
+        @submodel population_values = population_model
+
+        #Generate the agent's behavior
+        @submodel agent_models(
+            agent,
+            agent_ids,
+            population_values.agent_parameters,
+            inputs_per_agent,
+            actions_per_agent,
+            actions_flattened,
+            missing_actions,
+        )
+
+        #Return values fron the population model (agent parameters and oher values)
+        return population_values
+
+    #If there are errors
+    catch err
+        #If the error is a rejection of parameters
+        if err isa RejectParameters
+            #Make Turing reject the sample
+            Turing.@addlogprob!(-Inf)
+        else
+            #Rethrow other errors
+            rethrow(err)
+        end
+    end
 end

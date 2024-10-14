@@ -1,7 +1,7 @@
 name = "ActionModels"
 uuid = "320cf53b-cc3b-4b34-9a10-0ecb113566a3"
 authors = ["Peter Thestrup Waade ptw@cas.au.dk", "Anna Hedvig Møller hedvig.2808@gmail.com", "Jacopo Comoglio jacopo.comoglio@gmail.com", "Christoph Mathys chmathys@cas.au.dk"]
-version = "0.6.5"
+version = "0.6.6"
 
 [deps]
 AxisArrays = "39de3d68-74b9-583c-8d2d-e117c070f3a9"
