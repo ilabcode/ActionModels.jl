@@ -93,10 +93,10 @@ function create_model(
     ## Determine whether any actions are missing ##
     if actions isa Vector{A} where {R<:Real,A<:Array{Union{Missing,R}}}
         #If there are missing actions
-        missing_actions = Val(true)
+        missing_actions = true
     elseif actions isa Vector{A} where {R<:Real,A<:Array{R}}
         #If there are no missing actions
-        missing_actions = Val(false)
+        missing_actions = false
     end
 
     #Create a full model combining the agent model and the statistical model
@@ -105,9 +105,9 @@ function create_model(
         population_model,
         inputs,
         actions,
+        agent_ids,
         Val(check_parameter_rejections),
-        agent_ids = agent_ids,
-        missing_actions = missing_actions,
+        Val(missing_actions),
     )
 end
 
@@ -119,9 +119,9 @@ end
     population_model::DynamicPPL.Model,
     inputs_per_agent::Vector{I},
     actions_per_agent::Vector{A},
-    check_parameter_rejections::Val{false};
     agent_ids::Vector{Symbol},
-    missing_actions::Union{Val{false},Val{true}},
+    check_parameter_rejections::Val{false},
+    missing_actions::Union{Val{false},Val{true}};
     actions_flattened::A2 = vcat(actions_per_agent...),
 ) where {I<:Vector,R<:Real,A1<:Union{R,Union{Missing,R}},A<:Array{A1},A2<:Array}
 
@@ -154,9 +154,9 @@ end
     population_model::DynamicPPL.Model,
     inputs_per_agent::Vector{I},
     actions_per_agent::Vector{A},
-    check_parameter_rejections::Val{true};
     agent_ids::Vector{Symbol},
-    missing_actions::Union{Val{false},Val{true}},
+    check_parameter_rejections::Val{true},
+    missing_actions::Union{Val{false},Val{true}};
     actions_flattened::A2 = vcat(actions_per_agent...),
 ) where {I<:Vector,R<:Real,A1<:Union{R,Union{Missing,R}},A<:Array{A1},A2<:Array}
 
