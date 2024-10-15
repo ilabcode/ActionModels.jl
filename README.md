@@ -20,13 +20,13 @@ After this introduction, you will be presented with a detailed step-by-step guid
 
 Defning a premade agent
 
-````@example Introduction
+````julia @example Introduction
 using ActionModels
 ````
 
 Find premade agent, and define agent with default parameters
 
-````@example Introduction
+````julia @example Introduction
 premade_agent("help")
 
 agent = premade_agent("premade_binary_rescorla_wagner_softmax")
@@ -34,7 +34,7 @@ agent = premade_agent("premade_binary_rescorla_wagner_softmax")
 
 Set inputs and give inputs to agent
 
-````@example Introduction
+````julia @example Introduction
 inputs = [1,0,0,0,1,1,1,1,0,1,0,1,0,1,1]
 actions = give_inputs!(agent,inputs)
 
@@ -44,26 +44,25 @@ plot_trajectory(agent, "action_probability")
 
 Fit learning rate. Start by setting prior
 
-````@example Introduction
+````julia @example Introduction
 using Distributions
 priors = Dict("learning_rate" => Normal(0.5, 0.5))
 ````
 
 Run model
 
-````@example Introduction
+````julia @example Introduction
 chains = fit_model(agent, priors, inputs, actions, n_chains = 1, n_iterations = 10)
 ````
 
 Plot prior and posterior
 
-````@example Introduction
+````julia @example Introduction
 plot_parameter_distribution(chains,priors)
 ````
 
 Get posteriors from chains
 
-````@example Introduction
+````julia @example Introduction
 get_posteriors(chains)
 ````
-

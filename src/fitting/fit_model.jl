@@ -65,7 +65,7 @@ function validate_saved_sampling_state!(
         last_seg = 0
         n_segs = 0
         for cur_seg in 1:n_segments
-            if isfile(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain)_s$(cur_seg).h5"))
+            if isfile(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain)_s$(cur_seg).jld2"))
                 last_seg = cur_seg
                 n_segs += 1
             end
@@ -85,9 +85,7 @@ function load_segment(
     segment::Int,
 )
     # load the chain
-    chain = h5open(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain_n)_s$(segment).h5"), "r") do file
-        read(file, Chains)
-    end
+    chain = JLD2.load_object(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain_n)_s$(segment).jld2"))
     # extra validation?
     return chain
 end
@@ -99,9 +97,7 @@ function save_segment(
     seg_n::Int,
 )
     # save the chain
-    h5open(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain_n)_s$(seg_n).h5"), "w") do file
-        write(file, seg)
-    end
+    JLD2.save_object(joinpath(save_resume.path, "$(save_resume.chain_prefix)_c$(chain_n)_s$(seg_n).jld2"), seg)
 end
 
 function combine_segments(

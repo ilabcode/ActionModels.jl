@@ -4,7 +4,7 @@ module ActionModels
 using Reexport
 using Turing, ReverseDiff, DataFrames, AxisArrays, RecipesBase, Logging
 using ProgressMeter, Distributed #TODO: get rid of this (only needed for parameter recovery)
-using MCMCChainsStorage, HDF5
+using JLD2
 @reexport using Distributions
 using Turing: DynamicPPL, ForwardDiff, AutoReverseDiff, AbstractMCMC
 #Export functions
