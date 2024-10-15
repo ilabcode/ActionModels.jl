@@ -31,6 +31,9 @@ using Distributed
     n_chains = 2
     sampling_kwargs = (; progress = false)
 
+    # this way we keep tempdir
+    save_resume = ChainSaveResume(path = mktempdir())
+
     @testset "basic run" begin
 
         #Create model
@@ -65,11 +68,34 @@ using Distributed
             action_cols = :actions,
             grouping_cols = :ID,
         )
-        save_resume = ChainSaveResume(path = mktempdir())
+        
         results = fit_model(
             model;
             sampler = sampler,
             n_iterations = n_iterations,
+            n_chains = n_chains,
+            save_resume=save_resume,
+            sampling_kwargs...,
+        )
+
+        @test results isa ActionModels.FitModelResults
+    end
+
+    @testset "Continuing from save_resume state" begin
+        #Create model
+        model = create_model(
+            agent,
+            prior,
+            data,
+            input_cols = :inputs,
+            action_cols = :actions,
+            grouping_cols = :ID,
+        )
+
+        results = fit_model(
+            model;
+            sampler = sampler,
+            n_iterations = n_iterations * 2, # bump up the iterations to continue
             n_chains = n_chains,
             save_resume=save_resume,
             sampling_kwargs...,
