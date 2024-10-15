@@ -406,7 +406,7 @@ using Turing: AutoReverseDiff
 
             noise = agent.parameters["noise"]
 
-            if noise > 2.5
+            if noise > 3.0
                  #Throw an error that will reject samples when fitted
                 throw(
                     RejectParameters(
