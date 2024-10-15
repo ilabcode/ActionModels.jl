@@ -1,6 +1,7 @@
 using Test
 using ActionModels, DataFrames
 using Distributed
+using Turing: AutoReverseDiff, NUTS
 
 @testset "fit model" begin
 
@@ -58,7 +59,7 @@ using Distributed
     end
 
     @testset "basic run - save_resume" begin
-
+        println("Basic save resume")
         #Create model
         model = create_model(
             agent,
@@ -82,6 +83,7 @@ using Distributed
     end
 
     @testset "Continuing from save_resume state" begin
+        println("save resume continue...")
         #Create model
         model = create_model(
             agent,

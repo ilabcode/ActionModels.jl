@@ -1,6 +1,6 @@
 name = "ActionModels"
 uuid = "320cf53b-cc3b-4b34-9a10-0ecb113566a3"
-authors = ["Peter Thestrup Waade ptw@cas.au.dk", "Anna Hedvig Møller hedvig.2808@gmail.com", "Jacopo Comoglio jacopo.comoglio@gmail.com", "Christoph Mathys chmathys@cas.au.dk"]
+authors = ["Peter Thestrup Waade ptw@cas.au.dk", "Anna Hedvig Møller hedvig.2808@gmail.com", "Jacopo Comoglio jacopo.comoglio@gmail.com", "Luke Ring luke@cas.au.dk", "Christoph Mathys chmathys@cas.au.dk"]
 version = "0.6.5"
 
 [deps]
@@ -23,7 +23,7 @@ DataFrames = "1.6"
 Distributed = "1"
 Distributions = "0.25"
 ForwardDiff = "0.10"
-JLD2 = "0.5.5"
+JLD2 = "0.5"
 Logging = "1"
 ProgressMeter = "1"
 RecipesBase = "1.3"
