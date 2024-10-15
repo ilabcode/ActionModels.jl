@@ -59,7 +59,6 @@ using Turing: AutoReverseDiff, NUTS
     end
 
     @testset "basic run - save_resume" begin
-        println("Basic save resume")
         #Create model
         model = create_model(
             agent,
@@ -83,7 +82,6 @@ using Turing: AutoReverseDiff, NUTS
     end
 
     @testset "Continuing from save_resume state" begin
-        println("save resume continue...")
         #Create model
         model = create_model(
             agent,
