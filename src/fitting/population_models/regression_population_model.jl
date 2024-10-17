@@ -31,6 +31,7 @@
 # TODO: (1.0) Example / usecase / tutorials)
 #      - TODO: Fit a real dataset
 # TODO: add to documentation that there shoulnd't be random slopes for the most specific level of grouping column (particularly when you only have one grouping column)
+# TODO: add covariance between parameters
 
 using ActionModels, Turing, Distributions
 ##########################################################################################################
